@@ -95,4 +95,3 @@ def combine(fA, fB, input_shape, n_classes, n_fc_layers=0, n_fc_hidden=[None]):
 
     return model
 
-

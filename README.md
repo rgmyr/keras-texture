@@ -4,12 +4,23 @@
 
 Provides a few convenience functions for creating symmetric or asymmetric B-CNN models in Keras.
 
-- `bilinear.pool`: Defines average pooling of feature-wise outer product in `tensorflow`, including element-wise signed square root and L2 normalization. If using `combine`, you won't need to reference this explicitly.
-- `bilinear.combine`: Takes two `keras` models `fA` and `fB` with output shapes `(N, H, W, cA)`, `(N, H, W, cB)` and returns a single trainable model where `[fA.output, fB.output]` has been `bilinear.pool`ed and connected to a `softmax` output using a specifiable number of fully-connected layers.
+`bilinear.pooling`:
 
-*Note*: `bilinear.pool` does not include flattening, but `bilinear.combine` will add a `Flatten` layer before the first `Dense` layer(s).
+- Defines average pooling of feature-wise outer product in `tensorflow`
+- Includes element-wise signed square root and L2 normalization.
+- If using `combine`, you won't need to reference this explicitly.
 
-See `demo.ipynb` for examples of constructing symmetric and asymmetric B-CNNs using `keras.applications.vgg19`.
+`bilinear.combine`: 
+
+- Takes two `keras` models `fA` and `fB` with output shapes `(N, H, W, cA)`, `(N, H, W, cB)`
+- Returns a single trainable model where `[fA.output, fB.output]` has been `bilinear.pool`ed and connected to a `softmax` output using a specifiable number of fully-connected layers.
+
+*Notes*:
+
+- `bilinear.pooling` does not include flattening, but `bilinear.combine` will add a `Flatten` layer before the first `Dense` layer(s).
+- Be careful with reuse of single model for `fA` and `fB` (*e.g.*, different output layers). Weights will be shared if you use the same instantiation of the original model to generate both.
+
+See `build_demo.ipynb` for examples of constructing symmetric and asymmetric B-CNNs using pretrained `VGG19` and `Xception` models from `keras.applications`.
 
 Original B-CNN paper:
 ```
