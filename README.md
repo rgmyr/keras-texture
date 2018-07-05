@@ -2,7 +2,16 @@
 
 # bilinearCNN
 
-Provides a few convenience functions for creating symmetric or asymmetric B-CNN models in Keras.
+Provides a few convenience functions for creating symmetric or asymmetric B-CNN models in Keras, as proposed in:
+```
+@inproceedings{lin2015bilinear,
+    Author = {Tsung-Yu Lin, Aruni RoyChowdhury, and Subhransu Maji},
+    Title = {Bilinear CNNs for Fine-grained Visual Recognition},
+    Booktitle = {International Conference on Computer Vision (ICCV)},
+    Year = {2015}}
+```
+
+#### Functions
 
 `bilinear.pooling`:
 
@@ -24,13 +33,17 @@ Provides a few convenience functions for creating symmetric or asymmetric B-CNN 
 
 See `build_demo.ipynb` for examples of constructing symmetric and asymmetric B-CNNs using pretrained `VGG19` and `Xception` models from `keras.applications`.
 
-#### Original B-CNN paper
+#### Benchmarks
+
+Currently working on benchmarking models constructed with this implementation on the three benchmark datasets referenced in the original B-CNN paper:
+
+- [Birds-200](http://www.vision.caltech.edu/visipedia/CUB-200-2011.html) (2011 version)
+- [FGVC-Aircraft](http://www.robots.ox.ac.uk/~vgg/data/fgvc-aircraft/)
+- [Cars](https://ai.stanford.edu/~jkrause/cars/car_dataset.html)
+
+You can run the `benchmark.py` script to build a model for any of these datasets:
 ```
-@inproceedings{lin2015bilinear,
-    Author = {Tsung-Yu Lin, Aruni RoyChowdhury, and Subhransu Maji},
-    Title = {Bilinear CNNs for Fine-grained Visual Recognition},
-    Booktitle = {International Conference on Computer Vision (ICCV)},
-    Year = {2015}}
+$ python benchmark.py --help
 ```
 
 ## Further Improvements
@@ -38,7 +51,7 @@ See `build_demo.ipynb` for examples of constructing symmetric and asymmetric B-C
 - Add support for `fA` and `fB` to have different input shapes (technically only output shapes need to correspond).
 - Add support for `fA` and `fB` to have different output shapes (auto-crop to match them)
 
-Would also like to add support for matrix square root normalization layer as described in:
+Would also like to add the matrix square root normalization layer as described in:
 ```
 @inproceedings{lin2017impbcnn,
     Author = {Tsung-Yu Lin, and Subhransu Maji},
@@ -46,6 +59,6 @@ Would also like to add support for matrix square root normalization layer as des
     Title = {Improved Bilinear Pooling with CNNs},
     Year = {2017}}
 ```
-Authors claim this improves accuracy by 2-3% on fine-grained recognition benchmarks.
+Authors claim this improves accuracy by several % on fine-grained recognition benchmarks.
 
 **Pull requests more than welcome!**
