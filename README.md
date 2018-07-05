@@ -7,7 +7,7 @@ Provides a few convenience functions for creating symmetric or asymmetric B-CNN 
 - `bilinear.pool`: Defines average pooling of feature-wise outer product in `tensorflow`, including element-wise signed square root and L2 normalization. If using `combine`, you won't need to reference this explicitly.
 - `bilinear.combine`: Takes two `keras` models `fA` and `fB` with output shapes `(N, H, W, cA)`, `(N, H, W, cB)` and returns a single trainable model where `[fA.output, fB.output]` has been `bilinear.pool`ed and connected to a `softmax` output using a specifiable number of fully-connected layers.
 
-*Note*: `bilinear.pool` does not include flattening, but `bilinear.combine` will add a `Flatten` layer before the `Dense` layer(s).
+*Note*: `bilinear.pool` does not include flattening, but `bilinear.combine` will add a `Flatten` layer before the first `Dense` layer(s).
 
 See `demo.ipynb` for examples of constructing symmetric and asymmetric B-CNNs using `keras.applications.vgg19`.
 
@@ -21,6 +21,8 @@ Original B-CNN paper:
 ```
 
 ## Further Improvements
+
+Add support for `fA` and `fB` to have different input shapes (technically only output shapes need to correspond).
 
 Would like to add support for matrix square root normalization layer as described in:
 ```

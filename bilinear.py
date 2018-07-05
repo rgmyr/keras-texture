@@ -79,9 +79,8 @@ def combine(fA, fB, input_shape, n_classes, n_fc_layers=0, n_fc_hidden=[None]):
 
     outA = fA(input_layer)
     if fB is None:
-        outB = fA(input_layer)
+        outB = outA
     else:
-        fB.input = input_layer
         outB = fB(input_layer)
 
     x = layers.Lambda(pooling, name='bilinear_pooling')([outA, outB])
