@@ -7,7 +7,7 @@
     Year = {2015}
 }
 
-bilinear.pool(inputs) : bilinear (feature-wise outer product) average pooling
+bilinear.pooling(inputs) : bilinear (feature-wise outer product) average pooling
 bilinear.combine(fA, fB, ...) : use bilinear.pool merge two models into single BCNN
 
 TODO: support for matrix square root layer described in "Improved Bilinear Pooling with CNNs"
@@ -36,7 +36,7 @@ def pooling(inputs):
     # sum pooling outer product
     phi_I = tf.einsum('ijkm,ijkn->imn', iA, iB)
 
-    # sum --> avg
+    # sum --> avg (is this necessary?)
     n_feat = tf.reduce_prod(tf.gather(tf.shape(iA), tf.constant([1,2])))
     phi_I  = tf.divide(phi_I, tf.to_float(n_feat))
 
@@ -49,7 +49,7 @@ def pooling(inputs):
     return z_L2
 
  
-def combine(fA, fB, input_shape, n_classes, n_fc_layers=0, n_fc_hidden=[None]):
+def combine(fA, fB, input_shape, n_classes, fc_layers=[]):
     '''Combine two feature extracting CNNs into single Model with bilinear_pooling + FC layers.
        fA and fB should output 4D tensors of equal shape, except (optionally) in # of channels.
 
@@ -64,11 +64,8 @@ def combine(fA, fB, input_shape, n_classes, n_fc_layers=0, n_fc_hidden=[None]):
         Shape of input images. Must be compatible with fA.input & fB.input.
     n_classes : int
         Number of classes for softmax layer
-    n_fc_layers : int, optional
-        Number of Dense layers between bilinear pooling and softmax. Default=0.
-    n_fc_hidden : iterable, optional
-        Iterable of ints, specifying number of neurons in each extra Dense layer.
-
+    fc_layers : iterable of int, optional
+        Sizes for additional Dense layers between bilinear vector and softmax. Default=[].
 
     Returns
     -------
@@ -86,7 +83,7 @@ def combine(fA, fB, input_shape, n_classes, n_fc_layers=0, n_fc_hidden=[None]):
     x = layers.Lambda(pooling, name='bilinear_pooling')([outA, outB])
     x = layers.Flatten()(x)
 
-    for _, N in zip(range(n_fc_layers), n_fc_hidden):
+    for N in fc_layers:
         x = layers.Dense(N, activation='relu')(x)
 
     x = layers.Dense(n_classes, activation='softmax')(x)
@@ -94,4 +91,29 @@ def combine(fA, fB, input_shape, n_classes, n_fc_layers=0, n_fc_hidden=[None]):
     model = models.Model(inputs=input_layer, outputs=x)
 
     return model
+
+
+def add_1x1_conv(f, n_channels, use_bias=False):
+    '''Map output of a model to n_channels with a 1x1 convolution.
+    
+    Parameters
+    ----------
+    f : keras.models.Model
+        Feature network with output shape (N, H, W, C).
+    n_channels : int
+        Number of output channels for 1x1 conv.
+        Usually < C, but can be any int value.
+    
+    Returns
+    -------
+    f_n : keras.models.Model
+        Feature network f + 1x1 conv. Output shape now (N, H, W, n_channels).
+    '''
+    x = f.output
+
+    x = layers.Conv2D(n_channels, (1,1),
+                      kernel_initializer='orthogonal',
+                      use_bias=use_bias)(x)
+
+    return models.Model(inputs=f.input, outputs=x)
 
