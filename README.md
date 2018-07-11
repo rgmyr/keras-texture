@@ -15,9 +15,9 @@ The layer learns a `KxD` codebook and codeword assignment `scale` weights used t
 
 ## `BilinearModel` Layer
 
-`bilinearmodel.BilinearModel` is a `keras` layer implementing a weighted outer product of inputs with shape `[(batches,N),(batches,M)]`. This idea was proposed in [Learning Bilinear Models for Two-Factor Problems in Vision](http://www.merl.com/publications/docs/TR96-37.pdf) [*CVPR*, 2017].
+`BilinearModel` is a trainable `keras` layer implementing the weighted outer product of inputs with shape `[(batches,N),(batches,M)]`. The original idea of bilinear modeling for vision was proposed in [Learning Bilinear Models for Two-Factor Problems in Vision](http://www.merl.com/publications/docs/TR96-37.pdf) [*CVPR*, 2017].
 
-It is used in the `Deep Encoding Pooling Network (DEP)` proposed in [Deep Texture Manifold for Ground Terrain Recognition](https://arxiv.org/abs/1803.10896) (*CVPR*, 2018) to merge the output of an `Encoding` layer with the output of a standard global average pooling, where both operate on `conv` output from the same `ResNet` feature extractor. The intuition is that the former represents textures (orderless encoding) and the latter represents spatially structured observations, so that "[the] outer product representation captures a pairwise correlation between the material texture encodings and spatial observation structures."
+It is used in the `Deep Encoding Pooling Network (DEP)` proposed in [Deep Texture Manifold for Ground Terrain Recognition](https://arxiv.org/abs/1803.10896) [*CVPR*, 2018] to merge the output of an `Encoding` layer with the output of a standard global average pooling, where both features are extracted from `conv` output of the same `ResNet` base. The intuition is that the former represents textures (orderless encoding) and the latter represents spatially structured observations, so that "[the] outer product representation captures a pairwise correlation between the material texture encodings and spatial observation structures."
 
 ## Bilinear `pooling`
 
@@ -62,7 +62,7 @@ Note: right now includes 1x1 conv to reduce `D` from `512 -> 32`. The former ind
 
 - `ResNet` based constructors for feature networks
 
-#### Bilinear `pooling`
+#### Bilinear
 
 - Add support for `fA` and `fB` to have different input shapes (technically only output shapes need to correspond).
 - Add support for `fA` and `fB` to have different output shapes (crop/interpolate/pool to match them)
@@ -77,4 +77,7 @@ Would also like to add the matrix square root normalization layer as described i
 ```
 Authors claim this improves accuracy by several % on fine-grained recognition benchmarks.
 
-**Pull requests more than welcome!**
+#### DEP
+
+- Utilities for combining a base CNN with `Encoding` & `BilinearModel` to create a `Deep Encoding Pooling Network`.
+
