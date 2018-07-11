@@ -15,27 +15,13 @@ The layer learns a `KxD` codebook and codeword assignment `scale` weights used t
 
 ## `BilinearModel` Layer
 
-`bilinearmodel.BilinearModel` is a `keras` layer implementing the weighted outer product of two inputs with shape `[(batches,N),(batches,M)]`. This basic idea was first proposed in:
+`bilinearmodel.BilinearModel` is a `keras` layer implementing the weighted outer product of two inputs with shape `[(batches,N),(batches,M)]`. This basic idea was first proposed in [Learning Bilinear Models for Two-Factor Problems in Vision](http://www.merl.com/publications/docs/TR96-37.pdf)(*CVPR*, 2017).
 
-```
-@inproceedings{freeman1997bilinear,
-    Author = {W. T. Freeman and J. B. Tenenbaum}
-    Title = {Learning bilinear models for two-factor problems in vision.}
-    Booktitle = {The IEEE Conference on Computer Vision and Pattern Recognition (CVPR)}
-    Year = {1997}} 
-```
-It is used in the `Deep Encoding Pooling Network (DEP)` proposed in [Deep Texture Manifold for Ground Terrain Recognition](https://arxiv.org/abs/1803.10896) (*CVPR*, 2018) to merge the output of an `Encoding` layer with the output of standard global average pooling using the same `ResNet` feature extractor. The intuition here is that the former represents texture (orderless encoding) and the latter represents spatial observation structures, so that "[the] outer product representation captures a pairwise correlation between the material texture encodings and spatial observation structures."
+It is used in the `Deep Encoding Pooling Network (DEP)` proposed in [Deep Texture Manifold for Ground Terrain Recognition](https://arxiv.org/abs/1803.10896) (*CVPR*, 2018) to merge the output of an `Encoding` layer with the output of a standard global average pooling using the same `ResNet` feature extractor. The intuition is that the former represents textures (orderless encoding) and the latter represents spatially structured observations, so that "[the] outer product representation captures a pairwise correlation between the material texture encodings and spatial observation structures."
 
 ## Bilinear `pooling`
 
-`bilinearpooling.py` provides a few convenience functions for creating symmetric or asymmetric B-CNN models in Keras with bilinear pooling, as proposed in:
-```
-@inproceedings{lin2015bilinear,
-    Author = {Tsung-Yu Lin, Aruni RoyChowdhury, and Subhransu Maji},
-    Title = {Bilinear CNNs for Fine-grained Visual Recognition},
-    Booktitle = {International Conference on Computer Vision (ICCV)},
-    Year = {2015}}
-```
+`bilinearpooling.py` provides a few convenience functions for creating symmetric or asymmetric B-CNN models in Keras with bilinear pooling, as proposed in [Bilinear CNNs for Fine-grained Visual Recognition](http://vis-www.cs.umass.edu/bcnn/docs/bcnn_iccv15.pdf) (*ICCV*, 2015).
 
 `bilinearpooling.pooling`:
 
@@ -72,8 +58,14 @@ Note: right now includes 1x1 conv to reduce `D` from `512 -> 32`. The former ind
 
 ## Further Improvements
 
+#### Encoding
+
+- `ResNet` based constructors for feature networks
+
+#### Bilinear `pooling`
+
 - Add support for `fA` and `fB` to have different input shapes (technically only output shapes need to correspond).
-- Add support for `fA` and `fB` to have different output shapes (crop to match them)
+- Add support for `fA` and `fB` to have different output shapes (crop/interpolate/pool to match them)
 
 Would also like to add the matrix square root normalization layer as described in:
 ```
