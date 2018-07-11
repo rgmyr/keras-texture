@@ -7,11 +7,13 @@
     Year = {2015}
 }
 
-bilinear.pooling(inputs) : bilinear (feature-wise outer product) average pooling
-bilinear.combine(fA, fB, ...) : use bilinear.pool merge two models into single BCNN
+bilinear.BilinearModel: keras layer for weighted bilinear modeling of two 1-D feature vectors
+bilinear.pooling(inputs): bilinear (feature-wise outer product) average pooling
+bilinear.combine(fA, fB, ...): use bilinear.pooling to merge two models into single BCNN
 
-TODO: support for matrix square root layer described in "Improved Bilinear Pooling with CNNs"
-      (claimed to add 2-3% accuracy on fine-grained benchmark datasets)
+TODO: - tests for BilinearModel layer
+      - support for matrix square root layer described in "Improved Bilinear Pooling with CNNs"
+        (claimed to add 2-3% accuracy on fine-grained benchmark datasets)
 '''
 import tensorflow as tf
 from keras import backend as K
@@ -20,8 +22,8 @@ from keras.engine.topology import Layer
 
 
 def BilinearModel(Layer):
-    '''Weighted bilinear model of two inputs. Common use is to learn a model on the interactions
-       of seperate feature types (e.g., texture X spatial) or scales (dense X dilated).
+    '''Weighted bilinear model of two inputs. Useful for learning a model of linear interactions
+    between seperate feature types (e.g., texture X spatial) or scales (e.g., dense X dilated).
 
     #TODO: finish docstring
     '''
@@ -45,7 +47,7 @@ def BilinearModel(Layer):
         if not isinstance(x, list) or len(x)!=2:
             raise ValueError('A `BilinearModel` layer should be called '
                              'on a list of exactly two inputs')
-        if K.int_shape(x[0])!=self.A or K.int_shape(x[1])!=self.B:
+        if K.int_shape(x[0])[1]!=self.A or K.int_shape(x[1])[1]!=self.B:
             raise ValueError('Unexpected `BilinearModel` input_shapes')
 
         weighted_outer = tf.multiply(self.W, tf.einsum('bi,bj->bij', x[0], x[1]))
@@ -54,7 +56,6 @@ def BilinearModel(Layer):
 
     def compute_output_shape(self, input_shape):
         return (input_shape[0][0], self.shapeA, self.shapeB)
-
 
 
 def pooling(inputs):

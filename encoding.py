@@ -1,9 +1,10 @@
 '''
-Keras 2.0+ / TensorFlow implementation of learnable encoding layer, as proposed in:
+Keras 2.0+ / TensorFlow implementation of learnable encoding layer proposed in:
 
     Hang Zhang, Jia Xue, and Kristin Dana. "Deep TEN: Texture Encoding Network."
     *The IEEE Conference on Computer Vision and Pattern Recognition (CVPR) 2017*
 
+Borrows from PyTorch implementation released by Hang Zhang: https://github.com/zhanghang1989/PyTorch-Encoding
 '''
 import tensorflow as tf
 from keras import backend as K
@@ -27,22 +28,21 @@ def scaledL2(R, S):
 
 
 class Encoding(Layer):
-    '''Residual encoding layer with learnable codebook and scaling weights.
+    '''Residual encoding layer with learnable codebook and scaling factors.
 
-    Encodes an collection of NxD features into set of KxD vectors.
+    Encodes an collection of NxD features into set of KxD vectors. Unlike PyTorch
+    implementation, D is inferred automatically from input_shape.
 
-    Input of shape (batches, H, W, D) from e.g., a conv layer, should be 
-    collapsed to (batches, H*W, D) before feeding to Encoding layer. This
-    should not be necessary in a later release.
+    Allowed `input_shape`s are (batches, N, D) or (batches, H, W, D).
 
     Args:
-        K (int): number of codewords to learn
-        dropout (float): dropout rate between [0.0,1.0) (default=`None`)
-        l2_normalize (bool): normalize output vectors (default=`True`)
+        K (int): Number of codewords to learn
+        dropout (float): Dropout rate between [0.0,1.0), or `None` (default=`None`)
+                         Currently applied to `scale` factors, which amounts to 
+                         zeroing out `dropout` fraction of residual vectors.
+        l2_normalize (bool): Normalize output vectors (default=`True`)
 
-    TODO: - support for dropout
-          - support for (H, W, D) input
-          - std computation + uniform initiliazation
+    TODO: - test dropout functionality (why not just apply on output vectors?)
     '''
     def __init__(self, K, dropout=None, l2_normalize=True, **kwargs):
         super(Encoding, self).__init__(**kwargs)
@@ -86,7 +86,7 @@ class Encoding(Layer):
 
         # Assignment weights, optional dropout
         if self.dropout_rate is not None:
-            W_ik =  K.softmax(scaledL2(R, K.dropout(self.scale, self.dropout_rate)))
+            W_ik = K.softmax(scaledL2(R, K.dropout(self.scale, self.dropout_rate)))
         else:
             W_ik = K.softmax(scaledL2(R, self.scale))
 
