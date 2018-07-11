@@ -1,19 +1,6 @@
-'''Utilities for creating Bilinear CNN models in Keras w/ TensorFlow backend as described in:
-
-@inproceedings{lin2015bilinear,
-    Author = {Tsung-Yu Lin, Aruni RoyChowdhury, and Subhransu Maji},
-    Title = {Bilinear CNNs for Fine-grained Visual Recognition},
-    Booktitle = {International Conference on Computer Vision (ICCV)},
-    Year = {2015}
-}
-
-bilinear.BilinearModel: keras layer for weighted bilinear modeling of two 1-D feature vectors
-bilinear.pooling(inputs): bilinear (feature-wise outer product) average pooling
-bilinear.combine(fA, fB, ...): use bilinear.pooling to merge two models into single BCNN
+''' Keras layer for weighted bilinear modeling of two 1-D feature vectors
 
 TODO: - tests for BilinearModel layer
-      - support for matrix square root layer described in "Improved Bilinear Pooling with CNNs"
-        (claimed to add 2-3% accuracy on fine-grained benchmark datasets)
 '''
 import tensorflow as tf
 from keras import backend as K
