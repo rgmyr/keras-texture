@@ -5,19 +5,19 @@
 
 # keras-texture
 
-Implementations of several `keras` layers and other utilities that are useful in constructing models for texture recognition and fine-grained classification problems. It is a work in progress, and currently only the `tensorflow` backend is supported for the `keras` layers.
+Implementations of several `keras` layers and other utilities that are useful in constructing models for texture recognition and fine-grained classification problems. It is a work in progress, and currently the `tensorflow` backend is required.
 
 ## `Encoding` Layer
 
-The residual encoding layer proposed in [Deep TEN: Texture Encoding Network](https://arxiv.org/pdf/1612.02844.pdf) (*CVPR*, 2017). This `keras` implementation is based on the [PyTorch-Encoding](https://github.com/zhanghang1989/PyTorch-Encoding) release by the paper authors.
+The residual encoding layer proposed in [Deep TEN: Texture Encoding Network](https://arxiv.org/pdf/1612.02844.pdf) [*CVPR*, 2017]. This `keras` implementation is largely based on the [PyTorch-Encoding](https://github.com/zhanghang1989/PyTorch-Encoding) release by the paper authors.
 
-The layer learns a `KxD` codebook and codeword assignment `scale` weights used to encode an input of shape `NxD` or `HxWxD`. Includes optional L2 normalization of output vectors (`True` by default) and dropout (`None` by default). Unlike the `PyTorch` version, only `K` needs to be specified at construction time -- the feature size `D` is inferred from the `input_shape`.
+The layer learns a `KxD` codebook and codeword assignment `scale` weights used to encode an input of shape `NxD` or `HxWxD`. Includes optional L2 normalization of output vectors (`True` by default) and dropout (`None` by default). Unlike the `PyTorch-Encoding` version, only `K` needs to be specified at construction time -- the feature size `D` is inferred from the `input_shape`.
 
 ## `BilinearModel` Layer
 
-`bilinearmodel.BilinearModel` is a `keras` layer implementing the weighted outer product of two inputs with shape `[(batches,N),(batches,M)]`. This basic idea was first proposed in [Learning Bilinear Models for Two-Factor Problems in Vision](http://www.merl.com/publications/docs/TR96-37.pdf)(*CVPR*, 2017).
+`bilinearmodel.BilinearModel` is a `keras` layer implementing a weighted outer product of inputs with shape `[(batches,N),(batches,M)]`. This idea was proposed in [Learning Bilinear Models for Two-Factor Problems in Vision](http://www.merl.com/publications/docs/TR96-37.pdf) [*CVPR*, 2017].
 
-It is used in the `Deep Encoding Pooling Network (DEP)` proposed in [Deep Texture Manifold for Ground Terrain Recognition](https://arxiv.org/abs/1803.10896) (*CVPR*, 2018) to merge the output of an `Encoding` layer with the output of a standard global average pooling using the same `ResNet` feature extractor. The intuition is that the former represents textures (orderless encoding) and the latter represents spatially structured observations, so that "[the] outer product representation captures a pairwise correlation between the material texture encodings and spatial observation structures."
+It is used in the `Deep Encoding Pooling Network (DEP)` proposed in [Deep Texture Manifold for Ground Terrain Recognition](https://arxiv.org/abs/1803.10896) (*CVPR*, 2018) to merge the output of an `Encoding` layer with the output of a standard global average pooling, where both operate on `conv` output from the same `ResNet` feature extractor. The intuition is that the former represents textures (orderless encoding) and the latter represents spatially structured observations, so that "[the] outer product representation captures a pairwise correlation between the material texture encodings and spatial observation structures."
 
 ## Bilinear `pooling`
 
