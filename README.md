@@ -11,7 +11,7 @@ Implementations of several `keras` layers and other utilities that are useful in
 
 The residual encoding layer proposed in [Deep TEN: Texture Encoding Network](https://arxiv.org/pdf/1612.02844.pdf) [*CVPR*, 2017]. This `keras` implementation is largely based on the [PyTorch-Encoding](https://github.com/zhanghang1989/PyTorch-Encoding) release by the paper authors.
 
-![Encoding-Layer](http://hangzh.com/PyTorch-Encoding/_images/cvpr171.svg)
+![Encoding-Layer](http://hangzh.com/PyTorch-Encoding/_images/cvpr171.svg){:height="60%"}
 
 The layer learns a `KxD` dictionary of codewords (a "codebook"), and codeword assignment `scale` weights. These are used to encode the residuals of an input of shape `NxD` or `HxWxD` with respect to the codewords. Includes optional L2 normalization of output vectors (`True` by default) and dropout (`None` by default). Unlike the `PyTorch-Encoding` version, only the number of codewords `K` needs to be specified at construction time -- the feature size `D` is inferred from the `input_shape`.
 
