@@ -64,7 +64,7 @@ def combine(fA, fB, input_shape, n_classes, fc_layers=[]):
     input_shape : tuple of int
         Shape of input images. Must be compatible with fA.input & fB.input.
     n_classes : int
-        Number of classes for softmax layer
+        Number of classes for softmax output layer
     fc_layers : iterable of int, optional
         Sizes for additional Dense layers between bilinear vector and softmax. Default=[].
 
@@ -77,9 +77,9 @@ def combine(fA, fB, input_shape, n_classes, fc_layers=[]):
 
     outA = fA(input_layer)
     if fB is None:
-        outB = outA
+        outB = outA             # symmetric B-CNN
     else:
-        outB = fB(input_layer)
+        outB = fB(input_layer)  # asymmetric B-CNN
 
     x = layers.Lambda(pooling, name='bilinear_pooling')([outA, outB])
     x = layers.Flatten()(x)
@@ -88,9 +88,9 @@ def combine(fA, fB, input_shape, n_classes, fc_layers=[]):
     for N in fc_layers:
         x = layers.Dense(N, activation='relu')(x)
 
-    x = layers.Dense(n_classes, activation='softmax')(x)
+    pred = layers.Dense(n_classes, activation='softmax')(x)
 
-    model = models.Model(inputs=input_layer, outputs=x)
+    model = models.Model(inputs=input_layer, outputs=pred)
 
     return model
 

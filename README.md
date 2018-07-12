@@ -11,13 +11,17 @@ Implementations of several `keras` layers and other utilities that are useful in
 
 The residual encoding layer proposed in [Deep TEN: Texture Encoding Network](https://arxiv.org/pdf/1612.02844.pdf) [*CVPR*, 2017]. This `keras` implementation is largely based on the [PyTorch-Encoding](https://github.com/zhanghang1989/PyTorch-Encoding) release by the paper authors.
 
-The layer learns a `KxD` codebook and codeword assignment `scale` weights used to encode an input of shape `NxD` or `HxWxD`. Includes optional L2 normalization of output vectors (`True` by default) and dropout (`None` by default). Unlike the `PyTorch-Encoding` version, only `K` needs to be specified at construction time -- the feature size `D` is inferred from the `input_shape`.
+![Encoding-Layer](http://hangzh.com/PyTorch-Encoding/_images/cvpr171.svg)
+
+The layer learns a `KxD` dictionary of codewords (a "codebook"), and codeword assignment `scale` weights. These are used to encode the residuals of an input of shape `NxD` or `HxWxD` with respect to the codewords. Includes optional L2 normalization of output vectors (`True` by default) and dropout (`None` by default). Unlike the `PyTorch-Encoding` version, only the number of codewords `K` needs to be specified at construction time -- the feature size `D` is inferred from the `input_shape`.
 
 ## `BilinearModel` Layer
 
-`BilinearModel` is a trainable `keras` layer implementing the weighted outer product of inputs with shape `[(batches,N),(batches,M)]`. The original idea of bilinear modeling for vision was proposed in [Learning Bilinear Models for Two-Factor Problems in Vision](http://www.merl.com/publications/docs/TR96-37.pdf) [*CVPR*, 1997].
+`BilinearModel` is a trainable `keras` layer implementing the weighted outer product of inputs with shape `[(batches,N),(batches,M)]`. The original idea of bilinear modeling for computer vision problems was proposed in [Learning Bilinear Models for Two-Factor Problems in Vision](http://www.merl.com/publications/docs/TR96-37.pdf) [*CVPR*, 1997].
 
 It is used in the `Deep Encoding Pooling Network (DEP)` proposed in [Deep Texture Manifold for Ground Terrain Recognition](https://arxiv.org/abs/1803.10896) [*CVPR*, 2018] to merge the output of an `Encoding` layer with the output of a standard global average pooling, where both features are extracted from `conv` output of the same `ResNet` base. The intuition is that the former represents textures (orderless encoding) and the latter represents spatially structured observations, so that "[the] outer product representation captures a pairwise correlation between the material texture encodings and spatial observation structures."
+
+![DEP-Architecture](./docs/DEP_diagram.png)
 
 ## Bilinear `pooling`
 
