@@ -15,7 +15,7 @@ The layer learns a `KxD` codebook and codeword assignment `scale` weights used t
 
 ## `BilinearModel` Layer
 
-`BilinearModel` is a trainable `keras` layer implementing the weighted outer product of inputs with shape `[(batches,N),(batches,M)]`. The original idea of bilinear modeling for vision was proposed in [Learning Bilinear Models for Two-Factor Problems in Vision](http://www.merl.com/publications/docs/TR96-37.pdf) [*CVPR*, 2017].
+`BilinearModel` is a trainable `keras` layer implementing the weighted outer product of inputs with shape `[(batches,N),(batches,M)]`. The original idea of bilinear modeling for vision was proposed in [Learning Bilinear Models for Two-Factor Problems in Vision](http://www.merl.com/publications/docs/TR96-37.pdf) [*CVPR*, 1997].
 
 It is used in the `Deep Encoding Pooling Network (DEP)` proposed in [Deep Texture Manifold for Ground Terrain Recognition](https://arxiv.org/abs/1803.10896) [*CVPR*, 2018] to merge the output of an `Encoding` layer with the output of a standard global average pooling, where both features are extracted from `conv` output of the same `ResNet` base. The intuition is that the former represents textures (orderless encoding) and the latter represents spatially structured observations, so that "[the] outer product representation captures a pairwise correlation between the material texture encodings and spatial observation structures."
 
