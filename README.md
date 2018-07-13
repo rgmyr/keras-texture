@@ -1,11 +1,17 @@
 **TODO**: 
 
+- Weight initializers
+    - Logistic Regression init. for `softmax` layers (esp. for large layers -- e.g., bilinear pooling output)
+    - Try [ConvolutionAware](https://github.com/keras-team/keras-contrib/blob/master/keras_contrib/initializers/convaware.py) from `keras_contrib.initializers`
+- Base CNN builders 
+    - check out wide/dilated ResNet blocks from [keras-contrib/applications](https://github.com/keras-team/keras-contrib/blob/master/keras_contrib/applications))
 - Tests and benchmarks
-- `ResNet`-like (and other) network builders
 
 # keras-texture
 
 Implementations of several `keras` layers and other utilities that are useful in constructing models for texture recognition and fine-grained classification problems. It is a work in progress, and currently the `tensorflow` backend is required.
+
+Now develop-mode installable with `pip install -e .` -- root module of package is `texture`.
 
 ## `Encoding` Layer
 

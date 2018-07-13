@@ -12,6 +12,9 @@ from keras.initializers import RandomUniform
 from keras.engine.topology import Layer
 
 
+__all__ = ['scaledL2', 'Encoding']
+
+
 def scaledL2(R, S): 
     ''' L2 norm over features of R, scaled by a codeword-length vector S.
     Args:

@@ -18,6 +18,8 @@ import tensorflow as tf
 from keras import backend as K
 from keras import models, layers
 
+__all__ = ['pooling']
+
 
 def pooling(inputs):
     '''Pool outer products of local features. Returns tf Function usable with keras.layers.Lambda.
@@ -50,7 +52,7 @@ def pooling(inputs):
     return z_L2
 
  
-def combine(fA, fB, input_shape, n_classes, fc_layers=[]):
+def combine(fA, fB, input_shape, n_classes, conv1x1=None, fc_layers=[]):
     '''Combine two feature extracting CNNs into single Model with bilinear_pooling + FC layers.
        fA and fB should output 4D tensors of equal shape, except (optionally) in # of channels.
 
@@ -65,6 +67,8 @@ def combine(fA, fB, input_shape, n_classes, fc_layers=[]):
         Shape of input images. Must be compatible with fA.input & fB.input.
     n_classes : int
         Number of classes for softmax output layer
+    conv1x1 : int, optional
+        Add a 1x1 conv to reduce number of channels in (fA, fB) to some value(s)
     fc_layers : iterable of int, optional
         Sizes for additional Dense layers between bilinear vector and softmax. Default=[].
 
@@ -80,6 +84,9 @@ def combine(fA, fB, input_shape, n_classes, fc_layers=[]):
         outB = outA             # symmetric B-CNN
     else:
         outB = fB(input_layer)  # asymmetric B-CNN
+
+    if isinstance(conv1x1, int):
+        outA = layers.Convolution2D(conv1x1, (1,1))
 
     x = layers.Lambda(pooling, name='bilinear_pooling')([outA, outB])
     x = layers.Flatten()(x)

@@ -8,6 +8,9 @@ from keras import models, layers
 from keras.engine.topology import Layer
 
 
+__all__ = ['BilinearModel']
+
+
 def BilinearModel(Layer):
     '''Weighted bilinear model of two inputs. Useful for learning a model of linear interactions
     between seperate feature types (e.g., texture X spatial) or scales (e.g., dense X dilated).
@@ -56,5 +59,4 @@ def BilinearModel(Layer):
 
         return
 
-        
 
