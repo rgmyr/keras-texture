@@ -4,14 +4,30 @@
     - Logistic Regression init. for `softmax` layers (esp. for large layers -- e.g., bilinear pooling output)
     - Try [ConvolutionAware](https://github.com/keras-team/keras-contrib/blob/master/keras_contrib/initializers/convaware.py) from `keras_contrib.initializers`
 - Base CNN builders 
-    - check out wide/dilated ResNet blocks from [keras-contrib/applications](https://github.com/keras-team/keras-contrib/blob/master/keras_contrib/applications))
+    - Convert weights from ResNet18/34 pre-trained `Caffe` models
+    - Check out wide/dilated ResNet blocks from [keras-contrib/applications](https://github.com/keras-team/keras-contrib/blob/master/keras_contrib/applications))
+- Fisher Vector encoding (using `cyvlfeat`)
+    - Note that this is more like pooling than dimensionality reduction. Encoding of a set of `N` feature vectors with size `D` using a GMM with `k` clusters is `2*k*D`. And typically, `N ~ 2*k`.
 - Tests and benchmarks
 
 # keras-texture
 
 Implementations of several `keras` layers and other utilities that are useful in constructing models for texture recognition and fine-grained classification problems. It is a work in progress, and currently the `tensorflow` backend is required.
 
-Now develop-mode installable with `pip install -e .` -- root module of package is `texture`.
+Now develop-mode installable with `pip install -e .` The root module of package is `texture`.
+
+# Requirements
+
+- `numpy`
+- `scikit-image`
+- `keras`>=2.0
+- `tensorflow`
+
+Fisher vector encoding utilities in `texture.fisher` (planned) will require [cyvlfeat](https://github.com/menpo/cyvlfeat), which should be installed using `conda install -c menpo cyvlfeat`, if possible. This is not required for using the rest of the package, so it is not explicitly enforced in `setup.py`.
+
+The TensorFlow requirement is also not explicitly enforced, due to the ambiguity between `tensorflow` and `tensorflow-gpu`. This package supports CPU or GPU versions, since some functionality (*e.g.*, Fisher vector encoding with ImageNet pretrained models) doesn't require a GPU.
+
+# Contents
 
 ## `Encoding` Layer
 
@@ -66,7 +82,7 @@ You can run the `benchmark.py` script to build a model for `Birds-200`, after co
 ```
 $ python benchmark.py --help
 ```
-Note: right now includes 1x1 conv to reduce `D` from `512 -> 32`. The former induces a fully connected layer w/ over 50 million weights (`200*512^2`), so training is very slow.
+Note: right now includes 1x1 conv to reduce `D` from `512 -> 32`. The former induces a fully connected layer w/ over 50 million weights (`200*512^2`), so training is unreasonably slow.
 
 ## Further Improvements
 
@@ -76,6 +92,7 @@ Note: right now includes 1x1 conv to reduce `D` from `512 -> 32`. The former ind
 
 #### Bilinear
 
+- Add Logistic Regression initialization for `softmax` layer
 - Add support for `fA` and `fB` to have different input shapes (technically only output shapes need to correspond).
 - Add support for `fA` and `fB` to have different output shapes (crop/interpolate/pool to match them)
 

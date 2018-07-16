@@ -17,6 +17,7 @@ __all__ = ['scaledL2', 'Encoding']
 
 def scaledL2(R, S): 
     ''' L2 norm over features of R, scaled by a codeword-length vector S.
+
     Args:
         R (Tensor): 4-D tensor of shape (batches,N,K,D) 
                  or 3-D tensor of shape (N,K,D)
@@ -46,6 +47,7 @@ class Encoding(Layer):
         l2_normalize (bool): Normalize output vectors (default=`True`)
 
     TODO: - test dropout functionality (why not just apply on output vectors?)
+          - make sure dropout only applied during training
     '''
     def __init__(self, K, dropout=None, l2_normalize=True, **kwargs):
         super(Encoding, self).__init__(**kwargs)
