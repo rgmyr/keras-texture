@@ -6,8 +6,8 @@
 - Base CNN builders 
     - Convert weights from ResNet18/34 pre-trained `Caffe` models
     - Check out wide/dilated ResNet blocks from [keras-contrib/applications](https://github.com/keras-team/keras-contrib/blob/master/keras_contrib/applications))
-- Fisher Vector encoding (using `cyvlfeat`)
-    - Note that this is more like pooling than dimensionality reduction. Encoding of a set of `N` feature vectors with size `D` using a GMM with `k` clusters is `2*k*D`. And typically, `N ~ 2*k`.
+- Finish FV-CNN (Fisher Vector encoding of pre-trained features using `cyvlfeat`)
+    - Note that this is more like pooling than dimensionality reduction. Encoding of a set of `N` feature vectors with size `D` using a GMM with `k` clusters has size `2*k*D`. And typically, `N ~ 2*k`.
 - Tests and benchmarks
 
 # keras-texture
@@ -23,9 +23,9 @@ Now develop-mode installable with `pip install -e .` The root module of package 
 - `keras`>=2.0
 - `tensorflow`
 
-Fisher vector encoding utilities in `texture.fisher` (planned) will require [cyvlfeat](https://github.com/menpo/cyvlfeat), which should be installed using `conda install -c menpo cyvlfeat`, if possible. This is not required for using the rest of the package, so it is not explicitly enforced in `setup.py`.
+Fisher vector encoding utilities in `texture.fisher` (planned) will require [cyvlfeat](https://github.com/menpo/cyvlfeat), which should be installed using conda: `conda install -c menpo cyvlfeat`, if possible. This is not required for using the rest of the package, so it is not explicitly enforced in `setup.py`.
 
-The TensorFlow requirement is also not explicitly enforced, due to the ambiguity between `tensorflow` and `tensorflow-gpu`. This package supports CPU or GPU versions, since some functionality (*e.g.*, Fisher vector encoding with ImageNet pretrained models) doesn't require a GPU.
+The TensorFlow requirement is also not enforced, due to the ambiguity between `tensorflow` and `tensorflow-gpu`. This package supports CPU or GPU versions, since some functionality (*e.g.*, Fisher vector encoding with ImageNet pretrained models) doesn't necessarily require a GPU.
 
 # Contents
 
@@ -63,6 +63,10 @@ It is used in the `Deep Encoding Pooling Network (DEP)` proposed in [Deep Textur
 - Maps `[fA.output, fB.output]` to shape `(N, cA, cB)` with `bilinear.pooling`
 - Flattens, connects to `softmax` output using a specifiable number of `Dense` layers.
 - Returns the resulting `keras.models.Model` instance
+
+## FV-CNN
+
+The `texture.fisher` module provides the `FVCNN` class for generating Fisher vector encodings from pretrained CNNs using the `cyvlfeat` wrappers for the `VLFeat` C library. It can be constructed explicitly with an arbitrary CNN, or with a string specifying one of the supported models from `keras.applications`. A "training" set is required to generate the Gaussian Mixture Model of the feature vector distribution, which can then be used to generate encodings on the fly, or to construct and train an SVM as part of the class instance.
 
 #### Usage Notes
 
