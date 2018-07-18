@@ -2,30 +2,33 @@
 
 - Weight initializers
     - Logistic Regression init. for `softmax` layers (esp. for large layers -- e.g., bilinear pooling output)
-    - Try [ConvolutionAware](https://github.com/keras-team/keras-contrib/blob/master/keras_contrib/initializers/convaware.py) from `keras_contrib.initializers`
+    - Try [ConvolutionAware](https://github.com/keras-team/keras-contrib/blob/master/keras_contrib/initializers/convaware.py) for CNNs
 - Base CNN builders 
     - Convert weights from ResNet18/34 pre-trained `Caffe` models
     - Check out wide/dilated ResNet blocks from [keras-contrib/applications](https://github.com/keras-team/keras-contrib/blob/master/keras_contrib/applications))
-- Finish FV-CNN (Fisher Vector encoding of pre-trained features using `cyvlfeat`)
-    - Note that this is more like pooling than dimensionality reduction. Encoding of a set of `N` feature vectors with size `D` using a GMM with `k` clusters has size `2*k*D`. And typically, `N ~ 2*k`.
+- Figure out Buffer bugs when passing `covariance_bound` to `cyvlfeat.gmm.gmm`
 - Tests and benchmarks
 
 # keras-texture
 
-Implementations of several `keras` layers and other utilities that are useful in constructing models for texture recognition and fine-grained classification problems. It is a work in progress, and currently the `tensorflow` backend is required.
+Implementations of several `keras` layers, model classes, and other utilities that are useful in constructing models for texture recognition and fine-grained classification problems. It is a work in progress, and currently the `tensorflow` backend is required.
 
-Now develop-mode installable with `pip install -e .` The root module of package is `texture`.
+Develop-mode installable with `pip install -e .` The root module of package is `texture`.
 
-# Requirements
+## Requirements
 
 - `numpy`
 - `scikit-image`
 - `keras`>=2.0
 - `tensorflow`
 
-Fisher vector encoding utilities in `texture.fisher` (planned) will require [cyvlfeat](https://github.com/menpo/cyvlfeat), which should be installed using conda: `conda install -c menpo cyvlfeat`, if possible. This is not required for using the rest of the package, so it is not explicitly enforced in `setup.py`.
+The TensorFlow requirement is not enforced in `setup.py`, due to the ambiguity between `tensorflow` and `tensorflow-gpu`. This package allows CPU or GPU versions, since some functionality (*e.g.*, Fisher vector encoding with pretrained models) shouldn't necessarily require a GPU.
 
-The TensorFlow requirement is also not enforced, due to the ambiguity between `tensorflow` and `tensorflow-gpu`. This package supports CPU or GPU versions, since some functionality (*e.g.*, Fisher vector encoding with ImageNet pretrained models) doesn't necessarily require a GPU.
+#### Additional requirements: FV-CNN
+
+Use of the Fisher vector CNN class (`texture.fisher.FVCNN`) requires the [cyvlfeat](https://github.com/menpo/cyvlfeat) wrappers for VLFeat, which should be installed using conda: `conda install -c menpo cyvlfeat`, if at all possible. It also requires `scikit-learn`, particularly the `svm.LinearSVC` class.
+
+Neither of these packages are required in other `texture` modules, so they are not explicitly enforced in `setup.py`.
 
 # Contents
 
@@ -64,35 +67,32 @@ It is used in the `Deep Encoding Pooling Network (DEP)` proposed in [Deep Textur
 - Flattens, connects to `softmax` output using a specifiable number of `Dense` layers.
 - Returns the resulting `keras.models.Model` instance
 
-## FV-CNN
-
-The `texture.fisher` module provides the `FVCNN` class for generating Fisher vector encodings from pretrained CNNs using the `cyvlfeat` wrappers for the `VLFeat` C library. It can be constructed explicitly with an arbitrary CNN, or with a string specifying one of the supported models from `keras.applications`. A "training" set is required to generate the Gaussian Mixture Model of the feature vector distribution, which can then be used to generate encodings on the fly, or to construct and train an SVM as part of the class instance.
-
 #### Usage Notes
 
 - Be careful with reuse of single model for `fA` and `fB` (*e.g.*, asymmetry via different output layers). Weights will be shared if you use the same instantiation of the original model to generate both models.
 
-See `build_demo.ipynb` for examples of constructing symmetric and asymmetric B-CNNs using pretrained `VGG19` and `Xception` models from `keras.applications`.
+If the dimensionality of local feature vectors is 512, and there are `N` classes, the size of a fully-connected classification layer will be very large (`512*512*N=262,144*N`). With random weight initialization, it seems pretty difficult to train a layer of this size for moderate to large `N`, so I'm looking at writing an initializer that uses logistic regression, something which is *not* mentioned in the paper, but which is present in the authors' matlab release.
 
-#### Benchmarks
+## FV-CNN
 
-Working on benchmarking models constructed with this implementation on the three benchmark datasets referenced in the original B-CNN paper:
+The `texture.fisher` module provides the `FVCNN` class for generating Fisher vector encodings from pretrained CNNs using the `cyvlfeat` wrappers for the `VLFeat` C library. A `FVCNN` instance can be constructed with an arbitrary CNN, or with a string specifying one of the supported ImageNet-pretrained models from `keras.applications`. A training set of images is required to generate the Gaussian Mixture Model of local feature vector distribution and train a support vector classifier. The training set can be a batch-style 4D numpy array, or a list of variable-size 3D image arrays.
+
+## Benchmarks
+
+Working on benchmarking models constructed with various texture recognition datasets:
+
+
+Some fine-grained classification datasets are also of interest, but benchmarking those has a lower priority for me at the moment:
 
 - [Birds-200](http://www.vision.caltech.edu/visipedia/CUB-200-2011.html) (2011 version)
 - [FGVC-Aircraft](http://www.robots.ox.ac.uk/~vgg/data/fgvc-aircraft/)
 - [Cars](https://ai.stanford.edu/~jkrause/cars/car_dataset.html)
 
-You can run the `benchmark.py` script to build a model for `Birds-200`, after collecting dataset into `npy` files with `collect_dataset.py`:
-```
-$ python benchmark.py --help
-```
-Note: right now includes 1x1 conv to reduce `D` from `512 -> 32`. The former induces a fully connected layer w/ over 50 million weights (`200*512^2`), so training is unreasonably slow.
-
 ## Further Improvements
 
 #### Encoding
 
-- `ResNet` based constructors for feature networks
+- Smaller `ResNet`-based constructors for feature networks
 
 #### Bilinear
 

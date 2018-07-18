@@ -1,1 +1,1 @@
-from . import cnn, layers, ops
+from . import cnn, fisher, layers, ops
