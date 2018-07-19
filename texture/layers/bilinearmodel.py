@@ -13,7 +13,7 @@ __all__ = ['BilinearModel']
 
 def BilinearModel(Layer):
     '''Weighted bilinear model of two inputs. Useful for learning a model of linear interactions
-    between seperate feature types (e.g., texture X spatial) or scales (e.g., dense X dilated).
+    between seperate feature types (e.g., texture X spatial) or scales (e.g., dense X dilated), etc.
 
     #TODO: finish docstring
     '''
@@ -53,10 +53,7 @@ def BilinearModel(Layer):
         elif K.is_keras_tensor(x[0]):
             assert K.ndim(x[0]) == 2 and K.ndim(x[1]) == 2, '`BilinearModel` input tensors must be 2-D'
             shapeA, shapeB = K.int_shape(x[0])[1], K.int_shape(x[1])[1]
-            if shapeA != self.shapeA or shapeB != self.B:
+            if shapeA != self.shapeA or shapeB != self.shapeB:
                 raise ValueError('Unexpected `BilinearModel` input_shape')
-
-
-        return
 
 

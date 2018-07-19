@@ -12,20 +12,23 @@ from keras.initializers import RandomUniform
 from keras.engine.topology import Layer
 
 
-__all__ = ['scaledL2', 'Encoding']
+__all__ = ['Encoding']
 
 
 def scaledL2(R, S): 
     ''' L2 norm over features of R, scaled by a codeword-length vector S.
 
-    Args:
-        R (Tensor): 4-D tensor of shape (batches,N,K,D) 
-                 or 3-D tensor of shape (N,K,D)
-        S (Tensor): 1-D tensor of shape (K,)
+    Parameters
+    ----------
+    R : 4-D tensor, shape (batches,N,K,D) or 3-D tensor, shape (N,K,D)
+        Tensor along which to compute and scale L2 norm of last axis
+    S : 1-D tensor, shape (K,)
+        Tensor of 
 
-    Returns:
-        Tensor: L2 norm of R along D, scaled over K axis by S
-                Shape of output is (batches,N,K) or (N,K)
+    Returns
+    -------
+    scaledL2: tensor, shape (batches,N,K) or (N,K)
+        L2 norm of R along D, scaled over K axis by S
     '''
     l2_R = tf.linalg.norm(R, axis=-1)
     return tf.multiply(l2_R, S)
@@ -39,12 +42,16 @@ class Encoding(Layer):
 
     Allowed `input_shape`s are (batches, N, D) or (batches, H, W, D).
 
-    Args:
-        K (int): Number of codewords to learn
-        dropout (float): Dropout rate between [0.0,1.0), or `None` (default=`None`)
-                         Currently applied to `scale` factors, which amounts to 
-                         zeroing out `dropout` fraction of residual vectors.
-        l2_normalize (bool): Normalize output vectors (default=`True`)
+    Parameters
+    ----------
+    K : int 
+        Number of codewords to learn
+    dropout : float, optional
+        Dropout rate between [0.0,1.0), or `None`, default=`None`.
+            Currently applied to `scale` factors, which is equivalent to 
+            zeroing out `dropout` fraction of the aggregated codewords.
+    l2_normalize : bool, optional 
+        Whether to normalize output vectors, default=`True`.
 
     TODO: - test dropout functionality (why not just apply on output vectors?)
           - make sure dropout only applied during training

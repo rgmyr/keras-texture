@@ -1,29 +1,12 @@
 import numpy as np
 from cyvlfeat import gmm, fisher
 
-from keras import applications
-from keras.models import Model
-from keras.layers import Lambda
-
 from sklearn.svm import SVC, LinearSVC
 
+from texture.cnn import keras_apps
+
+
 __all__ = ['FVCNN']
-
-
-# callables for pretrained model fetching
-k_apps = {'vgg16'               : applications.vgg16.VGG16,
-          'vgg19'               : applications.vgg19.VGG19,
-          'resnet50'            : applications.resnet50.ResNet50,
-          'xception'            : applications.xception.Xception,
-          'mobilenet'           : applications.mobilenet.MobileNet,
-          'mobilenetv2'         : applications.mobilenetv2.MobileNetV2,
-          'densenet121'         : applications.densenet.DenseNet121,
-          'densenet169'         : applications.densenet.DenseNet169,
-          'densenet201'         : applications.densenet.DenseNet201,
-          'nasnet_large'        : applications.nasnet.NASNetLarge,
-          'nasnet_mobile'       : applications.nasnet.NASNetMobile,
-          'inception_v3'        : applications.inception_v3.InceptionV3,
-          'inception_resnet_v2' : applications.inception_resnet_v2.InceptionResNetV2}
 
 
 class FVCNN():
@@ -45,7 +28,7 @@ class FVCNN():
             assert len(CNN.output_shape)==4, 'CNN must output a 4D Tensor'
             self.cnn = CNN
         elif isinstance(CNN, str):
-            assert CNN in k_apps.keys(), 'Invalid keras.applications string'
+            assert CNN in keras_apps.keys(), 'Invalid keras.applications string'
             self.cnn = k_apps[CNN](include_top=False)
         else:
             raise ValueError('CNN parameter for FVCNN has invalid type')
@@ -90,20 +73,20 @@ class FVCNN():
         '''
         if isinstance(X, np.ndarray): 
             assert X.ndim==4, 'X must have shape (N,H,W,C) if an np.array'
-            feats = self.cnn.predict(X)
-            feats = feats.reshape(-1, feats[-1])
+            img_feats = self.cnn.predict(X).reshape(X.shape[0], -1, self.D)
+            feats = img_feats.reshape(-1, self.D)
         elif isinstance(X, list):
-            assert isinstance(X[0], np.ndarray), 'X must contain numpy.ndarrays, if a list'
+            assert isinstance(X[0], np.ndarray), 'X must contain numpy.ndarrays if a list'
             img_feats = [self._localfeatures(x) for x in X]
-            print('(sample of) img_feats.shapes:', [i.shape for i in img_feats[0:5]])
+            print('img_feats.shapes (sample):', [i.shape for i in img_feats[0:5]])
             feats = np.vstack(img_feats)
-            print('all_feats.shape :', feats.shape)
+            print('feats.shape :', feats.shape)
         else:
-            raise ValueError('GMM input X has unknown form. Should be 4D array or list of 3D arrays.')
+            raise ValueError('Input X has unknown form. Should be 4D array or list of 3D arrays.')
 
         # Fit the GMM
         # TODO: figure out covariance_bound Buffer bug
-        #       should be = to max(all_feats.var(axis=k_feat))*0.0001
+        #       should be = to max(feats.var(axis=1))*0.0001
         print('Fitting GMM with %d clusters...' % self.k)
         self.means, self.covars, self.priors, LL, posteriors = gmm.gmm(feats, n_clusters=self.k, 
                                                                        covariance_bound=None,
