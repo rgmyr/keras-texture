@@ -18,7 +18,7 @@ import tensorflow as tf
 from keras import backend as K
 from keras import models, layers
 
-__all__ = ['pooling']
+__all__ = ['pooling', 'combine']
 
 
 def pooling(inputs):

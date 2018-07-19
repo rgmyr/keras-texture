@@ -30,18 +30,24 @@ class LogReg(Initializer):
         Sample of input to the layer
     _y : np.array, shape (n_samples, n_classes)
         Corresponding sample of layer output (e.g., one-hot encoded `y`)
+    input_model : keras.models.Model instance or `None`
+        If an input model is provided, it is assumed that the sample inputs 
+        to the layer will be input_model.predict(_X). Otherwise, it is assumed
+        that _X can be directly interpreted as inputs to the layer. Default=`None`.
     penalty : str, 'l1' or 'l2', default='l2'
         Norm to use in the regularization penalty
     seed : int, default=None
         Used to seed the random generator.
     """
 
-    def __init__(self, _X, _y, seed=None):
+    def __init__(self, _X, _y, input_model=None, penalty='l2', seed=None):
         if _X is None or _y is None:
-            raise ValueError('Must pass _X and _y to use LogReg initializer')
-        self.eps_std = eps_std
+            raise ValueError('Must pass _X and _y to construct LogReg initializer')
+        if input_model is not None:
+            _X = input_model.predict(_X)
+        self.penalty = penalty
         self.seed = seed
-        self.orthogonal = Orthogonal()
+        self._fit(_X, _y)
 
     def __call__(self, shape, dtype=None):
         rank = len(shape)
@@ -97,30 +103,10 @@ class LogReg(Initializer):
         init = self._scale_filters(init, variance)
         return init.transpose(transpose_dimensions)
 
-    def _create_basis(self, filters, size):
-        if size == 1:
-            return np.random.normal(0.0, self.eps_std, (filters, size))
+    def _fit(self, _X, _y):
 
-        nbb = filters // size + 1
-        li = []
-        for i in range(nbb):
-            a = np.random.normal(0.0, 1.0, (size, size))
-            a = self._symmetrize(a)
-            u, _, v = np.linalg.svd(a)
-            li.extend(u.T.tolist())
-        p = np.array(li[:filters], dtype=K.floatx())
-        return p
-
-    def _symmetrize(self, a):
-        return a + a.T - np.diag(a.diagonal())
-
-    def _scale_filters(self, filters, variance):
-        c_var = np.var(filters)
-        p = np.sqrt(variance / c_var)
-        return filters * p
 
     def get_config(self):
         return {
-            'eps_std': self.eps_std,
             'seed': self.seed
         }
