@@ -95,9 +95,9 @@ class FVCNN():
         elif isinstance(X, list):
             assert isinstance(X[0], np.ndarray), 'X must contain numpy.ndarrays, if a list'
             img_feats = [self._localfeatures(x) for x in X]
-            print('(sample of) img_feats.shapes:', [i.shape for i in img_feats[0:5]])
+            #print('(sample of) img_feats.shapes:', [i.shape for i in img_feats[0:5]])
             feats = np.vstack(img_feats)
-            print('all_feats.shape :', feats.shape)
+            #print('all_feats.shape :', feats.shape)
         else:
             raise ValueError('GMM input X has unknown form. Should be 4D array or list of 3D arrays.')
 
