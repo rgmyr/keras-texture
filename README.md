@@ -7,6 +7,7 @@
     - Convert weights from ResNet18/34 pre-trained `Caffe` models
     - Check out wide/dilated ResNet blocks from [keras-contrib/applications](https://github.com/keras-team/keras-contrib/blob/master/keras_contrib/applications))
 - Figure out Buffer bugs when passing `covariance_bound` to `cyvlfeat.gmm.gmm`
+- Looking into [Kernel Pooling](https://vision.cornell.edu/se3/wp-content/uploads/2017/04/cui2017cvpr.pdf) [*CVPR*, 2017]
 - Tests and benchmarks
 
 # keras-texture
