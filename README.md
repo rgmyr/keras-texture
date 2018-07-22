@@ -13,9 +13,9 @@
 
 # keras-texture
 
-Implementations of several `keras` layers, model classes, and other utilities that are useful in constructing models for texture recognition and fine-grained classification problems. It is a work in progress, and currently the `tensorflow` backend is required.
+Implementations of several `keras` layers, model classes, and other utilities that are useful in constructing models for texture recognition and fine-grained classification problems. It is a **work in progress**, and the `tensorflow` backend is required for most functionality.
 
-Develop-mode installable with `pip install -e .` The root module of package is `texture`.
+Develop-mode installable with `pip install -e .` Root module of package is `texture`.
 
 ## Requirements
 
@@ -54,13 +54,15 @@ It is used in the `Deep Encoding Pooling Network (DEP)` proposed in [Deep Textur
 
 ## `KernelPooling` Layer
 
-Implementation of [Kernel Pooling for Convolutional Neural Networks](https://vision.cornell.edu/se3/wp-content/uploads/2017/04/cui2017cvpr.pdf) [*CVPR*, 2017]. The layer uses the Count Sketch projection to compute a *p*-order Taylor series kernel with learnable composition. The *alpha* parameters are initialized to approximate the Gaussian RBF kernel. The *gamma* parameter (which determines *alpha* in the approximation, under the assumption of L2-normalized input vectors) can optionally be estimated using a set of training feature vectors. Construction paramters are `p`=order of kernel, `d_i`=dimensionality of each order `i>=2`. Output has shape `(batches, 1+C+(p-1)*d_i)`, where `C` is the number of input channels.
+Implementation of [Kernel Pooling for Convolutional Neural Networks](https://vision.cornell.edu/se3/wp-content/uploads/2017/04/cui2017cvpr.pdf) [*CVPR*, 2017]. The layer uses the Count Sketch projection to compute a *p*-order Taylor series kernel with learnable composition. The composition weights *alpha* are initialized to approximate a Gaussian RBF kernel. The kernel is computed over all local feature vectors `(h_i, w_j)` in the input volume and then average pooled.
 
 <p align="center">
   <img src="./docs/images/kernel_pooling_diagram.png?raw=true" alt="Kernel Pooling"/>
 </p>
 
-Construction paramters include `p` (order of the kernel approximation), `d_i` (dimensionality for each order `i>=2`). Output has shape `(batches, 1+C+(p-1)*d_i)`, where `C` is the number of input channels.
+Construction paramters include `p` (order of the kernel approximation), `d_i` (dimensionality for each order `i>=2`). Output has shape `(batches, 1+C+(p-1)*d_i)`, where `C` is the number of input channels. 
+
+The *gamma* parameter, which determines *alpha* values in the approximation under the assumption of L2-normalized input vectors, can optionally be estimated using a set of training feature vectors.
 
 ## Bilinear `pooling`
 
