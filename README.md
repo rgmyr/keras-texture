@@ -2,12 +2,13 @@
 
 - Weight initializers
     - Logistic Regression init. for `softmax` layers (esp. for large layers -- e.g., bilinear pooling output)
-    - Try [ConvolutionAware](https://github.com/keras-team/keras-contrib/blob/master/keras_contrib/initializers/convaware.py) for CNNs
-- Base CNN builders 
+    - Try [ConvolutionAware](https://github.com/keras-team/keras-contrib/blob/master/keras_contrib/initializers/convaware.py) for CNNs?
+- Expand base CNN builders 
     - Convert weights from ResNet18/34 pre-trained `Caffe` models
     - Check out wide/dilated ResNet blocks from [keras-contrib/applications](https://github.com/keras-team/keras-contrib/blob/master/keras_contrib/applications))
+- Implement *compact* bilinear pooling
+
 - Figure out Buffer bugs when passing `covariance_bound` to `cyvlfeat.gmm.gmm`
-- Looking into [Kernel Pooling](https://vision.cornell.edu/se3/wp-content/uploads/2017/04/cui2017cvpr.pdf) [*CVPR*, 2017]
 - Tests and benchmarks
 
 # keras-texture
@@ -38,7 +39,7 @@ Neither of these packages are required in other `texture` modules, so they are n
 The residual encoding layer proposed in [Deep TEN: Texture Encoding Network](https://arxiv.org/pdf/1612.02844.pdf) [*CVPR*, 2017]. This `keras` implementation is largely based on the [PyTorch-Encoding](https://github.com/zhanghang1989/PyTorch-Encoding) release by the paper authors.
 
 <p align="center">
-  <img src="./docs/Encoding-Layer_diagram.png?raw=true" alt="Encoding-Layer diagram"/>
+  <img src="./docs/images/Encoding-Layer_diagram.png?raw=true" alt="Encoding-Layer diagram"/>
 </p>
 
 The layer learns a `KxD` dictionary of codewords (a "codebook"), and codeword assignment `scale` weights. These are used to encode the residuals of an input of shape `NxD` or `HxWxD` with respect to the codewords. Includes optional L2 normalization of output vectors (`True` by default) and dropout (`None` by default). Unlike the `PyTorch-Encoding` version, only the number of codewords `K` needs to be specified at construction time -- the feature size `D` is inferred from the `input_shape`.
@@ -49,7 +50,17 @@ The layer learns a `KxD` dictionary of codewords (a "codebook"), and codeword as
 
 It is used in the `Deep Encoding Pooling Network (DEP)` proposed in [Deep Texture Manifold for Ground Terrain Recognition](https://arxiv.org/abs/1803.10896) [*CVPR*, 2018] to merge the output of an `Encoding` layer with the output of a standard global average pooling, where both features are extracted from `conv` output of the same `ResNet` base. The intuition is that the former represents textures (orderless encoding) and the latter represents spatially structured observations, so that "[the] outer product representation captures a pairwise correlation between the material texture encodings and spatial observation structures."
 
-![DEP-Architecture](./docs/DEP_diagram.png)
+![DEP-Architecture](./docs/images/DEP_diagram.png)
+
+## `KernelPooling` Layer
+
+Implementation of [Kernel Pooling for Convolutional Neural Networks](https://vision.cornell.edu/se3/wp-content/uploads/2017/04/cui2017cvpr.pdf) [*CVPR*, 2017]. The layer uses the Count Sketch projection to compute a *p*-order Taylor series kernel with learnable composition. The *alpha* parameters are initialized to approximate the Gaussian RBF kernel. The *gamma* parameter (which determines *alpha* in the approximation, under the assumption of L2-normalized input vectors) can optionally be estimated using a set of training feature vectors. Construction paramters are `p`=order of kernel, `d_i`=dimensionality of each order `i>=2`. Output has shape `(batches, 1+C+(p-1)*d_i)`, where `C` is the number of input channels.
+
+<p align="center">
+  <img src="./docs/images/kernel_pooling_diagram.png?raw=true" alt="Kernel Pooling"/>
+</p>
+
+Construction paramters include `p` (order of the kernel approximation), `d_i` (dimensionality for each order `i>=2`). Output has shape `(batches, 1+C+(p-1)*d_i)`, where `C` is the number of input channels.
 
 ## Bilinear `pooling`
 
