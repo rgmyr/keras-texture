@@ -1,0 +1,250 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>texture.cnn.resnet_preact &#8212; keras-texture 0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">keras-texture 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for texture.cnn.resnet_preact</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">keras.models</span> <span class="k">import</span> <span class="n">Model</span>
+<span class="kn">from</span> <span class="nn">keras.layers</span> <span class="k">import</span> <span class="n">Input</span><span class="p">,</span> <span class="n">merge</span>
+<span class="kn">from</span> <span class="nn">keras.layers</span> <span class="k">import</span> <span class="n">Dense</span><span class="p">,</span> <span class="n">Activation</span><span class="p">,</span> <span class="n">Flatten</span><span class="p">,</span> <span class="n">BatchNormalization</span>
+<span class="kn">from</span> <span class="nn">keras.layers</span> <span class="k">import</span> <span class="n">Conv2D</span><span class="p">,</span> <span class="n">AveragePooling2D</span>
+<span class="kn">from</span> <span class="nn">keras.regularizers</span> <span class="k">import</span> <span class="n">l2</span>
+
+
+<div class="viewcode-block" id="rnpa_bottleneck_layer"><a class="viewcode-back" href="../../../texture.cnn.resnet_preact.html#texture.cnn.resnet_preact.rnpa_bottleneck_layer">[docs]</a><span class="k">def</span> <span class="nf">rnpa_bottleneck_layer</span><span class="p">(</span><span class="n">input_tensor</span><span class="p">,</span> <span class="n">nb_filters</span><span class="p">,</span> <span class="n">filter_sz</span><span class="p">,</span> <span class="n">stage</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="s1">&#39;glorot_normal&#39;</span><span class="p">,</span> <span class="n">reg</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">use_shortcuts</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+    <span class="n">nb_in_filters</span><span class="p">,</span> <span class="n">nb_bottleneck_filters</span> <span class="o">=</span> <span class="n">nb_filters</span>
+
+    <span class="n">bn_name</span> <span class="o">=</span> <span class="s1">&#39;bn&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">stage</span><span class="p">)</span>
+    <span class="n">conv_name</span> <span class="o">=</span> <span class="s1">&#39;conv&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">stage</span><span class="p">)</span>
+    <span class="n">relu_name</span> <span class="o">=</span> <span class="s1">&#39;relu&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">stage</span><span class="p">)</span>
+    <span class="n">merge_name</span> <span class="o">=</span> <span class="s1">&#39;+&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">stage</span><span class="p">)</span>
+
+    <span class="c1"># batchnorm-relu-conv, from nb_in_filters to nb_bottleneck_filters via 1x1 conv</span>
+    <span class="k">if</span> <span class="n">stage</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">:</span> <span class="c1"># first activation is just after conv1</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">BatchNormalization</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">bn_name</span><span class="o">+</span><span class="s1">&#39;a&#39;</span><span class="p">)(</span><span class="n">input_tensor</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">Activation</span><span class="p">(</span><span class="s1">&#39;relu&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">relu_name</span><span class="o">+</span><span class="s1">&#39;a&#39;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">input_tensor</span>
+    
+    <span class="n">x</span> <span class="o">=</span> <span class="n">Conv2D</span><span class="p">(</span>
+            <span class="n">filters</span><span class="o">=</span><span class="n">nb_bottleneck_filters</span><span class="p">,</span> 
+            <span class="n">kernel_size</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">kernel_initializer</span><span class="o">=</span><span class="n">init</span><span class="p">,</span>
+            <span class="n">kernel_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="n">reg</span><span class="p">),</span>
+            <span class="n">use_bias</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">conv_name</span><span class="o">+</span><span class="s1">&#39;a&#39;</span>
+        <span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="c1"># batchnorm-relu-conv, from nb_bottleneck_filters to nb_bottleneck_filters via FxF conv</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">BatchNormalization</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">bn_name</span><span class="o">+</span><span class="s1">&#39;b&#39;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">Activation</span><span class="p">(</span><span class="s1">&#39;relu&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">relu_name</span><span class="o">+</span><span class="s1">&#39;b&#39;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">Conv2D</span><span class="p">(</span>
+            <span class="n">filters</span><span class="o">=</span><span class="n">nb_bottleneck_filters</span><span class="p">,</span> 
+            <span class="n">kernel_size</span><span class="o">=</span><span class="p">(</span><span class="n">filter_sz</span><span class="p">,</span><span class="n">filter_sz</span><span class="p">),</span>
+            <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">,</span>
+            <span class="n">kernel_initializer</span><span class="o">=</span><span class="n">init</span><span class="p">,</span>
+            <span class="n">kernel_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="n">reg</span><span class="p">),</span>
+            <span class="n">use_bias</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">conv_name</span><span class="o">+</span><span class="s1">&#39;b&#39;</span>
+        <span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+
+
+    <span class="c1"># batchnorm-relu-conv, from nb_in_filters to nb_bottleneck_filters via 1x1 conv</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">BatchNormalization</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">bn_name</span><span class="o">+</span><span class="s1">&#39;c&#39;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">Activation</span><span class="p">(</span><span class="s1">&#39;relu&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">relu_name</span><span class="o">+</span><span class="s1">&#39;c&#39;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">Conv2D</span><span class="p">(</span>
+            <span class="n">filters</span><span class="o">=</span><span class="n">nb_in_filters</span><span class="p">,</span> 
+            <span class="n">kernel_size</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">kernel_initializer</span><span class="o">=</span><span class="n">init</span><span class="p">,</span> 
+            <span class="n">kernel_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="n">reg</span><span class="p">),</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">conv_name</span><span class="o">+</span><span class="s1">&#39;c&#39;</span>
+        <span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="c1"># merge</span>
+    <span class="k">if</span> <span class="n">use_shortcuts</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">merge</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">input_tensor</span><span class="p">],</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;sum&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">merge_name</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">x</span></div>
+
+
+<div class="viewcode-block" id="ResNetPreAct"><a class="viewcode-back" href="../../../texture.cnn.resnet_preact.html#texture.cnn.resnet_preact.ResNetPreAct">[docs]</a><span class="k">def</span> <span class="nf">ResNetPreAct</span><span class="p">(</span><span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">32</span><span class="p">,</span><span class="mi">32</span><span class="p">),</span> <span class="n">nb_classes</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">layer1_params</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">64</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span> <span class="n">res_layer_params</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">16</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span>
+        <span class="n">final_layer_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="s1">&#39;glorot_normal&#39;</span><span class="p">,</span> <span class="n">reg</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">use_shortcuts</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return a new Residual Network using full pre-activation based on the work in</span>
+<span class="sd">    &quot;Identity Mappings in Deep Residual Networks&quot;  by He et al</span>
+<span class="sd">    http://arxiv.org/abs/1603.05027</span>
+
+<span class="sd">    The following network definition achieves 92.0% accuracy on CIFAR-10 test using</span>
+<span class="sd">    `adam` optimizer, 100 epochs, learning rate schedule of 1e.-3 / 1.e-4 / 1.e-5 with</span>
+<span class="sd">    transitions at 50 and 75 epochs:</span>
+<span class="sd">    ResNetPreAct(layer1_params=(3,128,2),res_layer_params=(3,32,25),reg=reg)</span>
+<span class="sd">    </span>
+<span class="sd">    Removed max pooling and using just stride in first convolutional layer. Motivated by</span>
+<span class="sd">    &quot;Striving for Simplicity: The All Convolutional Net&quot;  by Springenberg et al</span>
+<span class="sd">    (https://arxiv.org/abs/1412.6806) and my own experiments where I observed about 0.5%</span>
+<span class="sd">    improvement by replacing the max pool operations in the VGG-like cifar10_cnn.py example</span>
+<span class="sd">    in the Keras distribution.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    input_dim : tuple of (C, H, W)</span>
+<span class="sd">    nb_classes: number of scores to produce from final affine layer (input to softmax)</span>
+<span class="sd">    layer1_params: tuple of (filter size, num filters, stride for conv)</span>
+<span class="sd">    res_layer_params: tuple of (filter size, num res layer filters, num res stages)</span>
+<span class="sd">    final_layer_params: None or tuple of (filter size, num filters, stride for conv)</span>
+<span class="sd">    init: type of weight initialization to use</span>
+<span class="sd">    reg: L2 weight regularization (or weight decay)</span>
+<span class="sd">    use_shortcuts: to evaluate difference between residual and non-residual network</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">sz_L1_filters</span><span class="p">,</span> <span class="n">nb_L1_filters</span><span class="p">,</span> <span class="n">stride_L1</span> <span class="o">=</span> <span class="n">layer1_params</span>
+    <span class="n">sz_res_filters</span><span class="p">,</span> <span class="n">nb_res_filters</span><span class="p">,</span> <span class="n">nb_res_stages</span> <span class="o">=</span> <span class="n">res_layer_params</span>
+    
+    <span class="n">use_final_conv</span> <span class="o">=</span> <span class="p">(</span><span class="n">final_layer_params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">use_final_conv</span><span class="p">:</span>
+        <span class="n">sz_fin_filters</span><span class="p">,</span> <span class="n">nb_fin_filters</span><span class="p">,</span> <span class="n">stride_fin</span> <span class="o">=</span> <span class="n">final_layer_params</span>
+        <span class="n">sz_pool_fin</span> <span class="o">=</span> <span class="n">input_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">stride_L1</span> <span class="o">*</span> <span class="n">stride_fin</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sz_pool_fin</span> <span class="o">=</span> <span class="n">input_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">stride_L1</span><span class="p">)</span>
+
+
+    <span class="kn">from</span> <span class="nn">keras</span> <span class="k">import</span> <span class="n">backend</span> <span class="k">as</span> <span class="n">K</span>
+    <span class="c1"># Permute dimension order if necessary</span>
+    <span class="k">if</span> <span class="n">K</span><span class="o">.</span><span class="n">image_dim_ordering</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;tf&#39;</span><span class="p">:</span>
+        <span class="n">input_shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">input_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">input_shape</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">input_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+
+    <span class="n">img_input</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">input_shape</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;cifar&#39;</span><span class="p">)</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">Conv2D</span><span class="p">(</span>
+            <span class="n">filters</span><span class="o">=</span><span class="n">nb_L1_filters</span><span class="p">,</span> 
+            <span class="n">kernel_size</span><span class="o">=</span><span class="p">(</span><span class="n">sz_L1_filters</span><span class="p">,</span><span class="n">sz_L1_filters</span><span class="p">),</span>
+            <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">,</span>
+            <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="n">stride_L1</span><span class="p">,</span> <span class="n">stride_L1</span><span class="p">),</span>
+            <span class="n">kernel_initializer</span><span class="o">=</span><span class="n">init</span><span class="p">,</span>
+            <span class="n">kernel_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="n">reg</span><span class="p">),</span>
+            <span class="n">use_bias</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s1">&#39;conv0&#39;</span>
+        <span class="p">)(</span><span class="n">img_input</span><span class="p">)</span>
+    
+    <span class="n">x</span> <span class="o">=</span> <span class="n">BatchNormalization</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;bn0&#39;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">Activation</span><span class="p">(</span><span class="s1">&#39;relu&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;relu0&#39;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">nb_res_stages</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">rnpa_bottleneck_layer</span><span class="p">(</span>
+                <span class="n">x</span><span class="p">,</span>
+                <span class="p">(</span><span class="n">nb_L1_filters</span><span class="p">,</span> <span class="n">nb_res_filters</span><span class="p">),</span>
+                <span class="n">sz_res_filters</span><span class="p">,</span> 
+                <span class="n">stage</span><span class="p">,</span>
+                <span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">,</span> 
+                <span class="n">reg</span><span class="o">=</span><span class="n">reg</span><span class="p">,</span> 
+                <span class="n">use_shortcuts</span><span class="o">=</span><span class="n">use_shortcuts</span>
+            <span class="p">)</span>
+
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">BatchNormalization</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;bnF&#39;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">Activation</span><span class="p">(</span><span class="s1">&#39;relu&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;reluF&#39;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">use_final_conv</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">Conv2D</span><span class="p">(</span>
+                <span class="n">filters</span><span class="o">=</span><span class="n">nb_L1_filters</span><span class="p">,</span> 
+                <span class="n">kernel_size</span><span class="o">=</span><span class="p">(</span><span class="n">sz_L1_filters</span><span class="p">,</span><span class="n">sz_L1_filters</span><span class="p">),</span>
+                <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">,</span>
+                <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="n">stride_fin</span><span class="p">,</span> <span class="n">stride_fin</span><span class="p">),</span>
+                <span class="n">kernel_initializer</span><span class="o">=</span><span class="n">init</span><span class="p">,</span>
+                <span class="n">kernel_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="n">reg</span><span class="p">),</span>
+                <span class="n">name</span><span class="o">=</span><span class="s1">&#39;convF&#39;</span>
+            <span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">AveragePooling2D</span><span class="p">((</span><span class="n">sz_pool_fin</span><span class="p">,</span><span class="n">sz_pool_fin</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;avg_pool&#39;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="c1"># x = Flatten(name=&#39;flat&#39;)(x)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">Flatten</span><span class="p">()(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">nb_classes</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;softmax&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;fc10&#39;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">Model</span><span class="p">(</span><span class="n">img_input</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;rnpa&#39;</span><span class="p">)</span></div>
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">keras-texture 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Ross Meyer.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
+    </div>
+  </body>
+</html>

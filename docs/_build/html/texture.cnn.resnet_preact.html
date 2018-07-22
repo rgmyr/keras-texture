@@ -1,0 +1,118 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>texture.cnn.resnet_preact module &#8212; keras-texture 0.1 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">keras-texture 0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-texture.cnn.resnet_preact">
+<span id="texture-cnn-resnet-preact-module"></span><h1>texture.cnn.resnet_preact module<a class="headerlink" href="#module-texture.cnn.resnet_preact" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="texture.cnn.resnet_preact.ResNetPreAct">
+<code class="descclassname">texture.cnn.resnet_preact.</code><code class="descname">ResNetPreAct</code><span class="sig-paren">(</span><em>input_shape=(3</em>, <em>32</em>, <em>32)</em>, <em>nb_classes=10</em>, <em>layer1_params=(5</em>, <em>64</em>, <em>2)</em>, <em>res_layer_params=(3</em>, <em>16</em>, <em>3)</em>, <em>final_layer_params=None</em>, <em>init='glorot_normal'</em>, <em>reg=0.0</em>, <em>use_shortcuts=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/texture/cnn/resnet_preact.html#ResNetPreAct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#texture.cnn.resnet_preact.ResNetPreAct" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new Residual Network using full pre-activation based on the work in
+“Identity Mappings in Deep Residual Networks”  by He et al
+<a class="reference external" href="http://arxiv.org/abs/1603.05027">http://arxiv.org/abs/1603.05027</a></p>
+<p>The following network definition achieves 92.0% accuracy on CIFAR-10 test using
+<cite>adam</cite> optimizer, 100 epochs, learning rate schedule of 1e.-3 / 1.e-4 / 1.e-5 with
+transitions at 50 and 75 epochs:
+ResNetPreAct(layer1_params=(3,128,2),res_layer_params=(3,32,25),reg=reg)</p>
+<p>Removed max pooling and using just stride in first convolutional layer. Motivated by
+“Striving for Simplicity: The All Convolutional Net”  by Springenberg et al
+(<a class="reference external" href="https://arxiv.org/abs/1412.6806">https://arxiv.org/abs/1412.6806</a>) and my own experiments where I observed about 0.5%
+improvement by replacing the max pool operations in the VGG-like cifar10_cnn.py example
+in the Keras distribution.</p>
+<p>input_dim : tuple of (C, H, W)
+nb_classes: number of scores to produce from final affine layer (input to softmax)
+layer1_params: tuple of (filter size, num filters, stride for conv)
+res_layer_params: tuple of (filter size, num res layer filters, num res stages)
+final_layer_params: None or tuple of (filter size, num filters, stride for conv)
+init: type of weight initialization to use
+reg: L2 weight regularization (or weight decay)
+use_shortcuts: to evaluate difference between residual and non-residual network</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="texture.cnn.resnet_preact.rnpa_bottleneck_layer">
+<code class="descclassname">texture.cnn.resnet_preact.</code><code class="descname">rnpa_bottleneck_layer</code><span class="sig-paren">(</span><em>input_tensor</em>, <em>nb_filters</em>, <em>filter_sz</em>, <em>stage</em>, <em>init='glorot_normal'</em>, <em>reg=0.0</em>, <em>use_shortcuts=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/texture/cnn/resnet_preact.html#rnpa_bottleneck_layer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#texture.cnn.resnet_preact.rnpa_bottleneck_layer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">keras-texture 0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Ross Meyer.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
+    </div>
+  </body>
+</html>

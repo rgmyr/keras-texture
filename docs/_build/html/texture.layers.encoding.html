@@ -1,0 +1,136 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>texture.layers.encoding module &#8212; keras-texture 0.1 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">keras-texture 0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-texture.layers.encoding">
+<span id="texture-layers-encoding-module"></span><h1>texture.layers.encoding module<a class="headerlink" href="#module-texture.layers.encoding" title="Permalink to this headline">¶</a></h1>
+<p>Keras 2.0+ / TensorFlow implementation of learnable encoding layer proposed in:</p>
+<blockquote>
+<div>Hang Zhang, Jia Xue, and Kristin Dana. “Deep TEN: Texture Encoding Network.”
+<em>The IEEE Conference on Computer Vision and Pattern Recognition (CVPR) 2017</em></div></blockquote>
+<p>Borrows from PyTorch implementation released by Hang Zhang: <a class="reference external" href="https://github.com/zhanghang1989/PyTorch-Encoding">https://github.com/zhanghang1989/PyTorch-Encoding</a></p>
+<dl class="class">
+<dt id="texture.layers.encoding.Encoding">
+<em class="property">class </em><code class="descclassname">texture.layers.encoding.</code><code class="descname">Encoding</code><span class="sig-paren">(</span><em>K</em>, <em>dropout=None</em>, <em>l2_normalize=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/texture/layers/encoding.html#Encoding"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#texture.layers.encoding.Encoding" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">keras.engine.base_layer.Layer</span></code></p>
+<p>Residual encoding layer with learnable codebook and scaling factors.</p>
+<p>Encodes an collection of NxD features into set of KxD vectors. Unlike PyTorch
+implementation, D is inferred automatically from input_shape.</p>
+<p>Allowed <a href="#id1"><span class="problematic" id="id2">`</span></a>input_shape`s are (batches, N, D) or (batches, H, W, D).</p>
+<dl class="docutils">
+<dt>K <span class="classifier-delimiter">:</span> <span class="classifier">int </span></dt>
+<dd>Number of codewords to learn</dd>
+<dt>dropout <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
+<dd><dl class="first last docutils">
+<dt>Dropout rate between [0.0,1.0), or <cite>None</cite>, default=`None`.</dt>
+<dd>Currently applied to <cite>scale</cite> factors, which is equivalent to 
+zeroing out <cite>dropout</cite> fraction of the aggregated codewords.</dd>
+</dl>
+</dd>
+<dt>l2_normalize <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional </span></dt>
+<dd>Whether to normalize output vectors, default=`True`.</dd>
+<dt>TODO: - test dropout functionality (why not just apply on output vectors?)</dt>
+<dd><ul class="first last simple">
+<li>make sure dropout only applied during training</li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="texture.layers.encoding.Encoding.build">
+<code class="descname">build</code><span class="sig-paren">(</span><em>input_shape</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/texture/layers/encoding.html#Encoding.build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#texture.layers.encoding.Encoding.build" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="texture.layers.encoding.Encoding.call">
+<code class="descname">call</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/texture/layers/encoding.html#Encoding.call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#texture.layers.encoding.Encoding.call" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="texture.layers.encoding.Encoding.compute_output_shape">
+<code class="descname">compute_output_shape</code><span class="sig-paren">(</span><em>input_shape</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/texture/layers/encoding.html#Encoding.compute_output_shape"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#texture.layers.encoding.Encoding.compute_output_shape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">keras-texture 0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Ross Meyer.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
+    </div>
+  </body>
+</html>

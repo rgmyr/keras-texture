@@ -1,0 +1,297 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>texture.layers.kernelpooling &#8212; keras-texture 0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">keras-texture 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for texture.layers.kernelpooling</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;Implementation of polynomial Kernel Pooling layer with learnable composition: </span>
+<span class="sd">@conference{cui2017cvpr,</span>
+<span class="sd">    title = {Kernel Pooling for Convolutional Neural Networks},</span>
+<span class="sd">    author = {Yin Cui and Feng Zhou and Jiang Wang and Xiao Liu and Yuanqing Lin and Serge Belongie},</span>
+<span class="sd">    url = {https://vision.cornell.edu/se3/wp-content/uploads/2017/04/cui2017cvpr.pdf},</span>
+<span class="sd">    year = {2017},</span>
+<span class="sd">    booktitle = {Computer Vision and Pattern Recognition (CVPR)},</span>
+<span class="sd">}</span>
+
+<span class="sd">_generate_sketch_matrix() borrowed from: https://github.com/ronghanghu/tensorflow_compact_bilinear_pooling</span>
+
+<span class="sd">sequential_batch_[i]ff from the same repo would be useful for avoiding OOM errors w/ arbitrary batch size</span>
+<span class="sd">    - does source need an update?</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+<span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">factorial</span>
+
+<span class="kn">from</span> <span class="nn">keras</span> <span class="k">import</span> <span class="n">backend</span> <span class="k">as</span> <span class="n">K</span>
+<span class="kn">from</span> <span class="nn">keras.engine.topology</span> <span class="k">import</span> <span class="n">Layer</span>
+
+<span class="k">def</span> <span class="nf">_fft</span><span class="p">(</span><span class="n">bottom</span><span class="p">,</span> <span class="n">sequential</span><span class="p">,</span> <span class="n">compute_size</span><span class="p">):</span>
+    <span class="c1">#if sequential:</span>
+    <span class="c1">#    return sequential_batch_fft(bottom, compute_size)</span>
+    <span class="c1">#else:</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">bottom</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_ifft</span><span class="p">(</span><span class="n">bottom</span><span class="p">,</span> <span class="n">sequential</span><span class="p">,</span> <span class="n">compute_size</span><span class="p">):</span>
+    <span class="c1">#if sequential:</span>
+    <span class="c1">#    return sequential_batch_ifft(bottom, compute_size)</span>
+    <span class="c1">#else:</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">ifft</span><span class="p">(</span><span class="n">bottom</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_generate_sketch_matrix</span><span class="p">(</span><span class="n">rand_h</span><span class="p">,</span> <span class="n">rand_s</span><span class="p">,</span> <span class="n">output_dim</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return a sparse matrix used for tensor/count sketch operation,</span>
+<span class="sd">    which is random feature projection from input_dim--&gt;output_dim.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    rand_h: array, shape=(input_dim,)</span>
+<span class="sd">        Vector containing indices in interval `[0, output_dim)`. </span>
+<span class="sd">    rand_s: array, shape=(input_dim,)</span>
+<span class="sd">        Vector containing values of 1 and -1.</span>
+<span class="sd">    output_dim: int</span>
+<span class="sd">        The dimensions of the count sketch vector representation.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    sparse_sketch_matrix : SparseTensor</span>
+<span class="sd">        A sparse matrix of shape [input_dim, output_dim] for count sketch.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Generate a sparse matrix for tensor count sketch</span>
+    <span class="n">rand_h</span> <span class="o">=</span> <span class="n">rand_h</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+    <span class="n">rand_s</span> <span class="o">=</span> <span class="n">rand_s</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="k">assert</span><span class="p">(</span><span class="n">rand_h</span><span class="o">.</span><span class="n">ndim</span><span class="o">==</span><span class="mi">1</span> <span class="ow">and</span> <span class="n">rand_s</span><span class="o">.</span><span class="n">ndim</span><span class="o">==</span><span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">rand_h</span><span class="p">)</span><span class="o">==</span><span class="nb">len</span><span class="p">(</span><span class="n">rand_s</span><span class="p">))</span>
+    <span class="k">assert</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">rand_h</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">rand_h</span> <span class="o">&lt;</span> <span class="n">output_dim</span><span class="p">))</span>
+
+    <span class="n">input_dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rand_h</span><span class="p">)</span>
+    <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">input_dim</span><span class="p">)[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span>
+                              <span class="n">rand_h</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">sparse_sketch_matrix</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">sparse_reorder</span><span class="p">(</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">SparseTensor</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">rand_s</span><span class="p">,</span> <span class="p">[</span><span class="n">input_dim</span><span class="p">,</span> <span class="n">output_dim</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="n">sparse_sketch_matrix</span>
+
+
+<span class="k">def</span> <span class="nf">_estimate_gamma</span><span class="p">(</span><span class="n">X_train</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Estimate gamma for RBF approximation.&#39;&#39;&#39;</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">),</span> <span class="s1">&#39;X_train must be a numpy array of feature vectors&#39;</span>
+    <span class="k">assert</span> <span class="n">X_train</span><span class="o">.</span><span class="n">ndim</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span> <span class="s1">&#39;X_train must be a 3D or 4D array of shape (batch,...,C)&#39;</span>
+    <span class="k">if</span> <span class="n">X_train</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="n">X_train</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">X_train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">X_train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    
+    <span class="c1"># compute mean intra-image inner product</span>
+    <span class="n">pair_count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">inner_sum</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">X_train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="n">dots</span> <span class="o">=</span> <span class="n">X_train</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">X_train</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+        <span class="n">pair_count</span> <span class="o">+=</span> <span class="n">dots</span><span class="o">.</span><span class="n">size</span>
+        <span class="n">inner_sum</span> <span class="o">+=</span> <span class="n">dots</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+    <span class="c1"># return the reciprocal</span>
+    <span class="k">return</span> <span class="n">pair_count</span> <span class="o">/</span> <span class="n">inner_sum</span>
+
+
+<div class="viewcode-block" id="AlphaInitializer"><a class="viewcode-back" href="../../../texture.layers.kernelpooling.html#texture.layers.kernelpooling.AlphaInitializer">[docs]</a><span class="k">class</span> <span class="nc">AlphaInitializer</span><span class="p">():</span>
+    <span class="sd">&#39;&#39;&#39;Callable for setting initial composition_weights given `gamma`. </span>
+<span class="sd">    Following the Taylor series expansion of the RBF kernel:</span>
+<span class="sd">        K_RBF(x, y) = Sum_i(beta * \frac{(2*gamma)^i}{i!})</span>
+<span class="sd">    We assume that input vectors are L2-normalized, in which case we have:</span>
+<span class="sd">        (alpha_i)^2 = exp(-2*gamma)*\frac{(2*gamma)^i}{i!}</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gamma</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">=</span> <span class="n">gamma</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;Only use AlphaInitializer on 1D weights&#39;</span>
+        <span class="n">gam2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">2</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">gamma</span><span class="p">]</span><span class="o">*</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">beta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">gam2</span><span class="p">)</span>
+        <span class="n">numer</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">gam2</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="n">gam2</span><span class="o">.</span><span class="n">size</span><span class="p">))</span>
+        <span class="n">denom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">factorial</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">gam2</span><span class="o">.</span><span class="n">size</span><span class="p">)])</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">beta</span> <span class="o">*</span> <span class="n">numer</span> <span class="o">/</span> <span class="n">denom</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">K</span><span class="o">.</span><span class="n">variable</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="KernelPooling"><a class="viewcode-back" href="../../../texture.layers.kernelpooling.html#texture.layers.kernelpooling.KernelPooling">[docs]</a><span class="k">class</span> <span class="nc">KernelPooling</span><span class="p">(</span><span class="n">Layer</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Kernel Pooling layer with learnable composition weights. Takes convolution output volume as input, </span>
+<span class="sd">    outputs a Taylor series kernel of order `p`. By default the weights are initialized to approximate</span>
+<span class="sd">    the Gaussian RBF kernel. See the paper for more detailed exposition. Kernel vectors are average</span>
+<span class="sd">    pooled over all spatial locations (h_i, w_j).</span>
+
+<span class="sd">    `output_shape=(batches,1+C+Sum(d_2,...,d_p))`, for `input_shape=(batches,H,W,C)`. This implementation </span>
+<span class="sd">    follows the paper in assuming that `d_i=d_bar` for all `i&gt;=2`, so `d=1+C+(p-1)*d_i`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    p : int, optional</span>
+<span class="sd">        Order of the polynomial approximation, default=3</span>
+<span class="sd">    d_i : int, optional</span>
+<span class="sd">        Dimensionality of output features of each order {2,...,p}, default=4096.</span>
+<span class="sd">    seed : int, optional</span>
+<span class="sd">        Random seed for generating sketch matrices. </span>
+<span class="sd">        If given, will use range(seed, seed+p) for `h`, and range(seed+p, seed+2p) for `s`.</span>
+<span class="sd">    gamma : float, optional</span>
+<span class="sd">        RBF kernel approximation parameter, default=1e-4.</span>
+<span class="sd">    X_train : array, optional</span>
+<span class="sd">        Training set of features from which to estimate gamma s.t. kernel closely approximates RBF. </span>
+<span class="sd">        If provided, will use reciprocal of mean inner product values. Otherwise, default used.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">d_i</span><span class="o">=</span><span class="mi">4096</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">X_train</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">p</span> <span class="o">=</span> <span class="n">p</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">d_i</span> <span class="o">=</span> <span class="n">d_i</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h_seed</span> <span class="o">=</span> <span class="n">seed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">s_seed</span> <span class="o">=</span> <span class="n">seed</span> <span class="o">+</span> <span class="n">p</span>
+        <span class="k">if</span> <span class="n">X_train</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">=</span> <span class="n">_estimate_gamma</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">=</span> <span class="n">gamma</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">KernelPooling</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="KernelPooling.build"><a class="viewcode-back" href="../../../texture.layers.kernelpooling.html#texture.layers.kernelpooling.KernelPooling.build">[docs]</a>    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
+        <span class="c1">#self._shapecheck(input_shape)</span>
+
+        <span class="c1"># Initialize composition weights, RBF approximation</span>
+        <span class="n">alpha_init</span> <span class="o">=</span> <span class="n">AlphaInitializer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gamma</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;composition_weights&#39;</span><span class="p">,</span>
+                                    <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">,),</span>
+                                    <span class="n">initializer</span><span class="o">=</span><span class="n">alpha_init</span><span class="p">,</span>
+                                    <span class="n">trainable</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Generate sketch matrices, need `p` sets of {h_t, s_t}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">C</span> <span class="o">=</span> <span class="n">input_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sketch_matrices</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">h_seeds</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">h_seed</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">h_seed</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">s_seeds</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">s_seed</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">s_seed</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">hs</span><span class="p">,</span> <span class="n">ss</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">h_seeds</span><span class="p">,</span><span class="n">s_seeds</span><span class="p">):</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">hs</span><span class="p">)</span>
+            <span class="n">h_t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d_i</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">C</span><span class="p">)</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span>
+            <span class="n">s_t</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">C</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sketch_matrices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_generate_sketch_matrix</span><span class="p">(</span><span class="n">h_t</span><span class="p">,</span> <span class="n">s_t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">d_i</span><span class="p">))</span></div>
+            
+
+<div class="viewcode-block" id="KernelPooling.call"><a class="viewcode-back" href="../../../texture.layers.kernelpooling.html#texture.layers.kernelpooling.KernelPooling.call">[docs]</a>    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">K</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;Should only call KP layer on input_shape (batches,H,W,C)&#39;</span>
+        <span class="n">input_dims</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        
+        <span class="c1"># zeroth and first order terms</span>
+        <span class="n">zeroth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">K</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">input_dims</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">first</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>
+
+        <span class="c1"># flatten to feature vectors</span>
+        <span class="n">x_flat</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">C</span><span class="p">))</span>
+        
+        <span class="c1"># Compute the Count Sketches C_t over feature vectors</span>
+        <span class="n">sketches</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">):</span>
+            <span class="n">sketches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">sparse_tensor_dense_matmul</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sketch_matrices</span><span class="p">[</span><span class="n">t</span><span class="p">],</span>
+                                         <span class="n">x_flat</span><span class="p">,</span> <span class="n">adjoint_a</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">adjoint_b</span><span class="o">=</span><span class="kc">True</span><span class="p">)))</span>
+            
+        <span class="c1"># stack and reshape [(b*h*w, d_i)], len=p --&gt; (b, h*w, p, d_i) </span>
+        <span class="n">x_sketches</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">K</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">sketches</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="n">input_dims</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">d_i</span><span class="p">))</span>
+        
+        <span class="c1"># Compute fft (operates on inner-most axis)</span>
+        <span class="n">x_fft</span> <span class="o">=</span> <span class="n">_fft</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">complex</span><span class="p">(</span><span class="n">real</span><span class="o">=</span><span class="n">x_sketches</span><span class="p">,</span> <span class="n">imag</span><span class="o">=</span><span class="n">K</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">x_sketches</span><span class="p">)),</span> <span class="kc">False</span><span class="p">,</span> <span class="mi">128</span><span class="p">)</span>
+        
+        <span class="c1"># Cumulative product along order dimension, discard first order</span>
+        <span class="n">x_fft_cp</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">cumprod</span><span class="p">(</span><span class="n">x_fft</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">2</span><span class="p">)[:,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">:,</span> <span class="p">:]</span>
+        
+        <span class="c1"># Inverse fft, avg pool over spatial locations</span>
+        <span class="n">x_ifft</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">_ifft</span><span class="p">(</span><span class="n">x_fft_cp</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="mi">128</span><span class="p">)),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        
+        <span class="c1"># Apply weights over orders p &gt;= 2</span>
+        <span class="n">x_p</span> <span class="o">=</span> <span class="n">x_ifft</span><span class="o">*</span><span class="n">K</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">[</span><span class="mi">2</span><span class="p">:],</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+        
+        <span class="c1"># Concatenate to full order-p kernel approximation vector</span>
+        <span class="n">phi_x</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">zeroth</span><span class="p">,</span> <span class="n">first</span><span class="p">,</span> <span class="n">K</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">x_p</span><span class="p">,</span> <span class="p">(</span><span class="n">input_dims</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="o">-</span><span class="mi">1</span><span class="p">))])</span>
+        
+        <span class="c1"># Return the transformed + l2-normed kernel vector</span>
+        <span class="n">phi_x</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">phi_x</span><span class="p">),</span><span class="n">tf</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">phi_x</span><span class="p">)</span><span class="o">+</span><span class="mf">1e-12</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">l2_normalize</span><span class="p">(</span><span class="n">phi_x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="KernelPooling.compute_output_shape"><a class="viewcode-back" href="../../../texture.layers.kernelpooling.html#texture.layers.kernelpooling.KernelPooling.compute_output_shape">[docs]</a>    <span class="k">def</span> <span class="nf">compute_output_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">input_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="o">+</span><span class="n">input_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">d_i</span><span class="p">)</span></div></div>
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">keras-texture 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Ross Meyer.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
+    </div>
+  </body>
+</html>

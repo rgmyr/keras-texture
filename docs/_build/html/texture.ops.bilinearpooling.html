@@ -1,0 +1,149 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>texture.ops.bilinearpooling module &#8212; keras-texture 0.1 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">keras-texture 0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-texture.ops.bilinearpooling">
+<span id="texture-ops-bilinearpooling-module"></span><h1>texture.ops.bilinearpooling module<a class="headerlink" href="#module-texture.ops.bilinearpooling" title="Permalink to this headline">¶</a></h1>
+<p>Utilities for creating Bilinear CNN models in Keras w/ TensorFlow backend as described in:</p>
+<dl class="docutils">
+<dt>&#64;inproceedings{lin2015bilinear,</dt>
+<dd>Author = {Tsung-Yu Lin, Aruni RoyChowdhury, and Subhransu Maji},
+Title = {Bilinear CNNs for Fine-grained Visual Recognition},
+Booktitle = {International Conference on Computer Vision (ICCV)},
+Year = {2015}</dd>
+</dl>
+<p>}</p>
+<p>bilinear.pooling(inputs): bilinear (feature-wise outer product) average pooling
+bilinear.combine(fA, fB, …): use bilinear.pooling to merge two models into single BCNN</p>
+<dl class="docutils">
+<dt>TODO: - tests for BilinearModel layer</dt>
+<dd><ul class="first last simple">
+<li>support for matrix square root layer described in “Improved Bilinear Pooling with CNNs”
+(claimed to add 2-3% accuracy on fine-grained benchmark datasets)</li>
+</ul>
+</dd>
+</dl>
+<dl class="function">
+<dt id="texture.ops.bilinearpooling.pooling">
+<code class="descclassname">texture.ops.bilinearpooling.</code><code class="descname">pooling</code><span class="sig-paren">(</span><em>inputs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/texture/ops/bilinearpooling.html#pooling"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#texture.ops.bilinearpooling.pooling" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pool outer products of local features. Returns tf Function usable with keras.layers.Lambda.</p>
+<dl class="docutils">
+<dt>inputs <span class="classifier-delimiter">:</span> <span class="classifier">(tf.Tensor, tf.Tensor)</span></dt>
+<dd>Both tensors should be 4D (channels last), with same shape in all but channels dimension.</dd>
+</dl>
+<dl class="docutils">
+<dt>phi_I <span class="classifier-delimiter">:</span> <span class="classifier">tensorflow Function</span></dt>
+<dd>Symbolic function encapsulating pooling and normalization operations.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="texture.ops.bilinearpooling.combine">
+<code class="descclassname">texture.ops.bilinearpooling.</code><code class="descname">combine</code><span class="sig-paren">(</span><em>fA</em>, <em>fB</em>, <em>input_shape</em>, <em>n_classes</em>, <em>conv1x1=None</em>, <em>fc_layers=[]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/texture/ops/bilinearpooling.html#combine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#texture.ops.bilinearpooling.combine" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Combine two feature extracting CNNs into single Model with bilinear_pooling + FC layers.</dt>
+<dd>fA and fB should output 4D tensors of equal shape, except (optionally) in # of channels.</dd>
+</dl>
+<dl class="docutils">
+<dt>fA <span class="classifier-delimiter">:</span> <span class="classifier">keras.models.Model</span></dt>
+<dd>Feature network A. Should output features (N, H, W, cA).</dd>
+<dt>fB <span class="classifier-delimiter">:</span> <span class="classifier">keras.models.Model or <cite>None</cite></span></dt>
+<dd>Feature network B. Should output features (N, H, W, cB).
+If <cite>None</cite>, will return symmetric BCNN using fA.</dd>
+<dt>input_shape <span class="classifier-delimiter">:</span> <span class="classifier">tuple of int</span></dt>
+<dd>Shape of input images. Must be compatible with fA.input &amp; fB.input.</dd>
+<dt>n_classes <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Number of classes for softmax output layer</dd>
+<dt>conv1x1 <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
+<dd>Add a 1x1 conv to reduce number of channels in (fA, fB) to some value(s)</dd>
+<dt>fc_layers <span class="classifier-delimiter">:</span> <span class="classifier">iterable of int, optional</span></dt>
+<dd>Sizes for additional Dense layers between bilinear vector and softmax. Default=[].</dd>
+</dl>
+<dl class="docutils">
+<dt>BCNN <span class="classifier-delimiter">:</span> <span class="classifier">keras.models.Model</span></dt>
+<dd>Single bilinear CNN composed from fA &amp; fB (asymmetric) or fA with itself (symmetric)</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">keras-texture 0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Ross Meyer.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
+    </div>
+  </body>
+</html>

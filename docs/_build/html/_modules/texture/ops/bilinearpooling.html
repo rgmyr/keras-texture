@@ -1,0 +1,191 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>texture.ops.bilinearpooling &#8212; keras-texture 0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">keras-texture 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for texture.ops.bilinearpooling</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;Utilities for creating Bilinear CNN models in Keras w/ TensorFlow backend as described in:</span>
+
+<span class="sd">@inproceedings{lin2015bilinear,</span>
+<span class="sd">    Author = {Tsung-Yu Lin, Aruni RoyChowdhury, and Subhransu Maji},</span>
+<span class="sd">    Title = {Bilinear CNNs for Fine-grained Visual Recognition},</span>
+<span class="sd">    Booktitle = {International Conference on Computer Vision (ICCV)},</span>
+<span class="sd">    Year = {2015}</span>
+<span class="sd">}</span>
+
+<span class="sd">bilinear.pooling(inputs): bilinear (feature-wise outer product) average pooling</span>
+<span class="sd">bilinear.combine(fA, fB, ...): use bilinear.pooling to merge two models into single BCNN</span>
+
+<span class="sd">TODO: - tests for BilinearModel layer</span>
+<span class="sd">      - support for matrix square root layer described in &quot;Improved Bilinear Pooling with CNNs&quot;</span>
+<span class="sd">        (claimed to add 2-3% accuracy on fine-grained benchmark datasets)</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">from</span> <span class="nn">keras</span> <span class="k">import</span> <span class="n">backend</span> <span class="k">as</span> <span class="n">K</span>
+<span class="kn">from</span> <span class="nn">keras</span> <span class="k">import</span> <span class="n">models</span><span class="p">,</span> <span class="n">layers</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;pooling&#39;</span><span class="p">,</span> <span class="s1">&#39;combine&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="pooling"><a class="viewcode-back" href="../../../texture.ops.bilinearpooling.html#texture.ops.bilinearpooling.pooling">[docs]</a><span class="k">def</span> <span class="nf">pooling</span><span class="p">(</span><span class="n">inputs</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Pool outer products of local features. Returns tf Function usable with keras.layers.Lambda.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    inputs : (tf.Tensor, tf.Tensor)</span>
+<span class="sd">        Both tensors should be 4D (channels last), with same shape in all but channels dimension.</span>
+<span class="sd">        </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    phi_I : tensorflow Function</span>
+<span class="sd">        Symbolic function encapsulating pooling and normalization operations.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">iA</span><span class="p">,</span> <span class="n">iB</span> <span class="o">=</span> <span class="n">inputs</span>
+
+    <span class="c1"># sum pooling outer product</span>
+    <span class="n">phi_I</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ijkm,ijkn-&gt;imn&#39;</span><span class="p">,</span> <span class="n">iA</span><span class="p">,</span> <span class="n">iB</span><span class="p">)</span>
+
+    <span class="c1"># sum --&gt; avg (is this necessary?)</span>
+    <span class="n">n_feat</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_prod</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">iA</span><span class="p">),</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">])))</span>
+    <span class="n">phi_I</span>  <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">phi_I</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">to_float</span><span class="p">(</span><span class="n">n_feat</span><span class="p">))</span>
+
+    <span class="c1"># signed square root</span>
+    <span class="n">y_ssqrt</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">phi_I</span><span class="p">),</span><span class="n">tf</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">phi_I</span><span class="p">)</span><span class="o">+</span><span class="mf">1e-12</span><span class="p">))</span>
+
+    <span class="c1"># L2 normalization</span>
+    <span class="n">z_L2</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">l2_normalize</span><span class="p">(</span><span class="n">y_ssqrt</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">z_L2</span></div>
+
+ 
+<div class="viewcode-block" id="combine"><a class="viewcode-back" href="../../../texture.ops.bilinearpooling.html#texture.ops.bilinearpooling.combine">[docs]</a><span class="k">def</span> <span class="nf">combine</span><span class="p">(</span><span class="n">fA</span><span class="p">,</span> <span class="n">fB</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">,</span> <span class="n">conv1x1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fc_layers</span><span class="o">=</span><span class="p">[]):</span>
+    <span class="sd">&#39;&#39;&#39;Combine two feature extracting CNNs into single Model with bilinear_pooling + FC layers.</span>
+<span class="sd">       fA and fB should output 4D tensors of equal shape, except (optionally) in # of channels.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fA : keras.models.Model</span>
+<span class="sd">        Feature network A. Should output features (N, H, W, cA).</span>
+<span class="sd">    fB : keras.models.Model or `None`</span>
+<span class="sd">        Feature network B. Should output features (N, H, W, cB).</span>
+<span class="sd">        If `None`, will return symmetric BCNN using fA.</span>
+<span class="sd">    input_shape : tuple of int</span>
+<span class="sd">        Shape of input images. Must be compatible with fA.input &amp; fB.input.</span>
+<span class="sd">    n_classes : int</span>
+<span class="sd">        Number of classes for softmax output layer</span>
+<span class="sd">    conv1x1 : int, optional</span>
+<span class="sd">        Add a 1x1 conv to reduce number of channels in (fA, fB) to some value(s)</span>
+<span class="sd">    fc_layers : iterable of int, optional</span>
+<span class="sd">        Sizes for additional Dense layers between bilinear vector and softmax. Default=[].</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    BCNN : keras.models.Model</span>
+<span class="sd">        Single bilinear CNN composed from fA &amp; fB (asymmetric) or fA with itself (symmetric)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">input_layer</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">input_shape</span><span class="p">)</span>
+
+    <span class="n">outA</span> <span class="o">=</span> <span class="n">fA</span><span class="p">(</span><span class="n">input_layer</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">fB</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">outB</span> <span class="o">=</span> <span class="n">outA</span>             <span class="c1"># symmetric B-CNN</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">outB</span> <span class="o">=</span> <span class="n">fB</span><span class="p">(</span><span class="n">input_layer</span><span class="p">)</span>  <span class="c1"># asymmetric B-CNN</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">conv1x1</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="n">outA</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Convolution2D</span><span class="p">(</span><span class="n">conv1x1</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Lambda</span><span class="p">(</span><span class="n">pooling</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;bilinear_pooling&#39;</span><span class="p">)([</span><span class="n">outA</span><span class="p">,</span> <span class="n">outB</span><span class="p">])</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Flatten</span><span class="p">()(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">l2_normalize</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">N</span> <span class="ow">in</span> <span class="n">fc_layers</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="n">pred</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">n_classes</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;softmax&#39;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="n">model</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">input_layer</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="n">pred</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">model</span></div>
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">keras-texture 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Ross Meyer.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
+    </div>
+  </body>
+</html>

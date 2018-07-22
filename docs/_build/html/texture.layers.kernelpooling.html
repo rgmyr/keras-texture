@@ -1,0 +1,167 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>texture.layers.kernelpooling module &#8212; keras-texture 0.1 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">keras-texture 0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-texture.layers.kernelpooling">
+<span id="texture-layers-kernelpooling-module"></span><h1>texture.layers.kernelpooling module<a class="headerlink" href="#module-texture.layers.kernelpooling" title="Permalink to this headline">¶</a></h1>
+<p>Implementation of polynomial Kernel Pooling layer with learnable composition: 
+&#64;conference{cui2017cvpr,</p>
+<blockquote>
+<div>title = {Kernel Pooling for Convolutional Neural Networks},
+author = {Yin Cui and Feng Zhou and Jiang Wang and Xiao Liu and Yuanqing Lin and Serge Belongie},
+url = {<a class="reference external" href="https://vision.cornell.edu/se3/wp-content/uploads/2017/04/cui2017cvpr.pdf">https://vision.cornell.edu/se3/wp-content/uploads/2017/04/cui2017cvpr.pdf</a>},
+year = {2017},
+booktitle = {Computer Vision and Pattern Recognition (CVPR)},</div></blockquote>
+<p>}</p>
+<p>_generate_sketch_matrix() borrowed from: <a class="reference external" href="https://github.com/ronghanghu/tensorflow_compact_bilinear_pooling">https://github.com/ronghanghu/tensorflow_compact_bilinear_pooling</a></p>
+<dl class="docutils">
+<dt>sequential_batch_[i]ff from the same repo would be useful for avoiding OOM errors w/ arbitrary batch size</dt>
+<dd><ul class="first last simple">
+<li>does source need an update?</li>
+</ul>
+</dd>
+</dl>
+<dl class="class">
+<dt id="texture.layers.kernelpooling.AlphaInitializer">
+<em class="property">class </em><code class="descclassname">texture.layers.kernelpooling.</code><code class="descname">AlphaInitializer</code><span class="sig-paren">(</span><em>gamma</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/texture/layers/kernelpooling.html#AlphaInitializer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#texture.layers.kernelpooling.AlphaInitializer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="docutils">
+<dt>Callable for setting initial composition_weights given <cite>gamma</cite>. </dt>
+<dd><dl class="first last docutils">
+<dt>Following the Taylor series expansion of the RBF kernel:</dt>
+<dd>K_RBF(x, y) = Sum_i(beta *</dd>
+</dl>
+</dd>
+<dt>rac{(2*gamma)^i}{i!})</dt>
+<dd><dl class="first last docutils">
+<dt>We assume that input vectors are L2-normalized, in which case we have:</dt>
+<dd>(alpha_i)^2 = exp(-2*gamma)*</dd>
+</dl>
+</dd>
+</dl>
+<p>rac{(2*gamma)^i}{i!}</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="texture.layers.kernelpooling.KernelPooling">
+<em class="property">class </em><code class="descclassname">texture.layers.kernelpooling.</code><code class="descname">KernelPooling</code><span class="sig-paren">(</span><em>p=3</em>, <em>d_i=4096</em>, <em>seed=0</em>, <em>gamma=0.0001</em>, <em>X_train=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/texture/layers/kernelpooling.html#KernelPooling"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#texture.layers.kernelpooling.KernelPooling" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">keras.engine.base_layer.Layer</span></code></p>
+<p>Kernel Pooling layer with learnable composition weights. Takes convolution output volume as input, 
+outputs a Taylor series kernel of order <cite>p</cite>. By default the weights are initialized to approximate
+the Gaussian RBF kernel. See the paper for more detailed exposition. Kernel vectors are average
+pooled over all spatial locations (h_i, w_j).</p>
+<p><cite>output_shape=(batches,1+C+Sum(d_2,…,d_p))</cite>, for <cite>input_shape=(batches,H,W,C)</cite>. This implementation 
+follows the paper in assuming that <cite>d_i=d_bar</cite> for all <cite>i&gt;=2</cite>, so <cite>d=1+C+(p-1)*d_i</cite>.</p>
+<dl class="docutils">
+<dt>p <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
+<dd>Order of the polynomial approximation, default=3</dd>
+<dt>d_i <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
+<dd>Dimensionality of output features of each order {2,…,p}, default=4096.</dd>
+<dt>seed <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
+<dd>Random seed for generating sketch matrices. 
+If given, will use range(seed, seed+p) for <cite>h</cite>, and range(seed+p, seed+2p) for <cite>s</cite>.</dd>
+<dt>gamma <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
+<dd>RBF kernel approximation parameter, default=1e-4.</dd>
+<dt>X_train <span class="classifier-delimiter">:</span> <span class="classifier">array, optional</span></dt>
+<dd>Training set of features from which to estimate gamma s.t. kernel closely approximates RBF. 
+If provided, will use reciprocal of mean inner product values. Otherwise, default used.</dd>
+</dl>
+<dl class="method">
+<dt id="texture.layers.kernelpooling.KernelPooling.build">
+<code class="descname">build</code><span class="sig-paren">(</span><em>input_shape</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/texture/layers/kernelpooling.html#KernelPooling.build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#texture.layers.kernelpooling.KernelPooling.build" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="texture.layers.kernelpooling.KernelPooling.call">
+<code class="descname">call</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/texture/layers/kernelpooling.html#KernelPooling.call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#texture.layers.kernelpooling.KernelPooling.call" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="texture.layers.kernelpooling.KernelPooling.compute_output_shape">
+<code class="descname">compute_output_shape</code><span class="sig-paren">(</span><em>input_shape</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/texture/layers/kernelpooling.html#KernelPooling.compute_output_shape"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#texture.layers.kernelpooling.KernelPooling.compute_output_shape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">keras-texture 0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Ross Meyer.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
+    </div>
+  </body>
+</html>
