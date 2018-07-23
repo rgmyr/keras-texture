@@ -1,11 +1,11 @@
-Overview: Encoding-based Models
-===============================
+Encoding Models
+===============
 
 Encoding-based models are those that use a codebook of codeword vectors to compress the output volume of a CNN.
 
 Some approaches learn these codewords in an end-to-end trainable layer (or set of layers). These include ``DeepTEN``, and the ``DEP`` network, which use the ``Encoding`` and ``BilinearModel`` layers.
 
-In other (typically earlier) approaches, the codewords are generated from the distribution of pretrained CNN feature vectors on a the dataset of interest. This package includes the Fisher vector variant of this approach (``FV-CNN``), since it is relatively simple and usually outperforms similar encoding schemes (*e.g.*, ``VLAD``). 
+In other (typically earlier) approaches, the codewords are generated from the distribution of pretrained CNN feature vectors on a the dataset of interest. This package includes the Fisher vector variant of this approach (``FV-CNN``), since it is relatively simple and usually outperforms similar encoding schemes (*e.g.*, ``VLAD``, ``bag-of-words``). 
 
 
 ``Encoding`` Layer
@@ -41,11 +41,11 @@ It is used in the ``Deep Encoding Pooling Network (DEP)`` proposed in `Deep Text
 .. figure:: ./images/DEP_diagram.png
    :alt: DEP-Architecture
 
-The intuition is that the former represents textures (orderless encoding) and the latter represents spatially structured observations, so that "[the] outer product representation captures a pairwise correlation between the material texture encodings and spatial observation structures."
+The intuition is that the former represents textures (via orderless encoding) and the latter represents spatially structured observations, so that "*[the] outer product representation captures a pairwise correlation between the material texture encodings and spatial observation structures.*"
 
 
-FV-CNN Model
-------------
+``FVCNN`` Model
+---------------
 
 The Fisher vector encoding of CNN features was proposed in `Deep filter banks for texture recognition and segmentation <https://www.robots.ox.ac.uk/~vgg/publications/2015/Cimpoi15/cimpoi15.pdf>`__ [2015]. A Fisher vector encoding is parametrized by a Gaussian Mixture Model of the feature vector distribution comprised of ``K`` Gaussians. The Fisher vector representation of a ``NxD`` set of local feature vectors is the concatenation of the channel-wise deviances in mean and variance between the input vectors and the ``K`` Gaussians. 
 

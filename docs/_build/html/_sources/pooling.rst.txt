@@ -1,5 +1,5 @@
-Overview: Pooling-based Models
-==============================
+Pooling Models
+==============
 
 TODO...
 
