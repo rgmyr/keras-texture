@@ -20,6 +20,8 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('../texture'))
+sys.path.insert(0, os.path.abspath('../texture/layers'))
+sys.path.insert(0, os.path.abspath('../texture/cnn'))
 #import texture
 
 

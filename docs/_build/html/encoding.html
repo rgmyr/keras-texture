@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Installation &mdash; keras-texture 0.1 documentation</title>
+  <title>Encoding Layer &mdash; keras-texture 0.1 documentation</title>
   
 
   
@@ -28,8 +28,8 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Encoding Layer" href="encoding.html" />
-    <link rel="prev" title="keras-texture" href="index.html" /> 
+    <link rel="next" title="texture.layers" href="layers.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -82,15 +82,15 @@
               
             
             
-              <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#requirements">Requirements</a></li>
-</ul>
-</li>
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Contents</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="encoding.html"><code class="docutils literal"><span class="pre">Encoding</span></code> Layer</a></li>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#"><code class="docutils literal"><span class="pre">Encoding</span></code> Layer</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#implementation-notes">Implementation Notes</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption"><span class="caption-text">Package Reference</span></p>
 <ul>
@@ -141,13 +141,13 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Installation</li>
+      <li><code class="docutils literal"><span class="pre">Encoding</span></code> Layer</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/installation.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/encoding.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -160,28 +160,20 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="installation">
-<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
-<p>The <code class="docutils literal"><span class="pre">keras-texture</span></code> package is hosted on GitHub. You can clone the repo with:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ git clone https://github.com/rgmyr/keras-texture.git
-</pre></div>
+  <div class="section" id="encoding-layer">
+<h1><code class="docutils literal"><span class="pre">Encoding</span></code> Layer<a class="headerlink" href="#encoding-layer" title="Permalink to this headline">¶</a></h1>
+<p>The residual encoding layer proposed in <a class="reference external" href="https://arxiv.org/pdf/1612.02844.pdf">Deep TEN: Texture Encoding Network</a> [<em>CVPR</em>, 2017]:</p>
+<div class="figure">
+<img alt="Encoding-Layer" src="_images/Encoding-Layer_diagram.png" />
 </div>
-<p>The package can then be installed with the usual <code class="docutils literal"><span class="pre">pip</span></code> mechanisms:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ cd keras-texture
-$ pip install [-e] .
-</pre></div>
-</div>
-<div class="section" id="requirements">
-<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><code class="docutils literal"><span class="pre">keras</span></code> (version &gt;=2.0) with <code class="docutils literal"><span class="pre">tensorflow</span></code> backend</li>
-<li><code class="docutils literal"><span class="pre">numpy</span></code></li>
-<li><code class="docutils literal"><span class="pre">scikit-learn</span></code></li>
-<li>_cyvlfeat</li>
-</ul>
-<p>The <code class="docutils literal"><span class="pre">cyvlfeat</span></code> wrappers are only required when using the <code class="docutils literal"><span class="pre">texture.fisher</span></code> module.</p>
-<p><cite>TensorFlow</cite> is not explicitly required, due to the ambiguity between the <code class="docutils literal"><span class="pre">tensorflow</span></code> and <code class="docutils literal"><span class="pre">tensorflow-gpu</span></code> packages. Either is technically acceptable as a <code class="docutils literal"><span class="pre">keras.backend</span></code>.</p>
-<p>Most functionality in the package will require a GPU, but some models (<em>e.g.</em>, training an <code class="docutils literal"><span class="pre">FV-CNN</span></code> classifier on top of ImageNet pretrained models), can probably be used on a CPU-only machine.</p>
+<p>The layer learns a <code class="docutils literal"><span class="pre">KxD</span></code> dictionary of codewords (a “codebook”), and codeword assignment <code class="docutils literal"><span class="pre">scale</span></code> weights. These are used to encode the residuals of an input of shape <code class="docutils literal"><span class="pre">NxD</span></code> or <code class="docutils literal"><span class="pre">HxWxD</span></code> with respect to the codewords.</p>
+<p>Let $X = {x_1,…,x_n}$ be an input set of $N$ input feature vectors of length $D$, and $C = {c_1,…,c_k}$ be the set of $K$ codewords of length $D$. The residual encodings $E = {e_1,…,e_k}$ are computed as:</p>
+<p>$$ e_j = sum_{i=1}^{N} w_{ij}r_{ij}$$</p>
+<p>Where residual vectors $r_ij = x_i - c_j$, and the weights depend on smoothing/scale factors ${s_i,…,s_k}$, and are given by:</p>
+<p>$$ w_ij = frac{exp(-s_j||r_{ij}||^2)}{sum_{k=1}^{K}exp(-s_k||r_ik||^2)} $$</p>
+<div class="section" id="implementation-notes">
+<h2>Implementation Notes<a class="headerlink" href="#implementation-notes" title="Permalink to this headline">¶</a></h2>
+<p>This <code class="docutils literal"><span class="pre">keras</span></code> implementation is largely based on the <a class="reference external" href="https://github.com/zhanghang1989/PyTorch-Encoding">PyTorch-Encoding</a> release by the paper authors. It includes optional L2 normalization of output vectors (<code class="docutils literal"><span class="pre">True</span></code> by default) and dropout (<code class="docutils literal"><span class="pre">None</span></code> by default). Unlike the <code class="docutils literal"><span class="pre">PyTorch-Encoding</span></code> version, only the number of codewords <code class="docutils literal"><span class="pre">K</span></code> needs to be specified at construction time – the feature size <code class="docutils literal"><span class="pre">D</span></code> is inferred from the <code class="docutils literal"><span class="pre">input_shape</span></code>.</p>
 </div>
 </div>
 
@@ -193,10 +185,10 @@ $ pip install [-e] .
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="encoding.html" class="btn btn-neutral float-right" title="Encoding Layer" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="layers.html" class="btn btn-neutral float-right" title="texture.layers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="index.html" class="btn btn-neutral" title="keras-texture" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="installation.html" class="btn btn-neutral" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
