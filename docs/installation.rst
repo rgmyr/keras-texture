@@ -23,7 +23,7 @@ Requirements
 
 The ``cyvlfeat`` wrappers are only required when using the ``texture.fisher`` module.
 
-`TensorFlow` is not explicitly required, due to the ambiguity between the ``tensorflow`` and ``tensorflow-gpu`` packages. Either is acceptable as a ``keras.backend``. 
+`TensorFlow` is not explicitly required, due to the ambiguity between the ``tensorflow`` and ``tensorflow-gpu`` packages. Either is technically acceptable as a ``keras.backend``. 
 
-Most functionality in the package will probably require a GPU, but some models (*e.g.*, training an ``FVCNN`` classifier on top of ImageNet pretrained models), could probably be used on a CPU-only machine.
+Most functionality in the package will require a GPU, but some models (*e.g.*, training an ``FV-CNN`` classifier on top of ImageNet pretrained models), can probably be used on a CPU-only machine.
 
