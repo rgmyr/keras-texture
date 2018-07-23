@@ -178,7 +178,7 @@
           <span class="s1">&#39;inception_resnet_v2&#39;</span> <span class="p">:</span> <span class="n">applications</span><span class="o">.</span><span class="n">inception_resnet_v2</span><span class="o">.</span><span class="n">InceptionResNetV2</span><span class="p">}</span>
 
 
-<div class="viewcode-block" id="FVCNN"><a class="viewcode-back" href="../../../texture.fisher.fvcnn.html#texture.fisher.fvcnn.FVCNN">[docs]</a><span class="k">class</span> <span class="nc">FVCNN</span><span class="p">():</span>
+<div class="viewcode-block" id="FVCNN"><a class="viewcode-back" href="../../../texture.fisher.html#texture.fisher.fvcnn.FVCNN">[docs]</a><span class="k">class</span> <span class="nc">FVCNN</span><span class="p">():</span>
     <span class="sd">&#39;&#39;&#39;FV-CNN class fits a Gaussian Mixture Model to the output of a pretrained CNN </span>
 <span class="sd">    on a new training set X, and uses the GMM to parameterize the Fisher vector encoding </span>
 <span class="sd">    of arbitrary inputs. Encodings may be generated directly,or to train a SVM classifier </span>
@@ -206,7 +206,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">D</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cnn</span><span class="o">.</span><span class="n">output_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="FVCNN.fit"><a class="viewcode-back" href="../../../texture.fisher.fvcnn.html#texture.fisher.fvcnn.FVCNN.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">gmm_init</span><span class="o">=</span><span class="s1">&#39;kmeans&#39;</span><span class="p">,</span> <span class="n">svc_kernel</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span> <span class="n">svc_penalty</span><span class="o">=</span><span class="s1">&#39;l2&#39;</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="FVCNN.fit"><a class="viewcode-back" href="../../../texture.fisher.html#texture.fisher.fvcnn.FVCNN.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">gmm_init</span><span class="o">=</span><span class="s1">&#39;kmeans&#39;</span><span class="p">,</span> <span class="n">svc_kernel</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span> <span class="n">svc_penalty</span><span class="o">=</span><span class="s1">&#39;l2&#39;</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Fit a GMM with `k` clusters using the sample images `X`. Then train a SVC on</span>
 <span class="sd">        on the Fisher vector encodings of `X`, given the class labels `y`</span>
 <span class="sd">        </span>
@@ -273,7 +273,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">svc</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">fv_X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="FVCNN.score"><a class="viewcode-back" href="../../../texture.fisher.fvcnn.html#texture.fisher.fvcnn.FVCNN.score">[docs]</a>    <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">):</span>
+<div class="viewcode-block" id="FVCNN.score"><a class="viewcode-back" href="../../../texture.fisher.html#texture.fisher.fvcnn.FVCNN.score">[docs]</a>    <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Get mean accuracy of SVC on test set.</span>
 
 <span class="sd">        Parameters</span>
@@ -295,7 +295,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">svc</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">fv_X</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="FVCNN.predict"><a class="viewcode-back" href="../../../texture.fisher.fvcnn.html#texture.fisher.fvcnn.FVCNN.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+<div class="viewcode-block" id="FVCNN.predict"><a class="viewcode-back" href="../../../texture.fisher.html#texture.fisher.fvcnn.FVCNN.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Use trained FVCNN.svc to predict classes for a batch of samples X.</span>
 
 <span class="sd">        Parameters</span>
@@ -314,7 +314,7 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">svc</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">fv_X</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="FVCNN.encode"><a class="viewcode-back" href="../../../texture.fisher.fvcnn.html#texture.fisher.fvcnn.FVCNN.encode">[docs]</a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="FVCNN.encode"><a class="viewcode-back" href="../../../texture.fisher.html#texture.fisher.fvcnn.FVCNN.encode">[docs]</a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Generate the Fisher vector representation of an image or its feature vectors.</span>
 
 <span class="sd">        Parameters</span>
@@ -343,7 +343,7 @@
                              <span class="n">improved</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fast</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="FVCNN.encode_batch"><a class="viewcode-back" href="../../../texture.fisher.fvcnn.html#texture.fisher.fvcnn.FVCNN.encode_batch">[docs]</a>    <span class="k">def</span> <span class="nf">encode_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+<div class="viewcode-block" id="FVCNN.encode_batch"><a class="viewcode-back" href="../../../texture.fisher.html#texture.fisher.fvcnn.FVCNN.encode_batch">[docs]</a>    <span class="k">def</span> <span class="nf">encode_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Encode 4D image batch array or list of 3D image arrays.&#39;&#39;&#39;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
             <span class="n">N</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>

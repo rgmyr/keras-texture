@@ -1,60 +1,312 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>texture.layers package &#8212; keras-texture 0.1 documentation</title>
-    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '0.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>texture.layers package &mdash; keras-texture 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
-  </head>
-  <body>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">keras-texture 0.1 documentation</a> &#187;</li> 
-      </ul>
-    </div>  
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> keras-texture
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Package Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cnn.html">texture.cnn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="layers.html">texture.layers</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">keras-texture</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>texture.layers package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/texture.layers.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <div class="section" id="texture-layers-package">
 <h1>texture.layers package<a class="headerlink" href="#texture-layers-package" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="texture.layers.bilinearmodel.html">texture.layers.bilinearmodel module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="texture.layers.encoding.html">texture.layers.encoding module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="texture.layers.kernelpooling.html">texture.layers.kernelpooling module</a></li>
-</ul>
 </div>
+<div class="section" id="module-texture.layers.bilinearmodel">
+<span id="texture-layers-bilinearmodel-module"></span><h2>texture.layers.bilinearmodel module<a class="headerlink" href="#module-texture.layers.bilinearmodel" title="Permalink to this headline">¶</a></h2>
+<p>Keras layer for weighted bilinear modeling of two 1-D feature vectors</p>
+<p>TODO: - tests for BilinearModel layer</p>
+<dl class="function">
+<dt id="texture.layers.bilinearmodel.BilinearModel">
+<code class="descclassname">texture.layers.bilinearmodel.</code><code class="descname">BilinearModel</code><span class="sig-paren">(</span><em>Layer</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/texture/layers/bilinearmodel.html#BilinearModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#texture.layers.bilinearmodel.BilinearModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Weighted bilinear model of two inputs. Useful for learning a model of linear interactions
+between seperate feature types (e.g., texture X spatial) or scales (e.g., dense X dilated), etc.</p>
+<p>#TODO: finish docstring</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-texture.layers.encoding">
+<span id="texture-layers-encoding-module"></span><h2>texture.layers.encoding module<a class="headerlink" href="#module-texture.layers.encoding" title="Permalink to this headline">¶</a></h2>
+<p>Keras 2.0+ / TensorFlow implementation of learnable encoding layer proposed in:</p>
+<blockquote>
+<div>Hang Zhang, Jia Xue, and Kristin Dana. “Deep TEN: Texture Encoding Network.”
+<em>The IEEE Conference on Computer Vision and Pattern Recognition (CVPR) 2017</em></div></blockquote>
+<p>Borrows from PyTorch implementation released by Hang Zhang: <a class="reference external" href="https://github.com/zhanghang1989/PyTorch-Encoding">https://github.com/zhanghang1989/PyTorch-Encoding</a></p>
+<dl class="class">
+<dt id="texture.layers.encoding.Encoding">
+<em class="property">class </em><code class="descclassname">texture.layers.encoding.</code><code class="descname">Encoding</code><span class="sig-paren">(</span><em>K</em>, <em>dropout=None</em>, <em>l2_normalize=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/texture/layers/encoding.html#Encoding"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#texture.layers.encoding.Encoding" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">keras.engine.base_layer.Layer</span></code></p>
+<p>Residual encoding layer with learnable codebook and scaling factors.</p>
+<p>Encodes an collection of NxD features into set of KxD vectors. Unlike PyTorch
+implementation, D is inferred automatically from input_shape.</p>
+<p>Allowed <a href="#id1"><span class="problematic" id="id2">`</span></a>input_shape`s are (batches, N, D) or (batches, H, W, D).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>K</strong> (<em>int</em>) – Number of codewords to learn</li>
+<li><strong>dropout</strong> (<em>float</em><em>, </em><em>optional</em>) – <dl class="docutils">
+<dt>Dropout rate between [0.0,1.0), or <cite>None</cite>, default=`None`.</dt>
+<dd>Currently applied to <cite>scale</cite> factors, which is equivalent to
+zeroing out <cite>dropout</cite> fraction of the aggregated codewords.</dd>
+</dl>
+</li>
+<li><strong>l2_normalize</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to normalize output vectors, default=`True`.</li>
+<li><strong>TODO</strong> – <ul>
+<li>make sure dropout only applied during training</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="texture.layers.encoding.Encoding.build">
+<code class="descname">build</code><span class="sig-paren">(</span><em>input_shape</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/texture/layers/encoding.html#Encoding.build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#texture.layers.encoding.Encoding.build" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="texture.layers.encoding.Encoding.call">
+<code class="descname">call</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/texture/layers/encoding.html#Encoding.call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#texture.layers.encoding.Encoding.call" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="texture.layers.encoding.Encoding.compute_output_shape">
+<code class="descname">compute_output_shape</code><span class="sig-paren">(</span><em>input_shape</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/texture/layers/encoding.html#Encoding.compute_output_shape"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#texture.layers.encoding.Encoding.compute_output_shape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-texture.layers.kernelpooling">
+<span id="texture-layers-kernelpooling-module"></span><h2>texture.layers.kernelpooling module<a class="headerlink" href="#module-texture.layers.kernelpooling" title="Permalink to this headline">¶</a></h2>
+<p>Implementation of polynomial Kernel Pooling layer with learnable composition:
+&#64;conference{cui2017cvpr,</p>
+<blockquote>
+<div>title = {Kernel Pooling for Convolutional Neural Networks},
+author = {Yin Cui and Feng Zhou and Jiang Wang and Xiao Liu and Yuanqing Lin and Serge Belongie},
+url = {<a class="reference external" href="https://vision.cornell.edu/se3/wp-content/uploads/2017/04/cui2017cvpr.pdf">https://vision.cornell.edu/se3/wp-content/uploads/2017/04/cui2017cvpr.pdf</a>},
+year = {2017},
+booktitle = {Computer Vision and Pattern Recognition (CVPR)},</div></blockquote>
+<p>}
+_generate_sketch_matrix() borrowed from: <a class="reference external" href="https://github.com/ronghanghu/tensorflow_compact_bilinear_pooling">https://github.com/ronghanghu/tensorflow_compact_bilinear_pooling</a>
+sequential_batch_[i]ff from the same repo would be useful for avoiding OOM errors w/ arbitrary batch size</p>
+<blockquote>
+<div><ul class="simple">
+<li>does source need an update?</li>
+</ul>
+</div></blockquote>
+<dl class="class">
+<dt id="texture.layers.kernelpooling.AlphaInitializer">
+<em class="property">class </em><code class="descclassname">texture.layers.kernelpooling.</code><code class="descname">AlphaInitializer</code><span class="sig-paren">(</span><em>gamma</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/texture/layers/kernelpooling.html#AlphaInitializer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#texture.layers.kernelpooling.AlphaInitializer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="docutils">
+<dt>Callable for setting initial composition_weights given <cite>gamma</cite>.</dt>
+<dd><dl class="first last docutils">
+<dt>Following the Taylor series expansion of the RBF kernel:</dt>
+<dd>K_RBF(x, y) = Sum_i(beta *</dd>
+</dl>
+</dd>
+<dt>rac{(2*gamma)^i}{i!})</dt>
+<dd><dl class="first last docutils">
+<dt>We assume that input vectors are L2-normalized, in which case we have:</dt>
+<dd>(alpha_i)^2 = exp(-2*gamma)*</dd>
+</dl>
+</dd>
+</dl>
+<p>rac{(2*gamma)^i}{i!}</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="texture.layers.kernelpooling.KernelPooling">
+<em class="property">class </em><code class="descclassname">texture.layers.kernelpooling.</code><code class="descname">KernelPooling</code><span class="sig-paren">(</span><em>p=3</em>, <em>d_i=4096</em>, <em>seed=0</em>, <em>gamma=0.0001</em>, <em>X_train=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/texture/layers/kernelpooling.html#KernelPooling"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#texture.layers.kernelpooling.KernelPooling" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">keras.engine.base_layer.Layer</span></code></p>
+<p>Kernel Pooling layer with learnable composition weights. Takes convolution output volume as input,
+outputs a Taylor series kernel of order <cite>p</cite>. By default the weights are initialized to approximate
+the Gaussian RBF kernel. See the paper for more detailed exposition. Kernel vectors are average
+pooled over all spatial locations (h_i, w_j).</p>
+<p><cite>output_shape=(batches,1+C+Sum(d_2,…,d_p))</cite>, for <cite>input_shape=(batches,H,W,C)</cite>. This implementation
+follows the paper in assuming that <cite>d_i=d_bar</cite> for all <cite>i&gt;=2</cite>, so <cite>d=1+C+(p-1)*d_i</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>p</strong> (<em>int</em><em>, </em><em>optional</em>) – Order of the polynomial approximation, default=3</li>
+<li><strong>d_i</strong> (<em>int</em><em>, </em><em>optional</em>) – Dimensionality of output features of each order {2,…,p}, default=4096.</li>
+<li><strong>seed</strong> (<em>int</em><em>, </em><em>optional</em>) – Random seed for generating sketch matrices.
+If given, will use range(seed, seed+p) for <cite>h</cite>, and range(seed+p, seed+2p) for <cite>s</cite>.</li>
+<li><strong>gamma</strong> (<em>float</em><em>, </em><em>optional</em>) – RBF kernel approximation parameter, default=1e-4.</li>
+<li><strong>X_train</strong> (<em>array</em><em>, </em><em>optional</em>) – Training set of features from which to estimate gamma s.t. kernel closely approximates RBF.
+If provided, will use reciprocal of mean inner product values. Otherwise, default used.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="texture.layers.kernelpooling.KernelPooling.build">
+<code class="descname">build</code><span class="sig-paren">(</span><em>input_shape</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/texture/layers/kernelpooling.html#KernelPooling.build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#texture.layers.kernelpooling.KernelPooling.build" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="texture.layers.kernelpooling.KernelPooling.call">
+<code class="descname">call</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/texture/layers/kernelpooling.html#KernelPooling.call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#texture.layers.kernelpooling.KernelPooling.call" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="texture.layers.kernelpooling.KernelPooling.compute_output_shape">
+<code class="descname">compute_output_shape</code><span class="sig-paren">(</span><em>input_shape</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/texture/layers/kernelpooling.html#KernelPooling.compute_output_shape"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#texture.layers.kernelpooling.KernelPooling.compute_output_shape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="module-texture.layers">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-texture.layers" title="Permalink to this headline">¶</a></h2>
@@ -63,40 +315,60 @@
 </div>
 
 
+           </div>
+           
           </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Ross Meyer.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">keras-texture 0.1 documentation</a> &#187;</li> 
-      </ul>
-    </div>
-    <div class="footer" role="contentinfo">
-        &#169; Copyright 2018, Ross Meyer.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
-    </div>
-  </body>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
 </html>

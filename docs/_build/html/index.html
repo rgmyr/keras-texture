@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Contents: &mdash; keras-texture 0.1 documentation</title>
+  <title>keras-texture &mdash; keras-texture 0.1 documentation</title>
   
 
   
@@ -133,7 +133,7 @@
     
       <li><a href="#">Docs</a> &raquo;</li>
         
-      <li>Contents:</li>
+      <li>keras-texture</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -152,8 +152,230 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="contents">
-<h1>Contents:<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h1>
+  <p><strong>TODO</strong>:</p>
+<ul class="simple">
+<li>Weight initializers<ul>
+<li>Logistic Regression init. for <code class="docutils literal"><span class="pre">softmax</span></code> layers (esp. for large
+layers – e.g., bilinear pooling output)</li>
+<li>Try
+<a class="reference external" href="https://github.com/keras-team/keras-contrib/blob/master/keras_contrib/initializers/convaware.py">ConvolutionAware</a>
+for CNNs?</li>
+</ul>
+</li>
+<li>Expand base CNN builders<ul>
+<li>Convert weights from ResNet18/34 pre-trained <code class="docutils literal"><span class="pre">Caffe</span></code> models</li>
+<li>Check out wide/dilated ResNet blocks from
+<a class="reference external" href="https://github.com/keras-team/keras-contrib/blob/master/keras_contrib/applications">keras-contrib/applications</a>)</li>
+</ul>
+</li>
+<li>Implement <em>compact</em> bilinear pooling</li>
+<li>Figure out Buffer bugs when passing <code class="docutils literal"><span class="pre">covariance_bound</span></code> to
+<code class="docutils literal"><span class="pre">cyvlfeat.gmm.gmm</span></code></li>
+<li>Tests and benchmarks</li>
+</ul>
+<div class="section" id="keras-texture">
+<h1>keras-texture<a class="headerlink" href="#keras-texture" title="Permalink to this headline">¶</a></h1>
+<p>Implementations of several <code class="docutils literal"><span class="pre">keras</span></code> layers, model classes, and other
+utilities that are useful in constructing models for texture recognition
+and fine-grained classification problems. It is a <strong>work in progress</strong>,
+and the <code class="docutils literal"><span class="pre">tensorflow</span></code> backend is required for most functionality.</p>
+<p>Develop-mode installable with <code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.</span></code> Root module of
+package is <code class="docutils literal"><span class="pre">texture</span></code>.</p>
+<div class="section" id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">numpy</span></code></li>
+<li><code class="docutils literal"><span class="pre">scikit-image</span></code></li>
+<li><code class="docutils literal"><span class="pre">keras</span></code>&gt;=2.0</li>
+<li><code class="docutils literal"><span class="pre">tensorflow</span></code></li>
+</ul>
+<p>The TensorFlow requirement is not enforced in <code class="docutils literal"><span class="pre">setup.py</span></code>, due to the
+ambiguity between <code class="docutils literal"><span class="pre">tensorflow</span></code> and <code class="docutils literal"><span class="pre">tensorflow-gpu</span></code>. This package
+allows CPU or GPU versions, since some functionality (<em>e.g.</em>, Fisher
+vector encoding with pretrained models) shouldn’t necessarily require a
+GPU.</p>
+<div class="section" id="additional-requirements-fv-cnn">
+<h3>Additional requirements: FV-CNN<a class="headerlink" href="#additional-requirements-fv-cnn" title="Permalink to this headline">¶</a></h3>
+<p>Use of the Fisher vector CNN class (<code class="docutils literal"><span class="pre">texture.fisher.FVCNN</span></code>) requires
+the <a class="reference external" href="https://github.com/menpo/cyvlfeat">cyvlfeat</a> wrappers for
+VLFeat, which should be installed using conda:
+<code class="docutils literal"><span class="pre">conda</span> <span class="pre">install</span> <span class="pre">-c</span> <span class="pre">menpo</span> <span class="pre">cyvlfeat</span></code>, if at all possible. It also
+requires <code class="docutils literal"><span class="pre">scikit-learn</span></code>, particularly the <code class="docutils literal"><span class="pre">svm.LinearSVC</span></code> class.</p>
+<p>Neither of these packages are required in other <code class="docutils literal"><span class="pre">texture</span></code> modules, so
+they are not explicitly enforced in <code class="docutils literal"><span class="pre">setup.py</span></code>.</p>
+</div>
+</div>
+</div>
+<div class="section" id="contents">
+<h1>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="encoding-layer">
+<h2><code class="docutils literal"><span class="pre">Encoding</span></code> Layer<a class="headerlink" href="#encoding-layer" title="Permalink to this headline">¶</a></h2>
+<p>The residual encoding layer proposed in <a class="reference external" href="https://arxiv.org/pdf/1612.02844.pdf">Deep TEN: Texture Encoding
+Network</a> [<em>CVPR</em>, 2017]. This
+<code class="docutils literal"><span class="pre">keras</span></code> implementation is largely based on the
+<a class="reference external" href="https://github.com/zhanghang1989/PyTorch-Encoding">PyTorch-Encoding</a>
+release by the paper authors.</p>
+<div class="figure">
+<img alt="Encoding-Layer" src="_images/Encoding-Layer_diagram.png" />
+</div>
+<p>The layer learns a <code class="docutils literal"><span class="pre">KxD</span></code> dictionary of codewords (a “codebook”), and
+codeword assignment <code class="docutils literal"><span class="pre">scale</span></code> weights. These are used to encode the
+residuals of an input of shape <code class="docutils literal"><span class="pre">NxD</span></code> or <code class="docutils literal"><span class="pre">HxWxD</span></code> with respect to the
+codewords. Includes optional L2 normalization of output vectors
+(<code class="docutils literal"><span class="pre">True</span></code> by default) and dropout (<code class="docutils literal"><span class="pre">None</span></code> by default). Unlike the
+<code class="docutils literal"><span class="pre">PyTorch-Encoding</span></code> version, only the number of codewords <code class="docutils literal"><span class="pre">K</span></code> needs
+to be specified at construction time – the feature size <code class="docutils literal"><span class="pre">D</span></code> is
+inferred from the <code class="docutils literal"><span class="pre">input_shape</span></code>.</p>
+</div>
+<div class="section" id="bilinearmodel-layer">
+<h2><code class="docutils literal"><span class="pre">BilinearModel</span></code> Layer<a class="headerlink" href="#bilinearmodel-layer" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal"><span class="pre">BilinearModel</span></code> is a trainable <code class="docutils literal"><span class="pre">keras</span></code> layer implementing the
+weighted outer product of inputs with shape
+<code class="docutils literal"><span class="pre">[(batches,N),(batches,M)]</span></code>. The original idea of bilinear modeling
+for computer vision problems was proposed in <a class="reference external" href="http://www.merl.com/publications/docs/TR96-37.pdf">Learning Bilinear Models
+for Two-Factor Problems in
+Vision</a> [<em>CVPR</em>,
+1997].</p>
+<p>It is used in the <code class="docutils literal"><span class="pre">Deep</span> <span class="pre">Encoding</span> <span class="pre">Pooling</span> <span class="pre">Network</span> <span class="pre">(DEP)</span></code> proposed in
+<a class="reference external" href="https://arxiv.org/abs/1803.10896">Deep Texture Manifold for Ground Terrain
+Recognition</a> [<em>CVPR</em>, 2018] to
+merge the output of an <code class="docutils literal"><span class="pre">Encoding</span></code> layer with the output of a standard
+global average pooling, where both features are extracted from <code class="docutils literal"><span class="pre">conv</span></code>
+output of the same <code class="docutils literal"><span class="pre">ResNet</span></code> base. The intuition is that the former
+represents textures (orderless encoding) and the latter represents
+spatially structured observations, so that “[the] outer product
+representation captures a pairwise correlation between the material
+texture encodings and spatial observation structures.”</p>
+<div class="figure">
+<img alt="DEP-Architecture" src="_images/DEP_diagram.png" />
+</div>
+</div>
+<div class="section" id="kernelpooling-layer">
+<h2><code class="docutils literal"><span class="pre">KernelPooling</span></code> Layer<a class="headerlink" href="#kernelpooling-layer" title="Permalink to this headline">¶</a></h2>
+<p>Implementation of <a class="reference external" href="https://vision.cornell.edu/se3/wp-content/uploads/2017/04/cui2017cvpr.pdf">Kernel Pooling for Convolutional Neural
+Networks</a>
+[<em>CVPR</em>, 2017]. The layer uses the Count Sketch projection to compute a
+<em>p</em>-order Taylor series kernel with learnable composition. The
+composition weights <em>alpha</em> are initialized to approximate a Gaussian
+RBF kernel. The kernel is computed over all local feature vectors
+<code class="docutils literal"><span class="pre">(h_i,</span> <span class="pre">w_j)</span></code> in the input volume and then average pooled.</p>
+<div class="figure">
+<img alt="Kernel-Pooling" src="_images/kernel_pooling_diagram.png" />
+</div>
+<p>Construction paramters include <code class="docutils literal"><span class="pre">p</span></code> (order of the kernel
+approximation), <code class="docutils literal"><span class="pre">d_i</span></code> (dimensionality for each order <code class="docutils literal"><span class="pre">i&gt;=2</span></code>). Output
+has shape <code class="docutils literal"><span class="pre">(batches,</span> <span class="pre">1+C+(p-1)*d_i)</span></code>, where <code class="docutils literal"><span class="pre">C</span></code> is the number of
+input channels.</p>
+<p>The <em>gamma</em> parameter, which determines <em>alpha</em> values in the
+approximation under the assumption of L2-normalized input vectors, can
+optionally be estimated using a set of training feature vectors.</p>
+</div>
+<div class="section" id="bilinear-pooling">
+<h2>Bilinear <code class="docutils literal"><span class="pre">pooling</span></code><a class="headerlink" href="#bilinear-pooling" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal"><span class="pre">bilinearpooling.py</span></code> provides a few convenience functions for creating
+symmetric or asymmetric B-CNN models in Keras with bilinear pooling, as
+proposed in <a class="reference external" href="http://vis-www.cs.umass.edu/bcnn/docs/bcnn_iccv15.pdf">Bilinear CNNs for Fine-grained Visual
+Recognition</a>
+(<em>ICCV</em>, 2015).</p>
+<p><code class="docutils literal"><span class="pre">bilinearpooling.pooling</span></code>:</p>
+<ul class="simple">
+<li>Average pooling of local feature vector outer products in
+<code class="docutils literal"><span class="pre">tensorflow</span></code></li>
+<li>Includes element-wise signed square root and L2 normalization</li>
+<li>If using <code class="docutils literal"><span class="pre">combine</span></code>, you won’t need to reference this explicitly</li>
+</ul>
+<p><code class="docutils literal"><span class="pre">bilinearpooling.combine</span></code>:</p>
+<ul class="simple">
+<li>Takes two <code class="docutils literal"><span class="pre">keras</span></code> models <code class="docutils literal"><span class="pre">fA</span></code> and <code class="docutils literal"><span class="pre">fB</span></code> with output shapes
+<code class="docutils literal"><span class="pre">(N,</span> <span class="pre">H,</span> <span class="pre">W,</span> <span class="pre">cA)</span></code>, <code class="docutils literal"><span class="pre">(N,</span> <span class="pre">H,</span> <span class="pre">W,</span> <span class="pre">cB)</span></code></li>
+<li>Maps <code class="docutils literal"><span class="pre">[fA.output,</span> <span class="pre">fB.output]</span></code> to shape <code class="docutils literal"><span class="pre">(N,</span> <span class="pre">cA,</span> <span class="pre">cB)</span></code> with
+<code class="docutils literal"><span class="pre">bilinear.pooling</span></code></li>
+<li>Flattens, connects to <code class="docutils literal"><span class="pre">softmax</span></code> output using a specifiable number
+of <code class="docutils literal"><span class="pre">Dense</span></code> layers.</li>
+<li>Returns the resulting <code class="docutils literal"><span class="pre">keras.models.Model</span></code> instance</li>
+</ul>
+<div class="section" id="usage-notes">
+<h3>Usage Notes<a class="headerlink" href="#usage-notes" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Be careful with reuse of single model for <code class="docutils literal"><span class="pre">fA</span></code> and <code class="docutils literal"><span class="pre">fB</span></code> (<em>e.g.</em>,
+asymmetry via different output layers). Weights will be shared if you
+use the same instantiation of the original model to generate both
+models.</li>
+</ul>
+<p>If the dimensionality of local feature vectors is 512, and there are
+<code class="docutils literal"><span class="pre">N</span></code> classes, the size of a fully-connected classification layer will
+be very large (<code class="docutils literal"><span class="pre">512*512*N=262,144*N</span></code>). With random weight
+initialization, it seems pretty difficult to train a layer of this size
+for moderate to large <code class="docutils literal"><span class="pre">N</span></code>, so I’m looking at writing an initializer
+that uses logistic regression, something which is <em>not</em> mentioned in the
+paper, but which is present in the authors’ matlab release.</p>
+</div>
+</div>
+<div class="section" id="fv-cnn">
+<h2>FV-CNN<a class="headerlink" href="#fv-cnn" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal"><span class="pre">texture.fisher</span></code> module provides the <code class="docutils literal"><span class="pre">FVCNN</span></code> class for
+generating Fisher vector encodings from pretrained CNNs using the
+<code class="docutils literal"><span class="pre">cyvlfeat</span></code> wrappers for the <code class="docutils literal"><span class="pre">VLFeat</span></code> C library. A <code class="docutils literal"><span class="pre">FVCNN</span></code> instance
+can be constructed with an arbitrary CNN, or with a string specifying
+one of the supported ImageNet-pretrained models from
+<code class="docutils literal"><span class="pre">keras.applications</span></code>. A training set of images is required to generate
+the Gaussian Mixture Model of local feature vector distribution and
+train a support vector classifier. The training set can be a batch-style
+4D numpy array, or a list of variable-size 3D image arrays.</p>
+</div>
+<div class="section" id="benchmarks">
+<h2>Benchmarks<a class="headerlink" href="#benchmarks" title="Permalink to this headline">¶</a></h2>
+<p>Working on benchmarking models constructed with various texture
+recognition datasets:</p>
+<p>Some fine-grained classification datasets are also of interest, but
+benchmarking those has a lower priority for me at the moment:</p>
+<ul class="simple">
+<li><a class="reference external" href="http://www.vision.caltech.edu/visipedia/CUB-200-2011.html">Birds-200</a>
+(2011 version)</li>
+<li><a class="reference external" href="http://www.robots.ox.ac.uk/~vgg/data/fgvc-aircraft/">FGVC-Aircraft</a></li>
+<li><a class="reference external" href="https://ai.stanford.edu/~jkrause/cars/car_dataset.html">Cars</a></li>
+</ul>
+</div>
+<div class="section" id="further-improvements">
+<h2>Further Improvements<a class="headerlink" href="#further-improvements" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="encoding">
+<h3>Encoding<a class="headerlink" href="#encoding" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Smaller <code class="docutils literal"><span class="pre">ResNet</span></code>-based constructors for feature networks</li>
+</ul>
+</div>
+<div class="section" id="bilinear">
+<h3>Bilinear<a class="headerlink" href="#bilinear" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Add Logistic Regression initialization for <code class="docutils literal"><span class="pre">softmax</span></code> layer</li>
+<li>Add support for <code class="docutils literal"><span class="pre">fA</span></code> and <code class="docutils literal"><span class="pre">fB</span></code> to have different input shapes
+(technically only output shapes need to correspond).</li>
+<li>Add support for <code class="docutils literal"><span class="pre">fA</span></code> and <code class="docutils literal"><span class="pre">fB</span></code> to have different output shapes
+(crop/interpolate/pool to match them)</li>
+</ul>
+<p>Would also like to add the matrix square root normalization layer as
+described in:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="nd">@inproceedings</span><span class="p">{</span><span class="n">lin2017impbcnn</span><span class="p">,</span>
+    <span class="n">Author</span> <span class="o">=</span> <span class="p">{</span><span class="n">Tsung</span><span class="o">-</span><span class="n">Yu</span> <span class="n">Lin</span><span class="p">,</span> <span class="ow">and</span> <span class="n">Subhransu</span> <span class="n">Maji</span><span class="p">},</span>
+    <span class="n">Booktitle</span> <span class="o">=</span> <span class="p">{</span><span class="n">British</span> <span class="n">Machine</span> <span class="n">Vision</span> <span class="n">Conference</span> <span class="p">(</span><span class="n">BMVC</span><span class="p">)},</span>
+    <span class="n">Title</span> <span class="o">=</span> <span class="p">{</span><span class="n">Improved</span> <span class="n">Bilinear</span> <span class="n">Pooling</span> <span class="k">with</span> <span class="n">CNNs</span><span class="p">},</span>
+    <span class="n">Year</span> <span class="o">=</span> <span class="p">{</span><span class="mi">2017</span><span class="p">}}</span>
+</pre></div>
+</div>
+<p>Authors claim this improves accuracy by several % on fine-grained
+recognition benchmarks.</p>
+</div>
+<div class="section" id="dep">
+<h3>DEP<a class="headerlink" href="#dep" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Utilities for combining a base CNN with <code class="docutils literal"><span class="pre">Encoding</span></code> &amp;
+<code class="docutils literal"><span class="pre">BilinearModel</span></code> to create a <code class="docutils literal"><span class="pre">Deep</span> <span class="pre">Encoding</span> <span class="pre">Pooling</span> <span class="pre">Network</span></code>.</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="section" id="id1">
+<h1>Contents:<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>

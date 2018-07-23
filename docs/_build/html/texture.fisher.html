@@ -1,58 +1,297 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>texture.fisher package &#8212; keras-texture 0.1 documentation</title>
-    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '0.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>texture.fisher package &mdash; keras-texture 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
-  </head>
-  <body>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">keras-texture 0.1 documentation</a> &#187;</li> 
-      </ul>
-    </div>  
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> keras-texture
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Package Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cnn.html">texture.cnn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="layers.html">texture.layers</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">keras-texture</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>texture.fisher package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/texture.fisher.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <div class="section" id="texture-fisher-package">
 <h1>texture.fisher package<a class="headerlink" href="#texture-fisher-package" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="texture.fisher.fvcnn.html">texture.fisher.fvcnn module</a></li>
-</ul>
 </div>
+<div class="section" id="module-texture.fisher.fvcnn">
+<span id="texture-fisher-fvcnn-module"></span><h2>texture.fisher.fvcnn module<a class="headerlink" href="#module-texture.fisher.fvcnn" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="texture.fisher.fvcnn.FVCNN">
+<em class="property">class </em><code class="descclassname">texture.fisher.fvcnn.</code><code class="descname">FVCNN</code><span class="sig-paren">(</span><em>CNN</em>, <em>k=64</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/texture/fisher/fvcnn.html#FVCNN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#texture.fisher.fvcnn.FVCNN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>FV-CNN class fits a Gaussian Mixture Model to the output of a pretrained CNN
+on a new training set X, and uses the GMM to parameterize the Fisher vector encoding
+of arbitrary inputs. Encodings may be generated directly,or to train a SVM classifier
+within the class instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>CNN</strong> (<cite>keras.models.Model</cite> or str) – Either a <cite>keras</cite> Model instance, or one of {‘vgg16’,’vgg19’,’resnet50’,…}
+If str, loads the corresponding ImageNet model from <cite>keras.applications</cite>.</li>
+<li><strong>k</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of clusters to use for the GMM, default=64.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="texture.fisher.fvcnn.FVCNN.encode">
+<code class="descname">encode</code><span class="sig-paren">(</span><em>x</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/texture/fisher/fvcnn.html#FVCNN.encode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#texture.fisher.fvcnn.FVCNN.encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate the Fisher vector representation of an image or its feature vectors.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>H</em><em>,</em><em>W</em><em>,</em><em>C</em><em>) or </em><em>(</em><em>M</em><em>,</em><em>D</em><em>)</em>) – An input image, or a set of local feature vectors for the image.
+If (H,W,D), the (M,D) feature vectors are extracted using the CNN.</li>
+<li><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to print FV information from VLFeat call, default=False.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>encoding</strong> – FV encoding of img, where k=num_clusters in GMM and D is CNN output depth.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">array, shape (2*k*D,)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="texture.fisher.fvcnn.FVCNN.encode_batch">
+<code class="descname">encode_batch</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/texture/fisher/fvcnn.html#FVCNN.encode_batch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#texture.fisher.fvcnn.FVCNN.encode_batch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encode 4D image batch array or list of 3D image arrays.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="texture.fisher.fvcnn.FVCNN.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>gmm_init='kmeans'</em>, <em>svc_kernel='linear'</em>, <em>svc_penalty='l2'</em>, <em>C=1.0</em>, <em>seed=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/texture/fisher/fvcnn.html#FVCNN.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#texture.fisher.fvcnn.FVCNN.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit a GMM with <cite>k</cite> clusters using the sample images <cite>X</cite>. Then train a SVC on
+on the Fisher vector encodings of <cite>X</cite>, given the class labels <cite>y</cite></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>X</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>N</em><em>,</em><em>H</em><em>,</em><em>W</em><em>,</em><em>C</em><em>)</em><em>, or </em><em>list of N arrays w/ shapes</em><em> (</em><em>H_i</em><em>,</em><em>W_i</em><em>,</em><em>C</em><em>)</em>) – A set of training images from which to generate a sample of CNN
+feature vectors to which a GMM will be fit. <cite>C</cite> should match the
+<cite>input_shape</cite> of the CNN (must be 3 for ImageNet pretrained models).</li>
+<li><strong>y</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>N</em><em>,</em><em>)</em>) – Array of class labels of images in <cite>X</cite>.</li>
+<li><strong>gmm_init</strong> (<em>str</em><em>, </em><em>optional</em>) – Method to use for GMM initialization. One of {‘kmeans’, ‘rand’}. Default = ‘kmeans’.
+Custom init is also possible through <cite>cyvlfeat</cite>, but is not implemented here.</li>
+<li><strong>svc_kernel</strong> (<em>str</em><em>, </em><em>optional</em>) – Specifies the kernel type to be used in the support vector classifier algorithm.
+It must be one of {‘linear’, ‘poly’, ‘rbf’, ‘sigmoid’, ‘precomputed’} or a callable.
+If none or ‘linear’ is given, sklearn.svm.LinearSVC (liblinear) will be used,
+otherwise sklearn.svm.SVC (libsvm) will be used. (Actually, just LinearSVC for now.)
+The former has more flexible penalty/loss options, and scales better to large numbers of
+samples (&gt; ~10,000). The latter obviously has more flexibility in kernel types.</li>
+<li><strong>svc_penalty</strong> (<em>str</em><em>, </em><em>optional</em>) – One of {<cite>l1</cite>, <cite>l2</cite>}. Default=’l2’ is recommended.</li>
+<li><strong>C</strong> (<em>float</em><em>, </em><em>optional</em>) – Inverse of regularization strength. Default=1.0 seems to work best in VGG+DTD tests.</li>
+<li><strong>seed</strong> (<em>int</em><em>, </em><em>optional</em>) – Specify a random state for deterministic results. Default=None.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>train_score</strong> – Mean accuracy of trained SVC on the training set (<cite>X</cite>, <cite>y</cite>)</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="texture.fisher.fvcnn.FVCNN.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/texture/fisher/fvcnn.html#FVCNN.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#texture.fisher.fvcnn.FVCNN.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use trained FVCNN.svc to predict classes for a batch of samples X.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>N</em><em>,</em><em>H</em><em>,</em><em>W</em><em>,</em><em>C</em><em>)</em><em>, or </em><em>list of N arrays w/ shapes</em><em> (</em><em>H_i</em><em>,</em><em>W_i</em><em>,</em><em>C</em><em>)</em>) – A set of images for which to predict classes from FV encodings.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>preds</strong> – Predicted class labels for all images in <cite>X</cite></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">array, shape (N,)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="texture.fisher.fvcnn.FVCNN.score">
+<code class="descname">score</code><span class="sig-paren">(</span><em>X_test</em>, <em>y_test</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/texture/fisher/fvcnn.html#FVCNN.score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#texture.fisher.fvcnn.FVCNN.score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get mean accuracy of SVC on test set.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>X</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>N</em><em>,</em><em>H</em><em>,</em><em>W</em><em>,</em><em>C</em><em>)</em><em>, or </em><em>list of N arrays w/ shapes</em><em> (</em><em>H_i</em><em>,</em><em>W_i</em><em>,</em><em>C</em><em>)</em>) – A set of images for which to predict classes from FV encodings.</li>
+<li><strong>y</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>N</em><em>,</em><em>)</em>) – Ground truth class labels for all images in <cite>X</cite></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>score</strong> – Mean accuracy for predictions y_hat relative to y</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="module-texture.fisher">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-texture.fisher" title="Permalink to this headline">¶</a></h2>
@@ -61,40 +300,60 @@
 </div>
 
 
+           </div>
+           
           </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Ross Meyer.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">keras-texture 0.1 documentation</a> &#187;</li> 
-      </ul>
-    </div>
-    <div class="footer" role="contentinfo">
-        &#169; Copyright 2018, Ross Meyer.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
-    </div>
-  </body>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
 </html>

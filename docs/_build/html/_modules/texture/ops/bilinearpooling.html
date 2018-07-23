@@ -173,7 +173,7 @@
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;pooling&#39;</span><span class="p">,</span> <span class="s1">&#39;combine&#39;</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="pooling"><a class="viewcode-back" href="../../../texture.ops.bilinearpooling.html#texture.ops.bilinearpooling.pooling">[docs]</a><span class="k">def</span> <span class="nf">pooling</span><span class="p">(</span><span class="n">inputs</span><span class="p">):</span>
+<div class="viewcode-block" id="pooling"><a class="viewcode-back" href="../../../texture.ops.html#texture.ops.bilinearpooling.pooling">[docs]</a><span class="k">def</span> <span class="nf">pooling</span><span class="p">(</span><span class="n">inputs</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Pool outer products of local features. Returns tf Function usable with keras.layers.Lambda.</span>
 
 <span class="sd">    Parameters</span>
@@ -204,7 +204,7 @@
     <span class="k">return</span> <span class="n">z_L2</span></div>
 
  
-<div class="viewcode-block" id="combine"><a class="viewcode-back" href="../../../texture.ops.bilinearpooling.html#texture.ops.bilinearpooling.combine">[docs]</a><span class="k">def</span> <span class="nf">combine</span><span class="p">(</span><span class="n">fA</span><span class="p">,</span> <span class="n">fB</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">,</span> <span class="n">conv1x1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fc_layers</span><span class="o">=</span><span class="p">[]):</span>
+<div class="viewcode-block" id="combine"><a class="viewcode-back" href="../../../texture.ops.html#texture.ops.bilinearpooling.combine">[docs]</a><span class="k">def</span> <span class="nf">combine</span><span class="p">(</span><span class="n">fA</span><span class="p">,</span> <span class="n">fB</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">,</span> <span class="n">conv1x1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fc_layers</span><span class="o">=</span><span class="p">[]):</span>
     <span class="sd">&#39;&#39;&#39;Combine two feature extracting CNNs into single Model with bilinear_pooling + FC layers.</span>
 <span class="sd">       fA and fB should output 4D tensors of equal shape, except (optionally) in # of channels.</span>
 
