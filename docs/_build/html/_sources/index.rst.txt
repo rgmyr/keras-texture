@@ -18,6 +18,7 @@ Contents:
    :caption: Contents
    
    encoding
+   pooling
 
 .. toctree::
    :maxdepth: 2

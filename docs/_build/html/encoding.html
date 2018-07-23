@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Encoding Layer &mdash; keras-texture 0.1 documentation</title>
+  <title>Overview: Encoding-based Models &mdash; keras-texture 0.1 documentation</title>
   
 
   
@@ -28,7 +28,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="texture.layers" href="layers.html" />
+    <link rel="next" title="Overview: Pooling-based Models" href="pooling.html" />
     <link rel="prev" title="Installation" href="installation.html" /> 
 
   
@@ -87,15 +87,17 @@
 </ul>
 <p class="caption"><span class="caption-text">Contents</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#"><code class="docutils literal"><span class="pre">Encoding</span></code> Layer</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#implementation-notes">Implementation Notes</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Overview: Encoding-based Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#encoding-layer"><code class="docutils literal"><span class="pre">Encoding</span></code> Layer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bilinearmodel-layer"><code class="docutils literal"><span class="pre">BilinearModel</span></code> Layer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fv-cnn-model">FV-CNN Model</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="pooling.html">Overview: Pooling-based Models</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Package Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="layers.html">texture.layers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="texture.layers.html">texture.layers package</a></li>
 </ul>
 
             
@@ -141,7 +143,7 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li><code class="docutils literal"><span class="pre">Encoding</span></code> Layer</li>
+      <li>Overview: Encoding-based Models</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -160,22 +162,39 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="encoding-layer">
-<h1><code class="docutils literal"><span class="pre">Encoding</span></code> Layer<a class="headerlink" href="#encoding-layer" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="overview-encoding-based-models">
+<h1>Overview: Encoding-based Models<a class="headerlink" href="#overview-encoding-based-models" title="Permalink to this headline">¶</a></h1>
+<p>Encoding-based models are those that use a codebook of codeword vectors to compress the output volume of a CNN.</p>
+<p>Some approaches learn these codewords in an end-to-end trainable layer (or set of layers). These include <code class="docutils literal"><span class="pre">DeepTEN</span></code>, and the <code class="docutils literal"><span class="pre">DEP</span></code> network, which use the <code class="docutils literal"><span class="pre">Encoding</span></code> and <code class="docutils literal"><span class="pre">BilinearModel</span></code> layers.</p>
+<p>In other (typically earlier) approaches, the codewords are generated from the distribution of pretrained CNN feature vectors on a the dataset of interest. This package includes the Fisher vector variant of this approach (<code class="docutils literal"><span class="pre">FV-CNN</span></code>), since it is relatively simple and usually outperforms similar encoding schemes (<em>e.g.</em>, <code class="docutils literal"><span class="pre">VLAD</span></code>).</p>
+<div class="section" id="encoding-layer">
+<h2><code class="docutils literal"><span class="pre">Encoding</span></code> Layer<a class="headerlink" href="#encoding-layer" title="Permalink to this headline">¶</a></h2>
 <p>The residual encoding layer proposed in <a class="reference external" href="https://arxiv.org/pdf/1612.02844.pdf">Deep TEN: Texture Encoding Network</a> [<em>CVPR</em>, 2017]:</p>
 <div class="figure">
 <img alt="Encoding-Layer" src="_images/Encoding-Layer_diagram.png" />
 </div>
 <p>The layer learns a <code class="docutils literal"><span class="pre">KxD</span></code> dictionary of codewords (a “codebook”), and codeword assignment <code class="docutils literal"><span class="pre">scale</span></code> weights. These are used to encode the residuals of an input of shape <code class="docutils literal"><span class="pre">NxD</span></code> or <code class="docutils literal"><span class="pre">HxWxD</span></code> with respect to the codewords.</p>
-<p>Let <span class="math">\(X = \{x_1,...,x_n\}\)</span> be an set of <code class="docutils literal"><span class="pre">N</span></code> input feature vectors of length <code class="docutils literal"><span class="pre">D</span></code>, and <span class="math">\(C = \{c_1,...,c_k\}\)</span> be the set of <code class="docutils literal"><span class="pre">K</span></code> codewords of length <code class="docutils literal"><span class="pre">D</span></code>. The residual encodings <span class="math">\(E = \{e_1,...,e_k\}\)</span> are computed as:</p>
+<p>Let <span class="math">\(X = \{x_1,...,x_N\}\)</span> be an set of <code class="docutils literal"><span class="pre">N</span></code> input feature vectors of length <code class="docutils literal"><span class="pre">D</span></code>, and <span class="math">\(C = \{c_1,...,c_K\}\)</span> be the set of <code class="docutils literal"><span class="pre">K</span></code> codewords of length <code class="docutils literal"><span class="pre">D</span></code>. The elements of the aggregate residual encoding <span class="math">\(E = \{e_1,...,e_K\}\)</span> are given by:</p>
 <div class="math">
 \[e_j = \sum_{i=1}^{N} w_{ij}r_{ij}\]</div>
-<p>Where residual vectors <span class="math">\(r_ij = x_i - c_j\)</span>, and the weights depend on smoothing/scale factors <span class="math">\(\{s_i,...,s_k\}\)</span>, and are given by:</p>
+<p>Where residual vectors <span class="math">\(r_ij = x_i - c_j\)</span>. The set of weights for a given input <span class="math">\(x_i\)</span> is the codeword-wise softmax of residual vector norms scaled by the learnable smoothing factors <span class="math">\(\{s_1,...,s_K\}\)</span>:</p>
 <div class="math">
-\[w_ij = \frac{\exp(-s_j||r_{ij}||^2)}{\sum_{k=1}^{K}\exp(-s_k||r_ik||^2)}\]</div>
-<div class="section" id="implementation-notes">
-<h2>Implementation Notes<a class="headerlink" href="#implementation-notes" title="Permalink to this headline">¶</a></h2>
+\[w_{ij} = \frac{\exp(-s_j||r_{ij}||^2)}{\sum_{k=1}^{K}\exp(-s_k||r_{ik}||^2)}\]</div>
 <p>This <code class="docutils literal"><span class="pre">keras</span></code> implementation is largely based on the <a class="reference external" href="https://github.com/zhanghang1989/PyTorch-Encoding">PyTorch-Encoding</a> release by the paper authors. It includes optional L2 normalization of output vectors (<code class="docutils literal"><span class="pre">True</span></code> by default) and dropout (<code class="docutils literal"><span class="pre">None</span></code> by default). Unlike the <code class="docutils literal"><span class="pre">PyTorch-Encoding</span></code> version, only the number of codewords <code class="docutils literal"><span class="pre">K</span></code> needs to be specified at construction time – the feature size <code class="docutils literal"><span class="pre">D</span></code> is inferred from the <code class="docutils literal"><span class="pre">input_shape</span></code>.</p>
+</div>
+<div class="section" id="bilinearmodel-layer">
+<h2><code class="docutils literal"><span class="pre">BilinearModel</span></code> Layer<a class="headerlink" href="#bilinearmodel-layer" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal"><span class="pre">texture.layers.BilinearModel</span></code> is a trainable <code class="docutils literal"><span class="pre">keras</span></code> layer implementing the weighted outer product of inputs with shape <code class="docutils literal"><span class="pre">[(batches,N),(batches,M)]</span></code>. The original idea of bilinear modeling for computer vision problems dates back to <a class="reference external" href="http://www.merl.com/publications/docs/TR96-37.pdf">Learning Bilinear Models for Two-Factor Problems in Vision</a> [<em>CVPR</em>,1997].</p>
+<p>It is used in the <code class="docutils literal"><span class="pre">Deep</span> <span class="pre">Encoding</span> <span class="pre">Pooling</span> <span class="pre">Network</span> <span class="pre">(DEP)</span></code> proposed in <a class="reference external" href="https://arxiv.org/abs/1803.10896">Deep Texture Manifold for Ground Terrain Recognition</a> [<em>CVPR</em>, 2018] to merge the output of an <code class="docutils literal"><span class="pre">Encoding</span></code> layer with the output of a standard global average pooling, where both features are extracted from the convolutional output of the same <code class="docutils literal"><span class="pre">ResNet</span></code> base.</p>
+<div class="figure">
+<img alt="DEP-Architecture" src="_images/DEP_diagram.png" />
+</div>
+<p>The intuition is that the former represents textures (orderless encoding) and the latter represents spatially structured observations, so that “[the] outer product representation captures a pairwise correlation between the material texture encodings and spatial observation structures.”</p>
+</div>
+<div class="section" id="fv-cnn-model">
+<h2>FV-CNN Model<a class="headerlink" href="#fv-cnn-model" title="Permalink to this headline">¶</a></h2>
+<p>The Fisher vector encoding of CNN features was proposed in <a class="reference external" href="https://www.robots.ox.ac.uk/~vgg/publications/2015/Cimpoi15/cimpoi15.pdf">Deep filter banks for texture recognition and segmentation</a> [2015]. A Fisher vector encoding is parametrized by a Gaussian Mixture Model of the feature vector distribution comprised of <code class="docutils literal"><span class="pre">K</span></code> Gaussians. The Fisher vector representation of a <code class="docutils literal"><span class="pre">NxD</span></code> set of local feature vectors is the concatenation of the channel-wise deviances in mean and variance between the input vectors and the <code class="docutils literal"><span class="pre">K</span></code> Gaussians.</p>
+<p>The <code class="docutils literal"><span class="pre">texture.fisher.FVCNN</span></code> class provides a wrapper for fitting a GMM to a training set given a CNN (can be from <code class="docutils literal"><span class="pre">keras.applications</span></code>, or an arbitrary model), generating Fisher vector encodings, and training a SVM classifier.</p>
 </div>
 </div>
 
@@ -187,7 +206,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="layers.html" class="btn btn-neutral float-right" title="texture.layers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="pooling.html" class="btn btn-neutral float-right" title="Overview: Pooling-based Models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="installation.html" class="btn btn-neutral" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

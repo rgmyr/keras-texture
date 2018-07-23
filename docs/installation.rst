@@ -17,11 +17,11 @@ Requirements
 - ``keras`` (version >=2.0) with ``tensorflow`` backend
 - ``numpy``
 - ``scikit-learn``
-- _cyvlfeat
+- ``scikit-image``
+
+The _cyvlfeat wrappers are required for use the ``texture.fisher`` module. They should be installed with ``conda``, if at all possible.
 
 .. _cyvlfeat: https://github.com/menpo/cyvlfeat
-
-The ``cyvlfeat`` wrappers are only required when using the ``texture.fisher`` module.
 
 `TensorFlow` is not explicitly required, due to the ambiguity between the ``tensorflow`` and ``tensorflow-gpu`` packages. Either is technically acceptable as a ``keras.backend``. 
 

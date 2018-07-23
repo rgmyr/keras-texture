@@ -28,7 +28,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Encoding Layer" href="encoding.html" />
+    <link rel="next" title="Overview: Encoding-based Models" href="encoding.html" />
     <link rel="prev" title="keras-texture" href="index.html" /> 
 
   
@@ -90,12 +90,12 @@
 </ul>
 <p class="caption"><span class="caption-text">Contents</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="encoding.html"><code class="docutils literal"><span class="pre">Encoding</span></code> Layer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="encoding.html">Overview: Encoding-based Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pooling.html">Overview: Pooling-based Models</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Package Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="layers.html">texture.layers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="texture.layers.html">texture.layers package</a></li>
 </ul>
 
             
@@ -177,9 +177,9 @@ $ pip install [-e] .
 <li><code class="docutils literal"><span class="pre">keras</span></code> (version &gt;=2.0) with <code class="docutils literal"><span class="pre">tensorflow</span></code> backend</li>
 <li><code class="docutils literal"><span class="pre">numpy</span></code></li>
 <li><code class="docutils literal"><span class="pre">scikit-learn</span></code></li>
-<li>_cyvlfeat</li>
+<li><code class="docutils literal"><span class="pre">scikit-image</span></code></li>
 </ul>
-<p>The <code class="docutils literal"><span class="pre">cyvlfeat</span></code> wrappers are only required when using the <code class="docutils literal"><span class="pre">texture.fisher</span></code> module.</p>
+<p>The _cyvlfeat wrappers are required for use the <code class="docutils literal"><span class="pre">texture.fisher</span></code> module. They should be installed with <code class="docutils literal"><span class="pre">conda</span></code>, if at all possible.</p>
 <p><cite>TensorFlow</cite> is not explicitly required, due to the ambiguity between the <code class="docutils literal"><span class="pre">tensorflow</span></code> and <code class="docutils literal"><span class="pre">tensorflow-gpu</span></code> packages. Either is technically acceptable as a <code class="docutils literal"><span class="pre">keras.backend</span></code>.</p>
 <p>Most functionality in the package will require a GPU, but some models (<em>e.g.</em>, training an <code class="docutils literal"><span class="pre">FV-CNN</span></code> classifier on top of ImageNet pretrained models), can probably be used on a CPU-only machine.</p>
 </div>
@@ -193,7 +193,7 @@ $ pip install [-e] .
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="encoding.html" class="btn btn-neutral float-right" title="Encoding Layer" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="encoding.html" class="btn btn-neutral float-right" title="Overview: Encoding-based Models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="index.html" class="btn btn-neutral" title="keras-texture" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
