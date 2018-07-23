@@ -28,7 +28,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="texture.cnn" href="cnn.html" />
+    <link rel="next" title="texture.cnn package" href="texture.cnn.html" />
     <link rel="prev" title="keras-texture" href="index.html" /> 
 
   
@@ -83,12 +83,15 @@
             
             
               <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#requirements">Requirements</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption"><span class="caption-text">Package Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="cnn.html">texture.cnn</a></li>
-<li class="toctree-l1"><a class="reference internal" href="layers.html">texture.layers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="texture.cnn.html">texture.cnn package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="texture.layers.html">texture.layers package</a></li>
 </ul>
 
             
@@ -155,12 +158,27 @@
             
   <div class="section" id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
-<p>The project is hosted on GitHub. Get a copy by running:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ git clone https://github.com/rgmeyer/keras-texture.git
+<p>The <code class="docutils literal"><span class="pre">keras-texture</span></code> package is hosted on GitHub. You can clone the repo with:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ git clone https://github.com/rgmyr/keras-texture.git
 </pre></div>
 </div>
-<p>The package can then be installed with the usual <cite>pip</cite> mechanisms.</p>
-<p><cite>TensorFlow</cite> is not explicitly required, due to the ambiguity between the <cite>tensorflow</cite> and <cite>tensorflow-gpu</cite> packages. Either is acceptable as a <cite>keras.backend</cite>. Most functionality in the package will probably require a GPU, but some models (<em>e.g.</em>, an <cite>FVCNN</cite> with ImageNet pretrained models), could probably be used on a CPU-only machine.</p>
+<p>The package can then be installed with the usual <code class="docutils literal"><span class="pre">pip</span></code> mechanisms:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ cd keras-texture
+$ pip install [-e] .
+</pre></div>
+</div>
+<div class="section" id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">keras</span></code> (version &gt;=2.0) with <code class="docutils literal"><span class="pre">tensorflow</span></code> backend</li>
+<li><code class="docutils literal"><span class="pre">numpy</span></code></li>
+<li><code class="docutils literal"><span class="pre">scikit-learn</span></code></li>
+<li>_cyvlfeat</li>
+</ul>
+<p>The <code class="docutils literal"><span class="pre">cyvlfeat</span></code> wrappers are only required when using the <code class="docutils literal"><span class="pre">texture.fisher</span></code> module.</p>
+<p><cite>TensorFlow</cite> is not explicitly required, due to the ambiguity between the <code class="docutils literal"><span class="pre">tensorflow</span></code> and <code class="docutils literal"><span class="pre">tensorflow-gpu</span></code> packages. Either is acceptable as a <code class="docutils literal"><span class="pre">keras.backend</span></code>.</p>
+<p>Most functionality in the package will probably require a GPU, but some models (<em>e.g.</em>, training an <code class="docutils literal"><span class="pre">FVCNN</span></code> classifier on top of ImageNet pretrained models), could probably be used on a CPU-only machine.</p>
+</div>
 </div>
 
 
@@ -171,7 +189,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="cnn.html" class="btn btn-neutral float-right" title="texture.cnn" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="texture.cnn.html" class="btn btn-neutral float-right" title="texture.cnn package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="index.html" class="btn btn-neutral" title="keras-texture" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

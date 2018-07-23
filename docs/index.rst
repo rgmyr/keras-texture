@@ -17,8 +17,8 @@ Contents:
    :maxdepth: 1
    :caption: Package Reference
 
-   cnn
-   layers
+   texture.cnn
+   texture.layers
 
 Indices and tables
 ==================
