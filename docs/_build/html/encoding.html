@@ -167,10 +167,12 @@
 <img alt="Encoding-Layer" src="_images/Encoding-Layer_diagram.png" />
 </div>
 <p>The layer learns a <code class="docutils literal"><span class="pre">KxD</span></code> dictionary of codewords (a “codebook”), and codeword assignment <code class="docutils literal"><span class="pre">scale</span></code> weights. These are used to encode the residuals of an input of shape <code class="docutils literal"><span class="pre">NxD</span></code> or <code class="docutils literal"><span class="pre">HxWxD</span></code> with respect to the codewords.</p>
-<p>Let $X = {x_1,…,x_n}$ be an input set of $N$ input feature vectors of length $D$, and $C = {c_1,…,c_k}$ be the set of $K$ codewords of length $D$. The residual encodings $E = {e_1,…,e_k}$ are computed as:</p>
-<p>$$ e_j = sum_{i=1}^{N} w_{ij}r_{ij}$$</p>
-<p>Where residual vectors $r_ij = x_i - c_j$, and the weights depend on smoothing/scale factors ${s_i,…,s_k}$, and are given by:</p>
-<p>$$ w_ij = frac{exp(-s_j||r_{ij}||^2)}{sum_{k=1}^{K}exp(-s_k||r_ik||^2)} $$</p>
+<p>Let <span class="math">\(X = \{x_1,...,x_n\}\)</span> be an set of <code class="docutils literal"><span class="pre">N</span></code> input feature vectors of length <code class="docutils literal"><span class="pre">D</span></code>, and <span class="math">\(C = \{c_1,...,c_k\}\)</span> be the set of <code class="docutils literal"><span class="pre">K</span></code> codewords of length <code class="docutils literal"><span class="pre">D</span></code>. The residual encodings <span class="math">\(E = \{e_1,...,e_k\}\)</span> are computed as:</p>
+<div class="math">
+\[e_j = \sum_{i=1}^{N} w_{ij}r_{ij}\]</div>
+<p>Where residual vectors <span class="math">\(r_ij = x_i - c_j\)</span>, and the weights depend on smoothing/scale factors <span class="math">\(\{s_i,...,s_k\}\)</span>, and are given by:</p>
+<div class="math">
+\[w_ij = \frac{\exp(-s_j||r_{ij}||^2)}{\sum_{k=1}^{K}\exp(-s_k||r_ik||^2)}\]</div>
 <div class="section" id="implementation-notes">
 <h2>Implementation Notes<a class="headerlink" href="#implementation-notes" title="Permalink to this headline">¶</a></h2>
 <p>This <code class="docutils literal"><span class="pre">keras</span></code> implementation is largely based on the <a class="reference external" href="https://github.com/zhanghang1989/PyTorch-Encoding">PyTorch-Encoding</a> release by the paper authors. It includes optional L2 normalization of output vectors (<code class="docutils literal"><span class="pre">True</span></code> by default) and dropout (<code class="docutils literal"><span class="pre">None</span></code> by default). Unlike the <code class="docutils literal"><span class="pre">PyTorch-Encoding</span></code> version, only the number of codewords <code class="docutils literal"><span class="pre">K</span></code> needs to be specified at construction time – the feature size <code class="docutils literal"><span class="pre">D</span></code> is inferred from the <code class="docutils literal"><span class="pre">input_shape</span></code>.</p>

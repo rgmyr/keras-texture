@@ -8,13 +8,15 @@ The residual encoding layer proposed in `Deep TEN: Texture Encoding Network <htt
 
 The layer learns a ``KxD`` dictionary of codewords (a "codebook"), and codeword assignment ``scale`` weights. These are used to encode the residuals of an input of shape ``NxD`` or ``HxWxD`` with respect to the codewords. 
 
-Let $X = \{x_1,...,x_n\}$ be an input set of $N$ input feature vectors of length $D$, and $C = \{c_1,...,c_k\}$ be the set of $K$ codewords of length $D$. The residual encodings $E = \{e_1,...,e_k\}$ are computed as:
+Let :math:`X = \{x_1,...,x_n\}` be an set of ``N`` input feature vectors of length ``D``, and :math:`C = \{c_1,...,c_k\}` be the set of ``K`` codewords of length ``D``. The residual encodings :math:`E = \{e_1,...,e_k\}` are computed as:
     
-$$ e_j = \sum_{i=1}^{N} w_{ij}r_{ij}$$
+.. math::
+    e_j = \sum_{i=1}^{N} w_{ij}r_{ij}
 
-Where residual vectors $r_ij = x_i - c_j$, and the weights depend on smoothing/scale factors $\{s_i,...,s_k\}$, and are given by:
+Where residual vectors :math:`r_ij = x_i - c_j`, and the weights depend on smoothing/scale factors :math:`\{s_i,...,s_k\}`, and are given by:
 
-$$ w_ij = \frac{\exp(-s_j||r_{ij}||^2)}{\sum_{k=1}^{K}\exp(-s_k||r_ik||^2)} $$
+.. math::
+    w_ij = \frac{\exp(-s_j||r_{ij}||^2)}{\sum_{k=1}^{K}\exp(-s_k||r_ik||^2)}
 
 
 Implementation Notes
