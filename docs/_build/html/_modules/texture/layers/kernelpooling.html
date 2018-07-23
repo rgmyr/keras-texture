@@ -158,9 +158,7 @@
 <span class="sd">    year = {2017},</span>
 <span class="sd">    booktitle = {Computer Vision and Pattern Recognition (CVPR)},</span>
 <span class="sd">}</span>
-
 <span class="sd">_generate_sketch_matrix() borrowed from: https://github.com/ronghanghu/tensorflow_compact_bilinear_pooling</span>
-
 <span class="sd">sequential_batch_[i]ff from the same repo would be useful for avoiding OOM errors w/ arbitrary batch size</span>
 <span class="sd">    - does source need an update?</span>
 <span class="sd">&#39;&#39;&#39;</span>
@@ -171,6 +169,10 @@
 
 <span class="kn">from</span> <span class="nn">keras</span> <span class="k">import</span> <span class="n">backend</span> <span class="k">as</span> <span class="n">K</span>
 <span class="kn">from</span> <span class="nn">keras.engine.topology</span> <span class="k">import</span> <span class="n">Layer</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;AlphaInitializer&#39;</span><span class="p">,</span> <span class="s1">&#39;KernelPooling&#39;</span><span class="p">]</span>
+
 
 <span class="k">def</span> <span class="nf">_fft</span><span class="p">(</span><span class="n">bottom</span><span class="p">,</span> <span class="n">sequential</span><span class="p">,</span> <span class="n">compute_size</span><span class="p">):</span>
     <span class="c1">#if sequential:</span>
@@ -197,7 +199,6 @@
 <span class="sd">        Vector containing values of 1 and -1.</span>
 <span class="sd">    output_dim: int</span>
 <span class="sd">        The dimensions of the count sketch vector representation.</span>
-
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    sparse_sketch_matrix : SparseTensor</span>
@@ -237,13 +238,14 @@
     <span class="k">return</span> <span class="n">pair_count</span> <span class="o">/</span> <span class="n">inner_sum</span>
 
 
-<div class="viewcode-block" id="AlphaInitializer"><a class="viewcode-back" href="../../../texture.layers.kernelpooling.html#texture.layers.kernelpooling.AlphaInitializer">[docs]</a><span class="k">class</span> <span class="nc">AlphaInitializer</span><span class="p">():</span>
+<span class="k">class</span> <span class="nc">AlphaInitializer</span><span class="p">():</span>
     <span class="sd">&#39;&#39;&#39;Callable for setting initial composition_weights given `gamma`. </span>
 <span class="sd">    Following the Taylor series expansion of the RBF kernel:</span>
 <span class="sd">        K_RBF(x, y) = Sum_i(beta * \frac{(2*gamma)^i}{i!})</span>
 <span class="sd">    We assume that input vectors are L2-normalized, in which case we have:</span>
 <span class="sd">        (alpha_i)^2 = exp(-2*gamma)*\frac{(2*gamma)^i}{i!}</span>
 <span class="sd">    &#39;&#39;&#39;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gamma</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">=</span> <span class="n">gamma</span>
 
@@ -254,10 +256,10 @@
         <span class="n">numer</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">gam2</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="n">gam2</span><span class="o">.</span><span class="n">size</span><span class="p">))</span>
         <span class="n">denom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">factorial</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">gam2</span><span class="o">.</span><span class="n">size</span><span class="p">)])</span>
         <span class="n">alpha</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">beta</span> <span class="o">*</span> <span class="n">numer</span> <span class="o">/</span> <span class="n">denom</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">K</span><span class="o">.</span><span class="n">variable</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">K</span><span class="o">.</span><span class="n">variable</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="KernelPooling"><a class="viewcode-back" href="../../../texture.layers.kernelpooling.html#texture.layers.kernelpooling.KernelPooling">[docs]</a><span class="k">class</span> <span class="nc">KernelPooling</span><span class="p">(</span><span class="n">Layer</span><span class="p">):</span>
+<div class="viewcode-block" id="KernelPooling"><a class="viewcode-back" href="../../../layers.html#texture.layers.KernelPooling">[docs]</a><span class="k">class</span> <span class="nc">KernelPooling</span><span class="p">(</span><span class="n">Layer</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Kernel Pooling layer with learnable composition weights. Takes convolution output volume as input, </span>
 <span class="sd">    outputs a Taylor series kernel of order `p`. By default the weights are initialized to approximate</span>
 <span class="sd">    the Gaussian RBF kernel. See the paper for more detailed exposition. Kernel vectors are average</span>
@@ -293,9 +295,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">=</span> <span class="n">gamma</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">KernelPooling</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-<div class="viewcode-block" id="KernelPooling.build"><a class="viewcode-back" href="../../../texture.layers.kernelpooling.html#texture.layers.kernelpooling.KernelPooling.build">[docs]</a>    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
         <span class="c1">#self._shapecheck(input_shape)</span>
-
         <span class="c1"># Initialize composition weights, RBF approximation</span>
         <span class="n">alpha_init</span> <span class="o">=</span> <span class="n">AlphaInitializer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gamma</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;composition_weights&#39;</span><span class="p">,</span>
@@ -313,10 +314,10 @@
             <span class="n">h_t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d_i</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">C</span><span class="p">)</span>
             <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span>
             <span class="n">s_t</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">C</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sketch_matrices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_generate_sketch_matrix</span><span class="p">(</span><span class="n">h_t</span><span class="p">,</span> <span class="n">s_t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">d_i</span><span class="p">))</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sketch_matrices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_generate_sketch_matrix</span><span class="p">(</span><span class="n">h_t</span><span class="p">,</span> <span class="n">s_t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">d_i</span><span class="p">))</span>
             
 
-<div class="viewcode-block" id="KernelPooling.call"><a class="viewcode-back" href="../../../texture.layers.kernelpooling.html#texture.layers.kernelpooling.KernelPooling.call">[docs]</a>    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
         <span class="k">assert</span> <span class="n">K</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;Should only call KP layer on input_shape (batches,H,W,C)&#39;</span>
         <span class="n">input_dims</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         
@@ -354,10 +355,11 @@
         <span class="c1"># Return the transformed + l2-normed kernel vector</span>
         <span class="n">phi_x</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">phi_x</span><span class="p">),</span><span class="n">tf</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">phi_x</span><span class="p">)</span><span class="o">+</span><span class="mf">1e-12</span><span class="p">))</span>
 
-        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">l2_normalize</span><span class="p">(</span><span class="n">phi_x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">l2_normalize</span><span class="p">(</span><span class="n">phi_x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
 
-<div class="viewcode-block" id="KernelPooling.compute_output_shape"><a class="viewcode-back" href="../../../texture.layers.kernelpooling.html#texture.layers.kernelpooling.KernelPooling.compute_output_shape">[docs]</a>    <span class="k">def</span> <span class="nf">compute_output_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">input_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="o">+</span><span class="n">input_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">d_i</span><span class="p">)</span></div></div>
+    <span class="k">def</span> <span class="nf">compute_output_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">input_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="o">+</span><span class="n">input_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">d_i</span><span class="p">)</span></div>
+
 
 </pre></div>
 

@@ -6,9 +6,7 @@
     year = {2017},
     booktitle = {Computer Vision and Pattern Recognition (CVPR)},
 }
-
 _generate_sketch_matrix() borrowed from: https://github.com/ronghanghu/tensorflow_compact_bilinear_pooling
-
 sequential_batch_[i]ff from the same repo would be useful for avoiding OOM errors w/ arbitrary batch size
     - does source need an update?
 '''
@@ -19,6 +17,10 @@ from math import factorial
 
 from keras import backend as K
 from keras.engine.topology import Layer
+
+
+__all__ = ['AlphaInitializer', 'KernelPooling']
+
 
 def _fft(bottom, sequential, compute_size):
     #if sequential:
@@ -45,7 +47,6 @@ def _generate_sketch_matrix(rand_h, rand_s, output_dim):
         Vector containing values of 1 and -1.
     output_dim: int
         The dimensions of the count sketch vector representation.
-
     Returns
     -------
     sparse_sketch_matrix : SparseTensor
@@ -92,6 +93,7 @@ class AlphaInitializer():
     We assume that input vectors are L2-normalized, in which case we have:
         (alpha_i)^2 = exp(-2*gamma)*\frac{(2*gamma)^i}{i!}
     '''
+
     def __init__(self, gamma):
         self.gamma = gamma
 
@@ -143,7 +145,6 @@ class KernelPooling(Layer):
 
     def build(self, input_shape):
         #self._shapecheck(input_shape)
-
         # Initialize composition weights, RBF approximation
         alpha_init = AlphaInitializer(self.gamma)
         self.alpha = self.add_weight(name='composition_weights',
@@ -206,4 +207,5 @@ class KernelPooling(Layer):
 
     def compute_output_shape(self, input_shape):
         return (input_shape[0], 1+input_shape[-1]+(self.p-1)*self.d_i)
+
 

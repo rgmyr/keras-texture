@@ -1,4 +1,4 @@
-.. role::hidden
+.. role:: hidden
     :class: hidden-section
 
 texture.cnn

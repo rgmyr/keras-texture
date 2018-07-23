@@ -69,11 +69,8 @@ Network <https://arxiv.org/pdf/1612.02844.pdf>`__ [*CVPR*, 2017]. This
 `PyTorch-Encoding <https://github.com/zhanghang1989/PyTorch-Encoding>`__
 release by the paper authors.
 
-.. figure:: ./docs/images/Encoding-Layer_diagram.png
-
+.. figure:: ./images/Encoding-Layer_diagram.png
    :alt: Encoding-Layer
-
-   Encoding-Layer
 
 The layer learns a ``KxD`` dictionary of codewords (a "codebook"), and
 codeword assignment ``scale`` weights. These are used to encode the
@@ -106,10 +103,8 @@ spatially structured observations, so that "[the] outer product
 representation captures a pairwise correlation between the material
 texture encodings and spatial observation structures."
 
-.. figure:: ./docs/images/DEP_diagram.png
+.. figure:: ./images/DEP_diagram.png
    :alt: DEP-Architecture
-
-   DEP-Architecture
 
 ``KernelPooling`` Layer
 -----------------------
@@ -122,11 +117,8 @@ composition weights *alpha* are initialized to approximate a Gaussian
 RBF kernel. The kernel is computed over all local feature vectors
 ``(h_i, w_j)`` in the input volume and then average pooled.
 
-.. figure:: ./docs/images/kernel_pooling_diagram.png
-
+.. figure:: ./images/kernel_pooling_diagram.png
    :alt: Kernel-Pooling
-
-   Kernel-Pooling
 
 Construction paramters include ``p`` (order of the kernel
 approximation), ``d_i`` (dimensionality for each order ``i>=2``). Output

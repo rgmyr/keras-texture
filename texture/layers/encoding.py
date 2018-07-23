@@ -6,6 +6,7 @@ Keras 2.0+ / TensorFlow implementation of learnable encoding layer proposed in:
 
 Borrows from PyTorch implementation released by Hang Zhang: https://github.com/zhanghang1989/PyTorch-Encoding
 '''
+
 import tensorflow as tf
 from keras import backend as K
 from keras.initializers import RandomUniform
@@ -16,7 +17,7 @@ __all__ = ['Encoding']
 
 
 def scaledL2(R, S): 
-    ''' L2 norm over features of R, scaled by a codeword-length vector S.
+    '''L2 norm over features of R, scaled by a codeword-length vector S.
 
     Parameters
     ----------
@@ -56,6 +57,7 @@ class Encoding(Layer):
     TODO: - test dropout functionality (why not just apply on output vectors?)
           - make sure dropout only applied during training
     '''
+
     def __init__(self, K, dropout=None, l2_normalize=True, **kwargs):
         super(Encoding, self).__init__(**kwargs)
         self.K = K

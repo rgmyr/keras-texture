@@ -158,6 +158,7 @@
 
 <span class="sd">Borrows from PyTorch implementation released by Hang Zhang: https://github.com/zhanghang1989/PyTorch-Encoding</span>
 <span class="sd">&#39;&#39;&#39;</span>
+
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 <span class="kn">from</span> <span class="nn">keras</span> <span class="k">import</span> <span class="n">backend</span> <span class="k">as</span> <span class="n">K</span>
 <span class="kn">from</span> <span class="nn">keras.initializers</span> <span class="k">import</span> <span class="n">RandomUniform</span>
@@ -168,7 +169,7 @@
 
 
 <span class="k">def</span> <span class="nf">scaledL2</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">S</span><span class="p">):</span> 
-    <span class="sd">&#39;&#39;&#39; L2 norm over features of R, scaled by a codeword-length vector S.</span>
+    <span class="sd">&#39;&#39;&#39;L2 norm over features of R, scaled by a codeword-length vector S.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -186,7 +187,7 @@
     <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">l2_R</span><span class="p">,</span> <span class="n">S</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="Encoding"><a class="viewcode-back" href="../../../texture.layers.encoding.html#texture.layers.encoding.Encoding">[docs]</a><span class="k">class</span> <span class="nc">Encoding</span><span class="p">(</span><span class="n">Layer</span><span class="p">):</span>
+<div class="viewcode-block" id="Encoding"><a class="viewcode-back" href="../../../layers.html#texture.layers.Encoding">[docs]</a><span class="k">class</span> <span class="nc">Encoding</span><span class="p">(</span><span class="n">Layer</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Residual encoding layer with learnable codebook and scaling factors.</span>
 
 <span class="sd">    Encodes an collection of NxD features into set of KxD vectors. Unlike PyTorch</span>
@@ -208,6 +209,7 @@
 <span class="sd">    TODO: - test dropout functionality (why not just apply on output vectors?)</span>
 <span class="sd">          - make sure dropout only applied during training</span>
 <span class="sd">    &#39;&#39;&#39;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">l2_normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Encoding</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">K</span> <span class="o">=</span> <span class="n">K</span>
@@ -215,7 +217,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">dropout_rate</span> <span class="o">=</span> <span class="n">dropout</span>
 
 
-<div class="viewcode-block" id="Encoding.build"><a class="viewcode-back" href="../../../texture.layers.encoding.html#texture.layers.encoding.Encoding.build">[docs]</a>    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">D</span> <span class="o">=</span> <span class="n">input_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
         <span class="n">std1</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">/</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">D</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mf">0.5</span><span class="p">))</span>
@@ -231,9 +233,9 @@
                                     <span class="n">initializer</span><span class="o">=</span><span class="n">init_scale</span><span class="p">,</span>
                                     <span class="n">trainable</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="nb">super</span><span class="p">(</span><span class="n">Encoding</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span></div>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Encoding</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Encoding.call"><a class="viewcode-back" href="../../../texture.layers.encoding.html#texture.layers.encoding.Encoding.call">[docs]</a>    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
         <span class="c1"># Input is a 3-D or 4-D Tensor</span>
         <span class="n">ndim</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">ndim</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
@@ -261,11 +263,11 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">l2_normalize</span><span class="p">:</span>
             <span class="n">E</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">l2_normalize</span><span class="p">(</span><span class="n">E</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">E</span></div>
+        <span class="k">return</span> <span class="n">E</span>
 
-<div class="viewcode-block" id="Encoding.compute_output_shape"><a class="viewcode-back" href="../../../texture.layers.encoding.html#texture.layers.encoding.Encoding.compute_output_shape">[docs]</a>    <span class="k">def</span> <span class="nf">compute_output_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">compute_output_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
         <span class="c1"># (batches, codeworks, dimensions)</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">input_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span></div></div>
+        <span class="k">return</span> <span class="p">(</span><span class="n">input_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span></div>
 
 </pre></div>
 

@@ -88,9 +88,9 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="cnn.html">texture.cnn</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">texture.layers</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#hidden-encoding">:hidden:`Encoding`</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#hidden-kernelpooling">:hidden:`KernelPooling`</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#hidden-bilinearmodel">:hidden:`BilinearModel`</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#encoding"><span class="hidden-section">Encoding</span></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#kernelpooling"><span class="hidden-section">KernelPooling</span></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bilinearmodel"><span class="hidden-section">BilinearModel</span></a></li>
 </ul>
 </li>
 </ul>
@@ -160,14 +160,81 @@
   <div class="section" id="texture-layers">
 <h1>texture.layers<a class="headerlink" href="#texture-layers" title="Permalink to this headline">¶</a></h1>
 <p>Instances of <cite>keras.engine.topology.Layer</cite> with learnable parameters.</p>
-<div class="section" id="hidden-encoding">
-<h2><a href="#id1"><span class="problematic" id="id2">:hidden:`Encoding`</span></a><a class="headerlink" href="#hidden-encoding" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="encoding">
+<h2><span class="hidden-section">Encoding</span><a class="headerlink" href="#encoding" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="texture.layers.Encoding">
+<em class="property">class </em><code class="descclassname">texture.layers.</code><code class="descname">Encoding</code><span class="sig-paren">(</span><em>K</em>, <em>dropout=None</em>, <em>l2_normalize=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/texture/layers/encoding.html#Encoding"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#texture.layers.Encoding" title="Permalink to this definition">¶</a></dt>
+<dd><p>Residual encoding layer with learnable codebook and scaling factors.</p>
+<p>Encodes an collection of NxD features into set of KxD vectors. Unlike PyTorch
+implementation, D is inferred automatically from input_shape.</p>
+<p>Allowed <a href="#id1"><span class="problematic" id="id2">`</span></a>input_shape`s are (batches, N, D) or (batches, H, W, D).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>K</strong> (<em>int</em>) – Number of codewords to learn</li>
+<li><strong>dropout</strong> (<em>float</em><em>, </em><em>optional</em>) – <dl class="docutils">
+<dt>Dropout rate between [0.0,1.0), or <cite>None</cite>, default=`None`.</dt>
+<dd>Currently applied to <cite>scale</cite> factors, which is equivalent to
+zeroing out <cite>dropout</cite> fraction of the aggregated codewords.</dd>
+</dl>
+</li>
+<li><strong>l2_normalize</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to normalize output vectors, default=`True`.</li>
+<li><strong>TODO</strong> – <ul>
+<li>make sure dropout only applied during training</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
-<div class="section" id="hidden-kernelpooling">
-<h2><a href="#id3"><span class="problematic" id="id4">:hidden:`KernelPooling`</span></a><a class="headerlink" href="#hidden-kernelpooling" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="kernelpooling">
+<h2><span class="hidden-section">KernelPooling</span><a class="headerlink" href="#kernelpooling" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="texture.layers.KernelPooling">
+<em class="property">class </em><code class="descclassname">texture.layers.</code><code class="descname">KernelPooling</code><span class="sig-paren">(</span><em>p=3</em>, <em>d_i=4096</em>, <em>seed=0</em>, <em>gamma=0.0001</em>, <em>X_train=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/texture/layers/kernelpooling.html#KernelPooling"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#texture.layers.KernelPooling" title="Permalink to this definition">¶</a></dt>
+<dd><p>Kernel Pooling layer with learnable composition weights. Takes convolution output volume as input,
+outputs a Taylor series kernel of order <cite>p</cite>. By default the weights are initialized to approximate
+the Gaussian RBF kernel. See the paper for more detailed exposition. Kernel vectors are average
+pooled over all spatial locations (h_i, w_j).</p>
+<p><cite>output_shape=(batches,1+C+Sum(d_2,…,d_p))</cite>, for <cite>input_shape=(batches,H,W,C)</cite>. This implementation
+follows the paper in assuming that <cite>d_i=d_bar</cite> for all <cite>i&gt;=2</cite>, so <cite>d=1+C+(p-1)*d_i</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>p</strong> (<em>int</em><em>, </em><em>optional</em>) – Order of the polynomial approximation, default=3</li>
+<li><strong>d_i</strong> (<em>int</em><em>, </em><em>optional</em>) – Dimensionality of output features of each order {2,…,p}, default=4096.</li>
+<li><strong>seed</strong> (<em>int</em><em>, </em><em>optional</em>) – Random seed for generating sketch matrices.
+If given, will use range(seed, seed+p) for <cite>h</cite>, and range(seed+p, seed+2p) for <cite>s</cite>.</li>
+<li><strong>gamma</strong> (<em>float</em><em>, </em><em>optional</em>) – RBF kernel approximation parameter, default=1e-4.</li>
+<li><strong>X_train</strong> (<em>array</em><em>, </em><em>optional</em>) – Training set of features from which to estimate gamma s.t. kernel closely approximates RBF.
+If provided, will use reciprocal of mean inner product values. Otherwise, default used.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
-<div class="section" id="hidden-bilinearmodel">
-<h2><a href="#id5"><span class="problematic" id="id6">:hidden:`BilinearModel`</span></a><a class="headerlink" href="#hidden-bilinearmodel" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="bilinearmodel">
+<h2><span class="hidden-section">BilinearModel</span><a class="headerlink" href="#bilinearmodel" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="texture.layers.BilinearModel">
+<em class="property">class </em><code class="descclassname">texture.layers.</code><code class="descname">BilinearModel</code><a class="reference internal" href="_modules/texture/layers/bilinearmodel.html#BilinearModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#texture.layers.BilinearModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Weighted bilinear model of two inputs. Useful for learning a model of linear interactions
+between seperate feature types (e.g., texture X spatial) or scales (e.g., dense X dilated), etc.</p>
+<p>#TODO: finish docstring</p>
+</dd></dl>
+
 </div>
 </div>
 
