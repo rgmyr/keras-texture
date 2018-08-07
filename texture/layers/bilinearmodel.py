@@ -4,8 +4,8 @@ TODO: - tests for BilinearModel layer
 '''
 import tensorflow as tf
 from keras import backend as K
-from keras import models, layers
 from keras.engine.topology import Layer
+from tensorflow.keras.layers import Flatten
 
 
 __all__ = ['BilinearModel']
@@ -17,15 +17,16 @@ def BilinearModel(Layer):
 
     #TODO: finish docstring
     '''
-    
-    def __init__(self, **kwargs):
+
+    def __init__(self, l2_normalize=True **kwargs):
+        self.l2_normalize
         super(BilinearModel, self).__init__(**kwargs)
 
     def build(self, input_shape):
         self._shapecheck(input_shape)
 
         self.shapeA, self.shapeB = input_shape[0][1], input_shape[1][1]
-        
+
         self.weights = self.add_weight(name='outer_prod_weights',
                                        shape=(self.shapeA, self.shapeB),
                                        initializer='glorot_normal',
@@ -35,7 +36,12 @@ def BilinearModel(Layer):
 
         weighted_outer = tf.multiply(self.weights, tf.einsum('bi,bj->bij', x[0], x[1]))
 
-        return K.Flatten(weighted_outer)
+        flat_output = K.Flatten(weighted_outer)
+
+        if self.l2_normalize:
+            flat_output = tf.nn.l2_normalize(flat_output, axis=-1)
+
+        return flat_output
 
     def compute_output_shape(self, input_shape):
         return (input_shape[0][0], self.shapeA, self.shapeB)
@@ -48,12 +54,10 @@ def BilinearModel(Layer):
         # if input_shape, check dimensionality
         if isinstance(x[0], tuple):
             assert len(x[0]) == 2 and len(x[1]) == 2, '`BilinearModel` input tensors must be 2-D'
-        
+
         # if x, they should match shapes from build()
         elif K.is_keras_tensor(x[0]):
             assert K.ndim(x[0]) == 2 and K.ndim(x[1]) == 2, '`BilinearModel` input tensors must be 2-D'
             shapeA, shapeB = K.int_shape(x[0])[1], K.int_shape(x[1])[1]
             if shapeA != self.shapeA or shapeB != self.shapeB:
                 raise ValueError('Unexpected `BilinearModel` input_shape')
-
-

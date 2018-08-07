@@ -1,2 +1,2 @@
 """Texture Ops Module"""
-from .bilinearpooling import *
+from .bilinear_pooling import *
