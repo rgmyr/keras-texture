@@ -11,7 +11,7 @@ from texture.networks.util import make_backbone
 def dep_net(backbone_cnn,
             num_classes,
             input_shape,
-            encode_K=64,
+            encode_K=8,
             encode_feats=64,
             pooled_feats=64,
             dense_feats=128,
@@ -28,7 +28,7 @@ def dep_net(backbone_cnn,
     input_shape : tuple of int
         Shape of input image. Can be None, since Encoding layer allows variable input sizes.
     encode_K : int, optional
-        Number of codewords to learn, default=64.
+        Number of codewords to learn, default=8.
     encode_feats : int, optional
         Number of output nodes in post-Encoding/pre-BilinearModel Dense layer, default=64.
     pooled_feats : int, optional

@@ -19,14 +19,14 @@ keras_apps = {'vgg16'               : applications.vgg16.VGG16,
               'inception_resnet_v2' : applications.inception_resnet_v2.InceptionResNetV2}
 
 
-def make_backbone(backbone_cnn):
+def make_backbone(backbone_cnn, input_shape):
     '''Check an existing backbone Model or grab ImageNet pretrained from keras_apps.'''
     if isinstance(backbone_cnn, KerasModel):
         assert len(backbone_cnn.output_shape)==4, 'backbone_cnn.output must output a 4D Tensor'
         return backbone_cnn
     elif isinstance(backbone, str):
         assert backbone_cnn in keras_apps.keys(), 'Invalid keras.applications string'
-        return keras_apps[backbone_cnn](include_top=False)
+        return keras_apps[backbone_cnn](include_top=False, input_shape=input_shape)
     else:
         raise ValueError('input to make_backbone() has invalid type')
 

@@ -17,25 +17,20 @@ def bilinear_pooling(inputs):
 
     Returns
     -------
-    phi_I : tensorflow Function
-        Symbolic function encapsulating pooling and normalization operations.
+    phi : tensorflow Function
+        Result of outer product pooling and normalization operations.
     '''
     iA, iB = inputs
 
-    # sum pooling outer product
-    phi_I = tf.einsum('bijm,bijn->bmn', iA, iB)
+    # sum pooled outer product
+    phi = tf.einsum('bijm,bijn->bmn', iA, iB)
 
     # sum --> avg (is this necessary?)
     #n_feat = tf.reduce_prod(tf.gather(tf.shape(iA), tf.constant([1,2])))
     #phi_I  = tf.divide(phi_I, tf.to_float(n_feat))
 
-    # flatten
-    phi_I = Flatten()(phi_I)
+    phi = Flatten()(phi)
+    phi = tf.multiply(tf.sign(phi),tf.sqrt(tf.abs(phi)+1e-10))    # signed square root
+    phi = tf.nn.l2_normalize(phi_I, axis=-1)
 
-    # signed square root
-    phi_I = tf.multiply(tf.sign(phi_I),tf.sqrt(tf.abs(phi_I)+1e-10))
-
-    # L2 normalization
-    z = tf.nn.l2_normalize(sgn_sqrt, axis=-1)
-
-    return z
+    return phi_I
