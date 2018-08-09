@@ -27,10 +27,14 @@ class DTDDataset(Dataset):
     def __init__(self, data_dir, input_size=224, split=1):
         self.data_dir = data_dir
         self.imgs_dir = data_dir + '/images/'
-        self.input_size = input_size
-        self.split = split
-        self.num_classes = 47
 
+        self.input_size = input_size
+        self.input_shape = (input_size, input_size, 3)
+
+        self.num_classes = 47
+        self.output_shape = (self.num_classes,)
+
+        self.split = split
         train_reader = csv.reader(open(dtd_dir+'/labels/train'+str(split)+'.txt'))
         val_reader = csv.reader(open(dtd_dir+'/labels/val'+str(split)+'.txt'))
         test_reader = csv.reader(open(dtd_dir+'/labels/test'+str(split)+'.txt'))
@@ -38,16 +42,18 @@ class DTDDataset(Dataset):
         self.train_list = [line[0] for line in train_reader + val_reader]
         self.test_list = [line[0] for line in test_reader]
 
-        self.classes = set([s.split('/')[0] for s in test_list])
+        self.classes = sorted(list(set([s.split('/')[0] for s in test_list])))
 
+    def data_dirname(self):
+        return self.data_dir
 
     def load_or_generate_data(self):
         """Define X/y train/test."""
-        self.X_train = np.array([center_crop(io.imread(self.img_dir+f)) for f in self.train_list])
-        self.y_train = to_categorical(np.array([to_class(f) for f in self.train_list]), self.num_classes)
+        self.X_train = np.array([center_crop(io.imread(self.img_dir+f), self.input_size) for f in self.train_list])
+        self.y_train = to_categorical(np.array([self._to_class(f) for f in self.train_list]), self.num_classes)
 
-        self.X_test = np.array([center_crop(io.imread(self.img_dir+f)) for f in self.test_list])
-        self.y_train = to_categorical(np.array([to_class(f) for f in self.test_list]), self.num_classes)
+        self.X_test = np.array([center_crop(io.imread(self.img_dir+f), self.input_size) for f in self.test_list])
+        self.y_train = to_categorical(np.array([self._to_class(f) for f in self.test_list]), self.num_classes)
 
 
     def __repr__(self):
@@ -55,7 +61,7 @@ class DTDDataset(Dataset):
             'DTD Dataset\n'
             f'Num classes: {self.num_classes}\n'
             f'Split: {self.split}\n'
-            f'Input size: {self.input_size}\n'
+            f'Input shape: {self.input_shape}\n'
         )
 
     def _to_class(s):

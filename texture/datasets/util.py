@@ -2,6 +2,8 @@
 
 def center_crop(img, side_length):
     '''Resize short side to side_length, then square center crop.'''
+    if img.ndim == 2:
+       img = color.gray2rgb(img) 
     h, w, _ = img.shape
     new_h, new_w = side_length, side_length
     if h > w:
