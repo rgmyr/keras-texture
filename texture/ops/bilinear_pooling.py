@@ -7,7 +7,7 @@ import tensorflow as tf
 from tensorflow.keras.layers import Flatten
 #_all__
 
-def bilinear_pooling(inputs):
+def bilinear_pooling(inputs, epsilon=1e-12):
     '''Pool outer products of local features. Returns tf Function usable with keras.layers.Lambda.
 
     Parameters
@@ -30,7 +30,7 @@ def bilinear_pooling(inputs):
     #phi_I  = tf.divide(phi_I, tf.to_float(n_feat))
 
     phi = Flatten()(phi)
-    phi = tf.multiply(tf.sign(phi),tf.sqrt(tf.abs(phi)+1e-10))    # signed square root
+    phi = tf.multiply(tf.sign(phi), tf.sqrt(tf.maximum(phi, epsilon)))    # signed square root
     phi = tf.nn.l2_normalize(phi_I, axis=-1)
 
     return phi_I

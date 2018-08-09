@@ -31,12 +31,12 @@ def make_backbone(backbone_cnn, input_shape):
         raise ValueError('input to make_backbone() has invalid type')
 
 
-def make_dense_layers(dense_layers, dropout=None):
+def make_dense_layers(dense_layers, dropout_rate=None):
     '''Instantiate a series of Dense layers, optionally with Dropout.'''
     def dense_layers(x):
         for N in dense_layers:
             x = Dense(N, activation='relu')(x)
-            if dropout is not None:
-                x = Dropout(rate=dropout)(x)
+            if dropout_rate is not None:
+                x = Dropout(rate=dropout_rate)(x)
         return x
     return dense_layers

@@ -11,7 +11,9 @@ import tensorflow as tf
 from tensorflow.keras.layers import Input, Conv2D, Lambda, Flatten, Dense
 from tensorflow.keras.models import Model as KerasModel
 
+from texture.networks.util import make_backbone, make_dense_layers
 from texture.ops import bilinear_pooling
+
 
 
 def bilinear_cnn(fA, fB,
@@ -70,7 +72,7 @@ def bilinear_cnn(fA, fB,
 
     x = Lambda(bilinear_pooling, name='bilinear_pooling')([outA, outB])
 
-    x = make_dense_layers(dense_layers, dropout=dropout_rate)(x)
+    x = make_dense_layers(dense_layers, dropout_rate)(x)
 
     pred = Dense(num_classes, activation='softmax')(x)
 
