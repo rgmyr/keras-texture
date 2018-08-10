@@ -5,14 +5,14 @@ from tensorflow.keras.models import Model as KerasModel
 from texture.layers import KernelPooling
 from texture.networks.util import make_backbone, make_dense_layers
 
-def deepten(num_classes,
-            input_shape,
-            backbone_cnn,
-            kernel_p=4,
-            kernel_d=4096,
-            conv1x1=None,
-            dense_layers=[],
-            dropout_rate=None):
+def kernel_pooling_cnn(num_classes,
+                       input_shape,
+                       backbone_cnn,
+                       kernel_p=4,
+                       kernel_d=4096,
+                       conv1x1=None,
+                       dense_layers=[],
+                       dropout_rate=None):
     '''Combine a backbone CNN + Encoding layer + Dense layers into a DeepTEN.
 
     Parameters
@@ -44,7 +44,7 @@ def deepten(num_classes,
         conv_output = Conv2D(conv1x1, (1,1))(conv_output)
 
     x = KernelPooling(p=kernel_p, d=kernel_d)(conv_output)
-    x = make_dense_layers(dense_layers, dropout=dropout_rate)(x)
+    #x = make_dense_layers(dense_layers, dropout=dropout_rate)(x)
     pred = Dense(num_classes, activation='softmax')(x)
 
     model = KerasModel(inputs=backbone_model.input, outputs=pred)

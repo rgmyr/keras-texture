@@ -12,11 +12,11 @@ sequential_batch_[i]ff from the same repo would be useful for avoiding OOM error
 '''
 import numpy as np
 import tensorflow as tf
+from tensorflow.keras.layers import Layer
 
 from math import factorial
 
 from keras import backend as K
-from keras.engine.topology import Layer
 
 
 __all__ = ['AlphaInitializer', 'KernelPooling']
@@ -97,7 +97,7 @@ class AlphaInitializer():
     def __init__(self, gamma):
         self.gamma = gamma
 
-    def __call__(self, shape, dtype=float):
+    def __call__(self, shape, dtype=float, partition_info=None):
         assert len(shape)==1, 'Only use AlphaInitializer on 1D weights'
         gam2 = np.array([2*self.gamma]*shape[0])
         beta = np.exp(-gam2)
@@ -163,6 +163,8 @@ class KernelPooling(Layer):
             np.random.seed(ss)
             s_t = 2*np.random.randint(2, size=self.C)-1
             self.sketch_matrices.append(_generate_sketch_matrix(h_t, s_t, self.d))
+
+        super(KernelPooling, self).build(input_shape)
 
 
     def call(self, x):

@@ -1,6 +1,6 @@
 
 from tensorflow.keras import applications
-from tensorflow.keras.layers import Dense, Dropout
+from tensorflow.keras.layers import Dense, Dropout, Lambda
 from tensorflow.keras.models import Model as KerasModel
 
 # Callables for ImageNet-pretrained model fetching
@@ -32,10 +32,13 @@ def make_backbone(backbone_cnn, input_shape):
 
 def make_dense_layers(dense_layers, dropout=None):
     '''Instantiate a series of Dense layers, optionally with Dropout.'''
-    def dense_layers(x):
-        for N in dense_layers:
-            x = Dense(N, activation='relu')(x)
-            if dropout is not None:
-                x = Dropout(rate=dropout)(x)
-        return x
-    return dense_layers
+    if len(dense_layers) == 0:
+        return Lambda(lambda x: x, name='identity')
+    else:
+        def dense_layers_fn(x):
+            for N in dense_layers:
+                x = Dense(N, activation='relu')(x)
+                if dropout is not None:
+                    x = Dropout(rate=dropout)(x)
+            return x
+        return dense_layers_fn
