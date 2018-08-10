@@ -74,16 +74,15 @@ def dilation_block(x,
 
     return block_output
 
+'''
+def dilation_net(num_classes,
+                 input_shape):
+    #CNN built on dilation blocks and auxillary poolings.
 
-def dilation_net(input_shape=None):
-    '''CNN built on dilation blocks and auxillary poolings.
-
-    '''
     input_image = Input(shape=input_shape)
-
-    for
 
 
     model = KerasModel(inputs=input_image, outputs=pred)
 
     return model
+'''

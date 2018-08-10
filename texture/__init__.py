@@ -1,1 +1,1 @@
-from . import cnn, datasets, fisher, layers, initializers, ops
+from . import datasets, layers, networks, models, initializers, ops

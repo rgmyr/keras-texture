@@ -8,9 +8,9 @@ from tensorflow.keras.models import Model as KerasModel
 from texture.layers import Encoding, BilinearModel
 from texture.networks.util import make_backbone
 
-def dep_net(backbone_cnn,
-            num_classes,
+def dep_net(num_classes,
             input_shape,
+            backbone_cnn,
             encode_K=8,
             encode_feats=64,
             pooled_feats=64,

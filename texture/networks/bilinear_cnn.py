@@ -16,9 +16,9 @@ from texture.ops import bilinear_pooling
 
 
 
-def bilinear_cnn(fA, fB,
-                 num_classes,
+def bilinear_cnn(num_classes,
                  input_shape,
+                 fA, fB=None,
                  conv1x1=None,
                  dense_layers=[],
                  dropout_rate=None):
@@ -30,7 +30,7 @@ def bilinear_cnn(fA, fB,
     fA : KerasModel or str
         Feature network A. Should output features (N, H, W, cA).
         If str, loads the corresponding ImageNet model from `keras.applications`.
-    fB : KerasModel or str
+    fB : KerasModel or str, optional
         Feature network B. Should output features (N, H, W, cB).
         If str, loads the corresponding ImageNet model from `keras.applications`.
         If `None`, will return symmetric BCNN using fA.

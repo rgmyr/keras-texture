@@ -21,9 +21,9 @@ class Model:
     def __init__(self, dataset_cls, network_fn, dataset_args={}, network_args={}):
         self.name = f'{self.__class__.__name__}_{dataset_cls.__name__}_{network_fn.__name__}'
 
-        self.data = dataset_cls{**dataset_args}
+        self.data = dataset_cls(**dataset_args)
 
-        self.network = network_fn(self.data.input_shape, self.data.output_shape, **network_args)
+        self.network = network_fn(self.data.num_classes, self.data.input_shape, **network_args)
         self.network.summary()
 
         self.batch_augment_fn = None
@@ -50,7 +50,7 @@ class Model:
         )
 
     def evaluate(self, X, y):
-        seq = DatasetSequence(X, y. batch_size=16)
+        seq = DatasetSequence(X, y, batch_size=16)
         preds = self.network.predict_generator(sequence)
         return np.mean(np.argmax(preds, -1) == np.argmax(y, -1))
 

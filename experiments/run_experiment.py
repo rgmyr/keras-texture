@@ -4,7 +4,7 @@ import importlib
 from typing import Dict
 import os
 
-from training.util import train_model
+from util import train_model
 
 
 DEFAULT_TRAIN_ARGS = {
@@ -39,17 +39,17 @@ def run_experiment(experiment_config: Dict, save_weights: bool, gpu_ind: int, us
 
     print(f'Running experiment with config {experiment_config} on GPU {gpu_ind}')
 
-    datasets_module = importlib.import_module('text_recognizer.datasets')
+    datasets_module = importlib.import_module('texture.datasets')
     dataset_class_ = getattr(datasets_module, experiment_config['dataset'])
     dataset_args = experiment_config.get('dataset_args', {})
     dataset = dataset_class_(**dataset_args)
     dataset.load_or_generate_data()
     print(dataset)
 
-    models_module = importlib.import_module('text_recognizer.models')
+    models_module = importlib.import_module('texture.models')
     model_class_ = getattr(models_module, experiment_config['model'])
 
-    networks_module = importlib.import_module('text_recognizer.networks')
+    networks_module = importlib.import_module('texture.networks')
     network_fn_ = getattr(networks_module, experiment_config['network'])
     network_args = experiment_config.get('network_args', {})
     model = model_class_(dataset_cls=dataset_class_, network_fn=network_fn_, dataset_args=dataset_args, network_args=network_args)

@@ -8,9 +8,9 @@ from tensorflow.keras.models import Model as KerasModel
 from texture.layers import Encoding
 from texture.networks.util import make_backbone, make_dense_layers
 
-def deepten(backbone_cnn,
-            num_classes,
-            input_shape=None,
+def deepten(num_classes,
+            input_shape,
+            backbone_cnn=None,
             encode_K=64,
             conv1x1=None,
             dense_layers=[],
@@ -40,9 +40,9 @@ def deepten(backbone_cnn,
     DeepTEN : KerasModel
         Deep Texture Encoding Network
     '''
-    backbone_model = make_backbone(backbone_cnn)
-    input_image = Input(shape=input_shape)
-    conv_output = backbone_model(input_image)
+    assert backbone_cnn is not None
+    backbone_model = make_backbone(backbone_cnn, input_shape)
+    conv_output = backbone_model.output
     if conv1x1 is not None:
         conv_output = Conv2D(conv1x1, (1,1))(conv_output)
 
@@ -50,6 +50,6 @@ def deepten(backbone_cnn,
     x = make_dense_layers(dense_layers, dropout=dropout_rate)(x)
     pred = Dense(num_classes, activation='softmax')(x)
 
-    model = KerasModel(inputs=input_image, outputs=pred)
+    model = KerasModel(inputs=backbone_model.input, outputs=pred)
 
     return model
