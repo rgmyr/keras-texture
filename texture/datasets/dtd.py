@@ -54,7 +54,7 @@ class DTDDataset(Dataset):
         self.y_train = to_categorical(np.array([self._to_class(f) for f in self.train_list]), self.num_classes)
 
         self.X_test = np.array([center_crop(io.imread(self.img_dir+f), self.input_size) for f in self.test_list])
-        self.y_train = to_categorical(np.array([self._to_class(f) for f in self.test_list]), self.num_classes)
+        self.y_test = to_categorical(np.array([self._to_class(f) for f in self.test_list]), self.num_classes)
 
 
     def __repr__(self):

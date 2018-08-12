@@ -9,15 +9,13 @@ Borrows from PyTorch implementation released by Hang Zhang: https://github.com/z
 
 import tensorflow as tf
 from tensorflow.keras.layers import Layer
-
 from keras import backend as K
-from keras.initializers import RandomUniform
 
 
 __all__ = ['Encoding']
 
 
-def scaledL2(R, S): 
+def scaledL2(R, S):
     '''L2 norm over features of R, scaled by a codeword-length vector S.
 
     Parameters
@@ -25,7 +23,7 @@ def scaledL2(R, S):
     R : 4-D tensor, shape (batches,N,K,D) or 3-D tensor, shape (N,K,D)
         Tensor along which to compute and scale L2 norm of last axis
     S : 1-D tensor, shape (K,)
-        Tensor of 
+        Tensor of
 
     Returns
     -------
@@ -46,13 +44,13 @@ class Encoding(Layer):
 
     Parameters
     ----------
-    K : int 
+    K : int
         Number of codewords to learn
     dropout : float, optional
         Dropout rate between [0.0,1.0), or `None`, default=`None`.
-            Currently applied to `scale` factors, which is equivalent to 
+            Currently applied to `scale` factors, which is equivalent to
             zeroing out `dropout` fraction of the aggregated codewords.
-    l2_normalize : bool, optional 
+    l2_normalize : bool, optional
         Whether to normalize output vectors, default=`True`.
 
     TODO: - test dropout functionality (why not just apply on output vectors?)
@@ -67,19 +65,20 @@ class Encoding(Layer):
 
 
     def build(self, input_shape):
-        self.D = input_shape[-1]
+        self.D = input_shape.as_list()[-1]
 
-        std1 = 1./((self.K*self.D)**(0.5))
-        init_codes = RandomUniform(-std1, std1)
+        #std1 = 1./((self.K*self.D)**(0.5))  # used in their code but not paper?
+        std1 = 1./(self.K**0.5)
+        init = tf.random_uniform_initializer(-std1, std1)
         self.codes = self.add_weight(name='codebook',
                                     shape=(self.K, self.D,),
-                                    initializer=init_codes,
+                                    initializer=init,
                                     trainable=True)
 
-        init_scale = RandomUniform(-1, 0)
+        #init_scale = tf.random_uniform_initializer(-1, 0)
         self.scale = self.add_weight(name='scale_factors',
                                     shape=(self.K,),
-                                    initializer=init_scale,
+                                    initializer=init,
                                     trainable=True)
 
         super(Encoding, self).build(input_shape)
@@ -92,12 +91,12 @@ class Encoding(Layer):
             x = K.reshape(x, (-1, dims[1]*dims[2], self.D))
         elif ndim != 3:
             raise ValueError('Encoding input should have shape BxNxD or BxHxWxD')
-        
+
         # Residual vectors
         n = x.shape[1]
         _x_i = K.repeat_elements(x, self.K, 1)
         _c_k = K.tile(self.codes, (n, 1))
-        R = K.reshape(_x_i - _c_k, (-1, n, self.K, self.D)) 
+        R = K.reshape(_x_i - _c_k, (-1, n, self.K, self.D))
 
         # Assignment weights, optional dropout
         if self.dropout_rate is not None:
@@ -112,9 +111,10 @@ class Encoding(Layer):
         if self.l2_normalize:
             E = tf.nn.l2_normalize(E, axis=-1)
 
+        E = tf.layers.Flatten()(E)
+
         return E
 
     def compute_output_shape(self, input_shape):
         # (batches, codeworks, dimensions)
-        return (input_shape[0], self.K, input_shape[-1])
-
+        return (input_shape[0], self.K*input_shape[-1])

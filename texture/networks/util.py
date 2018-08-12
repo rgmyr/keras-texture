@@ -20,12 +20,18 @@ keras_apps = {'vgg16'               : applications.vgg16.VGG16,
 
 def make_backbone(backbone_cnn, input_shape):
     '''Check an existing backbone Model or grab ImageNet pretrained from keras_apps.'''
-    if isinstance(backbone_cnn, KerasModel):
+    if backbone_cnn is None:
+        return None
+    elif isinstance(backbone_cnn, KerasModel):
         assert len(backbone_cnn.output_shape)==4, 'backbone_cnn.output must output a 4D Tensor'
         return backbone_cnn
     elif isinstance(backbone_cnn, str):
         assert backbone_cnn in keras_apps.keys(), 'Invalid keras.applications string'
-        return keras_apps[backbone_cnn](include_top=False, input_shape=input_shape)
+        model = keras_apps[backbone_cnn](include_top=False, input_shape=input_shape)
+        # resnet50 ends with a 7x7 pooling, which collapses conv to 1x1 for 224x224 input
+        if backbone_cnn == 'resnet50':
+            model = KerasModel(inputs=model.input, outputs=model.layers[-2].output)
+        return model
     else:
         raise ValueError('input to make_backbone() has invalid type')
 
@@ -33,7 +39,10 @@ def make_backbone(backbone_cnn, input_shape):
 def make_dense_layers(dense_layers, dropout=None):
     '''Instantiate a series of Dense layers, optionally with Dropout.'''
     if len(dense_layers) == 0:
-        return Lambda(lambda x: x, name='identity')
+        if dropout is not None:
+            return lambda x: Dropout(rate=dropout)(x)
+        else:
+            return lambda x: x
     else:
         def dense_layers_fn(x):
             for N in dense_layers:

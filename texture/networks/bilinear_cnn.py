@@ -8,7 +8,7 @@
 }
 """
 import tensorflow as tf
-from tensorflow.keras.layers import Input, Conv2D, Lambda, Flatten, Dense
+from tensorflow.keras.layers import Input, Conv2D, Lambda, Flatten, Dense, Dropout
 from tensorflow.keras.models import Model as KerasModel
 
 from texture.networks.util import make_backbone, make_dense_layers
@@ -18,7 +18,8 @@ from texture.ops import bilinear_pooling
 
 def bilinear_cnn(num_classes,
                  input_shape,
-                 fA, fB=None,
+                 backbone_cnn=None,
+                 fB=None,
                  conv1x1=None,
                  dense_layers=[],
                  dropout_rate=None):
@@ -51,10 +52,11 @@ def bilinear_cnn(num_classes,
     B-CNN : KerasModel
         Single bilinear CNN composed from fA & fB (asymmetric) or fA with itself (symmetric)
     '''
-    fA = make_backbone(fA)
-    fB = make_backbone(fB)
+    assert backbone_cnn is not None
+    fA = make_backbone(backbone_cnn, input_shape)
+    fB = make_backbone(fB, input_shape)
 
-    input_image = layers.Input(shape=input_shape)
+    input_image = Input(shape=input_shape)
 
     outA = fA(input_image)
     if fB is None:
@@ -72,7 +74,7 @@ def bilinear_cnn(num_classes,
 
     x = Lambda(bilinear_pooling, name='bilinear_pooling')([outA, outB])
 
-    x = make_dense_layers(dense_layers, dropout_rate)(x)
+    x = make_dense_layers(dense_layers, dropout=dropout_rate)(x)
 
     pred = Dense(num_classes, activation='softmax')(x)
 

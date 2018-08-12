@@ -11,8 +11,8 @@ from texture.networks.util import make_backbone, make_dense_layers
 def deepten(num_classes,
             input_shape,
             backbone_cnn=None,
-            encode_K=64,
-            conv1x1=None,
+            encode_K=32,
+            conv1x1=128,
             dense_layers=[],
             dropout_rate=None):
     '''Combine a backbone CNN + Encoding layer + Dense layers into a DeepTEN.

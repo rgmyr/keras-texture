@@ -3,7 +3,8 @@ from tensorflow.keras.utils import Sequence
 
 
 class DatasetSequence(Sequence):
-    """Minimal subclassing of Sequence for use with fit_generator.
+    """
+    Minimal subclassing of Sequence for use with fit_generator.
     """
     def __init__(self, X, y, batch_size=32, augment_fn=None, format_fn=None):
         self.X = X
@@ -32,10 +33,10 @@ class DatasetSequence(Sequence):
         if self.format_fn:
             batch_X, batch_y = self.format_fn(batch_X, batch_y)
 
-        return batch_x, batch_y
+        return batch_X, batch_y
 
     def on_epoch_end(self):
         """Shuffle the examples, not just batches via fit_generator."""
-        p = numpy.random.permutation(len(self.X))
+        p = np.random.permutation(len(self.X))
         self.X = self.X[p]
         self.y = self.y[p]

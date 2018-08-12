@@ -9,7 +9,8 @@ from util import train_model
 
 DEFAULT_TRAIN_ARGS = {
     'batch_size': 32,
-    'epochs': 10
+    'epochs': 1,
+    'flags': []
 }
 
 
@@ -23,14 +24,14 @@ def run_experiment(experiment_config: Dict, save_weights: bool, gpu_ind: int, us
             "split": 7
         },
         "model": "TextureModel",
-        "network": "bilinear_cnn",
+        "network": "deepten",
         "network_args": {
-            "p": 4,
-            "d": 2048
+            "encode_K": 32
         },
         "train_args": {
             "batch_size": 16,
-            "epochs": 50
+            "epochs": 50,
+            "flags": ["TENSORBOARD", "LR_RAMP"]
         }
     }
     save_weights: if True, will save the final model weights to a canonical location (see Model in models/base.py)
@@ -59,12 +60,14 @@ def run_experiment(experiment_config: Dict, save_weights: bool, gpu_ind: int, us
     experiment_config['experiment_group'] = experiment_config.get('experiment_group', None)
     experiment_config['gpu_ind'] = gpu_ind
 
+    print("Training with flags: ", experiment_config['train_args']['flags'])
 
     train_model(
         model,
         dataset,
         epochs=experiment_config['train_args']['epochs'],
         batch_size=experiment_config['train_args']['batch_size'],
+        flags=experiment_config['train_args']['flags'],
         gpu_ind=gpu_ind
     )
     score = model.evaluate(dataset.X_test, dataset.y_test)

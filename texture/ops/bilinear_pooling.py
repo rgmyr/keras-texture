@@ -31,6 +31,6 @@ def bilinear_pooling(inputs, epsilon=1e-12):
 
     phi = Flatten()(phi)
     phi = tf.multiply(tf.sign(phi), tf.sqrt(tf.maximum(phi, epsilon)))    # signed square root
-    phi = tf.nn.l2_normalize(phi_I, axis=-1)
+    phi = tf.nn.l2_normalize(phi, axis=-1)
 
-    return phi_I
+    return phi

@@ -18,8 +18,9 @@ def train_batch_aug(batch_X, batch_y):
     return aug_seq.augment_images(batch_X), batch_y
 
 
-class TextureModel:
-    """Base class, to be subclassed by other predictor/dataset-specific types.
+class TextureSequenceModel(TextureModel):
+
+    """TODO...
 
     Parameters
     ----------
@@ -45,7 +46,7 @@ class TextureModel:
 
     @property
     def weights_filename(self, model_dir):
-        return str(f'{model_dir}/{self.name}/_weights.h5')
+        return str(model_dir / f'{self.name}_weights.h5')
 
     def fit(self, dataset, batch_size=32, epochs=1, callbacks=[]):
         self.network.compile(loss=self.loss(), optimizer=self.optimizer(callbacks), metrics=self.metrics())

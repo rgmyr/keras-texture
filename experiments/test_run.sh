@@ -1,1 +1,0 @@
-python run_experiment.py '{"dataset": "DTDDataset", "dataset_args": {"data_dir" : "/home/ross/Dropbox/benchmark/dtd/"}, "model": "Model", "network": "deepten", "network_args": {"backbone_cnn": "resnet50", "encode_K": 8, "dropout_rate": 0.5}}'
