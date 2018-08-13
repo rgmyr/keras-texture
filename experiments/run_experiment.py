@@ -14,7 +14,7 @@ DEFAULT_TRAIN_ARGS = {
 }
 
 
-def run_experiment(experiment_config: Dict, save_weights: bool, gpu_ind: int, use_wandb: bool=True):
+def run_experiment(experiment_config: Dict, save_weights: bool, gpu_ind: int):
     """
     experiment_config is of the form
     {
@@ -33,9 +33,16 @@ def run_experiment(experiment_config: Dict, save_weights: bool, gpu_ind: int, us
             "epochs": 50,
             "flags": ["TENSORBOARD", "LR_RAMP"]
         }
+        "optimizer_args": {
+            "learning_rate": 10e-3
+        }
     }
-    save_weights: if True, will save the final model weights to a canonical location (see Model in models/base.py)
+    save_weights: if True, will save the final model weights to a canonical location (see TextureModel in models/base.py)
     gpu_ind: integer specifying which gpu to use
+
+    If "LR_RAMP" or "CYCLIC_LR" in ["train_args"]["flags"], then a LearningRateScheduler callback will be created
+    and SGD optimizer will be used. Otherwise, Adam will be used. In either case, optimizer_args should only
+    contain valid keyword args for the given optimizer.
     """
 
     print(f'Running experiment with config {experiment_config} on GPU {gpu_ind}')
@@ -53,7 +60,16 @@ def run_experiment(experiment_config: Dict, save_weights: bool, gpu_ind: int, us
     networks_module = importlib.import_module('texture.networks')
     network_fn_ = getattr(networks_module, experiment_config['network'])
     network_args = experiment_config.get('network_args', {})
-    model = model_class_(dataset_cls=dataset_class_, network_fn=network_fn_, dataset_args=dataset_args, network_args=network_args)
+    
+    optimizer_args = experiment_config.get('optimizer_args', {})
+
+    model = model_class_(
+        dataset_cls=dataset_class_,
+        network_fn=network_fn_,
+        dataset_args=dataset_args,
+        network_args=network_args,
+        optimizer_args=optimizer_args
+    )
     print(model)
 
     experiment_config['train_args'] = {**DEFAULT_TRAIN_ARGS, **experiment_config.get('train_args', {})}

@@ -2,7 +2,7 @@
 
 """
 import tensorflow as tf
-from tensorflow.keras.layers import Input, Conv2D, Dense, Dropout
+from tensorflow.keras.layers import Input, Conv2D, Dense, Dropout, ReLU, BatchNormalization
 from tensorflow.keras.models import Model as KerasModel
 
 from texture.layers import Encoding
@@ -44,7 +44,9 @@ def deepten(num_classes,
     backbone_model = make_backbone(backbone_cnn, input_shape)
     conv_output = backbone_model.output
     if conv1x1 is not None:
-        conv_output = Conv2D(conv1x1, (1,1))(conv_output)
+        conv_output = Conv2D(conv1x1, (1,1), activation=None)(conv_output)
+        conv_output = BatchNormalization()(conv_output)
+        conv_output = ReLU()(conv_output)
 
     x = Encoding(encode_K, dropout=dropout_rate)(conv_output)
     x = make_dense_layers(dense_layers, dropout=dropout_rate)(x)

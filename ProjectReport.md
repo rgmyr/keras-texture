@@ -1,10 +1,47 @@
-**TODO**
+# COMP 4432 Final Project: Reproducing State of the Art Deep Learning Results for Texture Recognition
 
-- Finish `dilation_net`, run some experiments
-- Implement *compact* bilinear pooling
-- Dataset object for FMD (at least), start thinking about sequential dataset interface
-- More experiments + tweaking to get closer to claimed performance levels
-- Figure out Buffer bugs when passing `covariance_bound` to `cyvlfeat.gmm.gmm` (created issue, no responses.)
+**Author**: Ross Meyer
+**Code**: https:/.github.com/rgmyr/keras-texture
+
+## Task Definition
+
+My goal in this project is to reproduce a number of methods from the last ~3 years that show state-of-the-art performance on texture & material recognition tasks (which is closely related to fine-grained image classification), and experiment with my own variation on those methods. An auxiliary goal is to build all of the necessary components for this task in a modular and well-organized package that enables easy usage, reproducibility and extendability.
+
+I plan to add a couple of new `Dataset`s in the future, but for now I am just working with two datasets for texture recognition:
+
+- Describable Textures Dataset: The DTD contains 5640 images. There are 47 classes of describable texture attributes ("swirly", "honeycombed", "striped", etc.), with 120 examples of each class. The authors released 10 different `train`/`val`/`test` splits (equally sized) for benchmarking. For simplicity, I'm just using `train+val` for `X`/`y_train` and `test` for `X/y_test` for any given split.
+- Flickr Materials Database: The FMD contains 1000 images of 10 materials ("fabric", "leather", "metal", etc.), with 100 examples of each class. There are no pre-defined train/test splits, but standard practice seems to be cross-validation with a sample of 90/10 splits.
+
+I chose these two datasets because at this point they seem to be the most competitive and frequently cited datasets in the sub-field of texture/material classification. There are some older texture datasets, but performance became saturated on them with the advent of Deep Learning (DL)-based texture methods around 2015 (everybody gets >99% now). There are also a couple of newer datasets, but there's not as much published about them so it's harder to compare models, especially when the only published result is a novel method by the authors of the dataset.
+
+## Tools and infrastructure
+
+The package is written in Python with a standard `SciPy` stack: `numpy`, `scikit-image`, `scikit-learn`. The Fisher Vector CNN model class (`FVCNN`) uses the [cyvlfeat](https://github.com/menpo/cyvlfeat) wrappers for VLFeat, which should be installed using conda: `conda install -c menpo cyvlfeat`, if at all possible. All of the deep learning components are written in `tensorflow`, primarily using the `tf.keras` API for model construction & high-level control and pure `tf` for lower-level operations & tensor manipulation.
+
+I am working on building in more optimization using `ray` and `hyperopt` to be more efficient about hyperparameter tuning, which I've found can be difficult and labor-intensive with DL models.
+
+
+## Evaluation metric
+
+#### Model Selection
+
+For the published models that I'm re-implementing, I don't need to think much about model complexity, since it's generally fixed by the architecture of the network. I'm working under the assumption that the published results are reasonably accurate, and just aiming to verify my implementation and experimentation by reproducing it.
+
+## Approach & Literature
+
+On the other hand, after trying a few experiments, I suspected that using a pre-trained ImageNet CNN was a less than optimal way to build a texture-specific network, since the output features of the CNN are likely more high-level than necessary. I'm experimenting with a much smaller network that uses
+
+## Approach & Literature
+
+
+## Baseline Model
+
+
+## Results & Conclusion
+
+
+## Code & Reproducibility
+
 
 # keras-texture
 

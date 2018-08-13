@@ -5,11 +5,9 @@ import os
 #from clr_callback import CyclicLR
 from tensorflow.keras.callbacks import TensorBoard, EarlyStopping, ModelCheckpoint, LearningRateScheduler
 
-root_dir = 'home/'+os.environ['USER']'/Dropbox/benchmark/'
-
-# for ramp experiments
-lr_low = 5e-4
-lr_high = 5e-1
+# for LR_RAMP experiments
+lr_low = 10e-7
+lr_high = 0.05
 
 
 def simple_cyclic_lr(low, high, step_size):
@@ -22,30 +20,28 @@ def train_model(model,
                 flags,
                 gpu_ind=None):
     callbacks = []
+    save_dir = os.path.join('/home/'+os.environ['USER']+'/Dropbox/benchmark', model.name)
 
     if 'EARLY_STOPPING' in flags:
-        early_stopping = EarlyStopping(monitor='val_loss', min_delta=0.01, patience=10, verbose=1)
+        early_stopping = EarlyStopping(monitor='val_loss', min_delta=0.01, patience=50, verbose=1)
         callbacks.append(early_stopping)
     # GPU_UTIL_SAMPLER
 
-    if 'CHECKPOINT' in flags:
-        model_checkpoint = ModelCheckpoint(model.weights_filename, monitor='val_loss', verbose=1,
-                                          save_best_only=True, save_weights_only=True)
-        callbacks.append(model_checkpoint)
-
-    if 'LR_RAMP' in flags:    # run a long increase LR experiment
+    if 'LR_RAMP' in flags:    # run an increasing LR experiment
          lr = np.linspace(lr_low, lr_high, num=epochs)
-         lr_schedule = LearningRateScheduler(lambda epoch: lr[epoch])
+         lr_schedule = LearningRateScheduler(lambda epoch: lr[epoch], verbose=1)
+         print('Running LR_RAMP experiment with range ', (lr_low, lr_high))
+         save_dir = os.path.join(save_dir, 'lr_ramp')
          callbacks.append(lr_schedule)
 
     if 'TENSORBOARD' in flags:
-        tensorboard = TensorBoard(log_dir=log_dir+model.name, batch_size=batch_size)
+        tensorboard = TensorBoard(log_dir=save_dir, batch_size=batch_size)
+        print('Saving TENSORBOARD events to ', save_dir)
         callbacks.append(tensorboard)
 
     if 'CHECKPOINT' in flags:
-        weights_dir = model.weights_filename(log_dir+model.name)
-        model_checkpoint = ModelCheckpoint(model.weights_filename, monitor='val_loss', verbose=1,
-                                          save_best_only=True, save_weights_only=True)
+        model_checkpoint = ModelCheckpoint(model.weights_filename(save_dir), monitor='val_loss', verbose=1,
+                                           save_best_only=True, save_weights_only=True)
         callbacks.append(model_checkpoint)
 
     #model.network.summary()

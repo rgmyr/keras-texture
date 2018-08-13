@@ -1,6 +1,6 @@
 import numpy as np
 
-from tensorflow.keras.optimizers import SGD, RMSprop, Adam
+from tensorflow.keras import optimizers
 from tensorflow.keras.callbacks import LearningRateScheduler
 
 from texture.datasets.sequence import DatasetSequence
@@ -10,8 +10,12 @@ from imgaug import augmenters as iaa
 aug_seq = iaa.Sequential([
     iaa.Fliplr(0.5),
     iaa.Flipud(0.5),
-    #iaa.Grayscale(0.5),
-    iaa.Dropout(0.2)
+    iaa.Affine(scale=(0.75, 1.25),
+               translate_percent=(-1., 1.),
+               mode='wrap'),
+    #iaa.Sharpen(alpha=(0.0,0.25), lightness=(0.9, 1.1)),
+    #iaa.Invert(0.5)
+    iaa.CoarseDropout((0.1, 0.25), size_percent=(0.01, 0.1))
 ])
 
 def train_batch_aug(batch_X, batch_y):
@@ -32,20 +36,22 @@ class TextureModel:
     network_args : dict, optional
         Keyword args for network_fn
     """
-    def __init__(self, dataset_cls, network_fn, dataset_args={}, network_args={}):
+    def __init__(self, dataset_cls, network_fn, dataset_args={}, network_args={}, optimizer_args={}):
         self.name = f'{self.__class__.__name__}_{dataset_cls.__name__}_{network_fn.__name__}'
 
         self.data = dataset_cls(**dataset_args)
 
         self.network = network_fn(self.data.num_classes, self.data.input_shape, **network_args)
         self.network.summary()
+        self.optimizer_name = optimizer_args.pop('optimizer', 'Adam')
+        self.optimizer_args = optimizer_args
 
         self.batch_augment_fn = train_batch_aug
         self.batch_format_fn = None
 
     @property
     def weights_filename(self, model_dir):
-        return str(f'{model_dir}/{self.name}/_weights.h5')
+        return os.path.join(model_dir, 'saved_weights.h5')
 
     def fit(self, dataset, batch_size=32, epochs=1, callbacks=[]):
         self.network.compile(loss=self.loss(), optimizer=self.optimizer(callbacks), metrics=self.metrics())
@@ -60,7 +66,7 @@ class TextureModel:
             validation_data=test_seq,
             use_multiprocessing=True,
             workers=1,
-            shuffle=False # implemented Sequence.on_epoch_end() to do instance shuffle
+            shuffle=False # implemented Sequence.on_epoch_end() to do instance shuffle instead of just batch shuffle
         )
 
     def evaluate(self, X, y):
@@ -72,11 +78,12 @@ class TextureModel:
         return 'categorical_crossentropy'
 
     def optimizer(self, callbacks):
+        # Using SGD if LRSchedule present, since it plays nicer than stateful opts
         if any([isinstance(callback, LearningRateScheduler) for callback in callbacks]):
-            print("Using LR Scheduler --> SGD Optimizer")
-            return SGD()
+            print("Found LearningRateScheduler callback --> using SGD Optimizer")
+            return getattr(optimizers, 'SGD')(**self.optimizer_args)
         else:
-            return Adam()
+            return getattr(optimizers, self.optimizer_name)(**self.optimizer_args)
 
     def metrics(self):
         return ['accuracy']
