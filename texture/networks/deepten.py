@@ -2,7 +2,7 @@
 
 """
 import tensorflow as tf
-from tensorflow.keras.layers import Input, Conv2D, Dense, Dropout, ReLU, BatchNormalization
+from tensorflow.keras.layers import Input, Conv2D, Dense, Dropout, BatchNormalization
 from tensorflow.keras.models import Model as KerasModel
 
 from texture.layers import Encoding
@@ -27,9 +27,9 @@ def deepten(num_classes,
     input_shape : tuple of int, optional
         Shape of input image. Can be None, since Encoding layer allows variable input sizes.
     encode_K : int, optional
-        Number of codewords to learn, default=64.
+        Number of codewords to learn, default=32.
     conv1x1 : int, optional
-        Add a 1x1 conv to reduce number of filters in backbone_cnn.output before Encoding layer.
+        Add a 1x1 conv to reduce number of filters in backbone_cnn.output before Encoding layer, default=128.
     dense_layers : iterable of int, optional
         Sizes for additional Dense layers between Encoding.output and softmax, default=[].
     dropout_rate: float, optional
@@ -44,9 +44,8 @@ def deepten(num_classes,
     backbone_model = make_backbone(backbone_cnn, input_shape)
     conv_output = backbone_model.output
     if conv1x1 is not None:
-        conv_output = Conv2D(conv1x1, (1,1), activation=None)(conv_output)
+        conv_output = Conv2D(conv1x1, (1,1), activation='relu')(conv_output)
         conv_output = BatchNormalization()(conv_output)
-        conv_output = ReLU()(conv_output)
 
     x = Encoding(encode_K, dropout=dropout_rate)(conv_output)
     x = make_dense_layers(dense_layers, dropout=dropout_rate)(x)

@@ -20,21 +20,27 @@ def run_experiment(experiment_config: Dict, save_weights: bool, gpu_ind: int):
     {
         "dataset": "DTDDataset",
         "dataset_args": {
-            "data_dir": "../Dropbox/benchmark/dtd/"
+            "data_dir": "../Dropbox/benchmark/dtd/",
+            "input_size": 256
             "split": 7
         },
         "model": "TextureModel",
         "network": "deepten",
         "network_args": {
-            "encode_K": 32
+            "encode_K": 32,
+            "dropout": 0.25
         },
         "train_args": {
             "batch_size": 16,
             "epochs": 50,
-            "flags": ["TENSORBOARD", "LR_RAMP"]
+            "flags": ["TENSORBOARD", "CYCLIC_LR"]
+            "flag_args": {"lr_low": 1e-4,
+                          "lr_high": 1e-2}
         }
         "optimizer_args": {
-            "learning_rate": 10e-3
+            "optimizer": "SGD",
+            "lr": 10e-3,
+            "momentum": 0.9
         }
     }
     save_weights: if True, will save the final model weights to a canonical location (see TextureModel in models/base.py)
@@ -60,7 +66,7 @@ def run_experiment(experiment_config: Dict, save_weights: bool, gpu_ind: int):
     networks_module = importlib.import_module('texture.networks')
     network_fn_ = getattr(networks_module, experiment_config['network'])
     network_args = experiment_config.get('network_args', {})
-    
+
     optimizer_args = experiment_config.get('optimizer_args', {})
 
     model = model_class_(
@@ -84,6 +90,7 @@ def run_experiment(experiment_config: Dict, save_weights: bool, gpu_ind: int):
         epochs=experiment_config['train_args']['epochs'],
         batch_size=experiment_config['train_args']['batch_size'],
         flags=experiment_config['train_args']['flags'],
+        flag_args=experiment_config['train_args']['flag_args'],
         gpu_ind=gpu_ind
     )
     score = model.evaluate(dataset.X_test, dataset.y_test)
