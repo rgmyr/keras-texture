@@ -2,13 +2,9 @@ from time import time
 import numpy as np
 import os
 
-#from clr_callback import CyclicLR
+#from clr_callback import CyclicLR  (doesn't actually set lr?)
 from tensorflow.keras.backend import eval
 from tensorflow.keras.callbacks import TensorBoard, EarlyStopping, ModelCheckpoint, LearningRateScheduler
-
-# for LR_RAMP experiments --> log(lr)
-lr_low = -6
-lr_high = 0
 
 
 # CylicLR seems to not actually update LR, so simple triangular subsitute:
@@ -24,7 +20,7 @@ def simple_cyclic_lr(base_lr=0.0001, max_lr=0.1, step=5):
 class LRTensorBoard(TensorBoard):
     '''TensorBoard subclass to add LR scalar to events log.'''
     def __init__(self, log_dir):  # add other arguments to __init__ if you need
-        super().__init__(log_dir=log_dir)
+        super().__init__(log_dir=log_dir) #, histogram_freq=15, batch_size=4) #, write_images=True)
 
     def on_epoch_end(self, epoch, logs=None):
         logs.update({'lr': eval(self.model.optimizer.lr)})
@@ -55,7 +51,7 @@ def train_model(model,
 
     if 'LR_RAMP' in flags:    # run an increasing LR experiment
          save_dir = os.path.join(save_dir, 'lr_ramp')
-         lr_low = flag_args.pop('lr_low', -6)
+         lr_low = flag_args.pop('lr_low', -5)
          lr_high = flag_args.pop('lr_high', 0)
          lr = np.logspace(lr_low, lr_high, num=epochs)
          lr_ramp = LearningRateScheduler(lambda epoch: lr[epoch], verbose=1)
@@ -85,4 +81,4 @@ def train_model(model,
     history = model.fit(dataset, batch_size, epochs, callbacks)
     print('Training took {:2f} s'.format(time() - t))
 
-    return model
+    return model, save_dir

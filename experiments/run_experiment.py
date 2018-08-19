@@ -14,7 +14,7 @@ DEFAULT_TRAIN_ARGS = {
 }
 
 
-def run_experiment(experiment_config: Dict, save_weights: bool, gpu_ind: int):
+def run_experiment(experiment_config: Dict, save: bool, gpu_ind: int):
     """
     experiment_config is of the form
     {
@@ -90,14 +90,15 @@ def run_experiment(experiment_config: Dict, save_weights: bool, gpu_ind: int):
         epochs=experiment_config['train_args']['epochs'],
         batch_size=experiment_config['train_args']['batch_size'],
         flags=experiment_config['train_args']['flags'],
-        flag_args=experiment_config['train_args']['flag_args'],
-        gpu_ind=gpu_ind
+        flag_args=experiment_config['train_args'].get('flag_args', {}),
+        gpu_ind=gpu_ind,
+        save_ext=experiment_config.pop('save_ext', None)
     )
     score = model.evaluate(dataset.X_test, dataset.y_test)
     print(f'Test evaluation: {score}')
 
 
-    if save_weights:
+    if save:
         model.save_weights()
 
 

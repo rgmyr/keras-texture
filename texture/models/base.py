@@ -15,7 +15,7 @@ aug_seq = iaa.Sequential([
                mode='wrap'),
     #iaa.Sharpen(alpha=(0.0,0.25), lightness=(0.9, 1.1)),
     #iaa.Invert(0.5)
-    iaa.CoarseDropout((0.0, 0.25), size_percent=(0.02, 0.2))
+    #iaa.CoarseDropout((0.0, 0.25), size_percent=(0.02, 0.2))
 ])
 
 def train_batch_aug(batch_X, batch_y):
