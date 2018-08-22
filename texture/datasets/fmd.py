@@ -29,13 +29,13 @@ class FMDDataset(Dataset):
         Which split to use for train/test, default=1. Must be in [1,..,10].
     """
     def __init__(self, data_dir, input_size=224, seed=None):
+        self.num_classes = 10
         self.data_dir = data_dir
         self.img_dir = os.path.join(data_dir + 'image')
-        self.num_classes = 10
 
-        class_dirs = sorted(glob.glob(self.img_dir+'/*'))
-        self.classes = sorted([s.split('/')[-1] for s in class_dir])   # folders in image_dir should be class names
-        assert len(self.classes) = self.num_classes, "FMD data_dir should have 10 subdirs (== num_classes)"
+        class_dirs = sorted(glob(os.path.join(self.img_dir, '*')))
+        self.classes = sorted([s.split('/')[-1] for s in class_dirs])   # folders in image_dir should be class names
+        assert len(self.classes) == self.num_classes, "FMD data_dir should have 10 subdirs (== num_classes)"
         self.img_files = chain([glob(class_dir) for class_dir in class_dirs])
         self.img_labels =
 
