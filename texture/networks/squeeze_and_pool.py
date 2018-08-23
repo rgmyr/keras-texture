@@ -26,7 +26,7 @@ def SE_retain_z(x, ratio, block_name='', dropout_rate=None):
     return u, Reshape((1, 1, filters // ratio))(z)
 
 
-def SP_block(_x, f, stage, ratio=16, residual=False, downsample=False, name='sp_res_block'):
+def SP_block(_x, f, stage, ratio=16, residual=False, downsample=False, name='block'):
     '''Using pre-activation version.'''
 
     block_name = name + str(stage)
@@ -64,6 +64,7 @@ def SP_ResNet(num_classes,
               filters=[64, 128, 256, 512],
               pool_at=[0, 1, 2, 3],
               squeeze_ratio=16,
+              use_residuals=True,
               dense_layers=[],
               dropout_rate=None):
     # ...
@@ -81,7 +82,7 @@ def SP_ResNet(num_classes,
         # n_blocks = depth
         for n in range(d):
             downsample = True if n == 0 else False
-            x, z = SP_block(x, f, str(i)+'_'+str(n), ratio=squeeze_ratio, residual=True, downsample=downsample)
+            x, z = SP_block(x, f, str(i)+'_'+str(n), ratio=squeeze_ratio, residual=use_residuals, downsample=downsample)
 
         # only pool at last block in depth
         if i in pool_at and z is not None:

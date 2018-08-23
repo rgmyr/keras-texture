@@ -1,6 +1,10 @@
 """Pre-processing and augmentation functions."""
 import numpy as np
 from skimage import transform, color
+import matplotlib.pyplot as plt
+
+import random
+from math import floor
 
 def center_crop(img, side_length):
     '''Resize short side to side_length, then square center crop.'''
@@ -18,3 +22,26 @@ def center_crop(img, side_length):
     w_offset = (new_w - side_length) // 2
 
     return r_img[h_offset:h_offset+side_length,w_offset:w_offset+side_length]
+
+
+def show_sample(dataset, split='train'):
+    '''Create figure with a random sample of 9 images from dataset.'''
+    if not hasattr(dataset, 'X_train'):
+        dataset.load_or_generate_data()
+    if split == 'train':
+        X, y =  dataset.X_train, dataset.y_train
+    else:
+        X, y = dataset.X_test, dataset.y_test
+
+    idxs = random.sample(np.arange(0, y.shape[0]), 9)
+    X_samples, y_samples = X[idxs], y[idxs]
+
+    fig, ax = plt.subplots(ncols=3, nrows=3, figsize=(20,20))
+    for i, (xi, yi) in enumerate(zip(X_samples, y_samples)):
+        r, c = floor(i/3), i % 3
+        ax[r,c].set_xticks([])
+        ax[r,c].set_yticks([])
+        ax[r,c].set_title(dataset.classes[np.argmax(yi)])
+        ax[r,c].imshow(xi)
+
+    return fig

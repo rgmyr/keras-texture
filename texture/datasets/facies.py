@@ -27,6 +27,7 @@ class FaciesPatchDataset(Dataset):
         Path to parent directory of unzipped dtd-r1.0.1.tar.gz
     input_shape : tuple of int, optional
         Size of input patches for patch classification
+    split_type : one of {'well', ''}
     random_seed : int, optional
         Seed to use for train/test split, default=None.
     """
