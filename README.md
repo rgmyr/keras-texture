@@ -1,22 +1,12 @@
-**TODO**
-
-- Finish `dilation_net`, run some experiments
-- Implement *compact* bilinear pooling
-- Dataset object for FMD (at least), start thinking about sequential dataset interface
-- More experiments + tweaking to get closer to claimed performance levels
-- Figure out Buffer bugs when passing `covariance_bound` to `cyvlfeat.gmm.gmm` (created issue, no responses.)
-
 # keras-texture
 
-Implementations of several `keras` layers, model classes, and other utilities that are useful in constructing models for texture recognition and fine-grained classification problems. It is a **work in progress**, and the `tensorflow` backend is required for most functionality.
+Implementations of several `tf.keras` layers, model classes, and other utilities that are useful in constructing  and training models for texture recognition and fine-grained classification problems. It is a **work in progress**.
 
 Develop-mode installable with `pip install -e .` Root module of package is `texture`.
 
 **TODO**
 
-- Finish `dilation_net`, run some experiments
 - Implement *compact* bilinear pooling
-- Dataset object for FMD (at least), start thinking about sequential dataset interface
 - More experiments + tweaking to get closer to claimed performance levels
 - Figure out Buffer bugs when passing `covariance_bound` to `cyvlfeat.gmm.gmm` (created issue, no responses.)
 
@@ -24,6 +14,7 @@ Develop-mode installable with `pip install -e .` Root module of package is `text
 
 - `numpy`
 - `scikit-image`
+- `scikit-learn`
 - `tensorflow`
 
 The TensorFlow requirement is not enforced in `setup.py`, due to the ambiguity between `tensorflow` and `tensorflow-gpu`. This package allows CPU or GPU versions, since some functionality (*e.g.*, Fisher vector encoding with pretrained models) shouldn't necessarily require a GPU.
