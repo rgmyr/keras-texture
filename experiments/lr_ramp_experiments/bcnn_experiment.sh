@@ -1,1 +1,0 @@
-python ../run_experiment.py '{"dataset": "DTDDataset", "dataset_args": {"data_dir" : "/home/ross/Dropbox/benchmark/dtd/"}, "model": "TextureModel", "network": "bilinear_cnn", "network_args": {"backbone_cnn": "vgg19", "dropout_rate": 0.5}, "train_args": {"epochs": 100, "flags": ["TENSORBOARD"]}, "optimizer_args": {"lr": 10e-3}}'

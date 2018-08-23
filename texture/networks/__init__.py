@@ -7,6 +7,7 @@ from .deepten import *
 from .dep_net import *
 
 from .dilation_net import *
+from .squeeze_and_pool import *
 
 # backbone CNNs
 from .resnet_preact import *

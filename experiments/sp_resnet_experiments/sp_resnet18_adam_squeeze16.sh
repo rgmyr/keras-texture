@@ -1,0 +1,1 @@
+python ../run_experiment.py --gpu 1 '{"dataset": "DTDDataset", "dataset_args": {"data_dir" : "/home/administrator/Dropbox/benchmark/dtd/", "input_size": 224}, "model": "TextureModel", "network": "SP_ResNet", "train_args": {"epochs": 100, "batch_size": 16, "flags": ["TENSORBOARD"], "optimizer_args": {"optimizer": "Adam", "lr": 0.01}}, "save_ext": "RN18_Adam"}'

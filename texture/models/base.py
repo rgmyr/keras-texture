@@ -2,6 +2,7 @@ import numpy as np
 
 from tensorflow.keras import optimizers
 from tensorflow.keras.callbacks import LearningRateScheduler
+from tensorflow.keras.models import save_model as save_KerasModel
 
 from texture.datasets.sequence import DatasetSequence
 from imgaug import augmenters as iaa
@@ -35,6 +36,8 @@ class TextureModel:
         Keyword args for dataset_cls constructor
     network_args : dict, optional
         Keyword args for network_fn
+    optimizer_args : dict, optional
+        Keyword args to specify optimizer + associated params
     """
     def __init__(self, dataset_cls, network_fn, dataset_args={}, network_args={}, optimizer_args={}):
         self.name = f'{self.__class__.__name__}_{dataset_cls.__name__}_{network_fn.__name__}'
@@ -50,8 +53,8 @@ class TextureModel:
         self.batch_format_fn = None
 
     @property
-    def weights_filename(self, model_dir):
-        return os.path.join(model_dir, 'saved_weights.h5')
+    def model_filename(self, model_dir):
+        return os.path.join(model_dir, 'saved_model.h5')
 
     def fit(self, dataset, batch_size=32, epochs=1, callbacks=[]):
         self.network.compile(loss=self.loss(), optimizer=self.optimizer(callbacks), metrics=self.metrics())
@@ -88,8 +91,8 @@ class TextureModel:
     def metrics(self):
         return ['accuracy']
 
-    def load_weights(self, model_dir):
-        self.network.load_weights(self.weights_filename(model_dir))
+    def load_model(self, model_dir, compile=True):
+        load_KerasModel(self.model_filename(model_dir), compile=compile)
 
-    def save_weights(self, model_dir):
-        self.network.save_weights(self.weights_filename(model_dir))
+    def save_model(self, model_dir):
+        save_KerasModel(self.network, self.model_filename(model_dir))
