@@ -6,6 +6,11 @@ import matplotlib.pyplot as plt
 import random
 from math import floor
 
+
+###+++++++++++++###
+### IMAGE / VIZ ###
+###+++++++++++++###
+
 def center_crop(img, side_length):
     '''Resize short side to side_length, then square center crop.'''
     if img.ndim == 2:
@@ -22,7 +27,6 @@ def center_crop(img, side_length):
     w_offset = (new_w - side_length) // 2
 
     return r_img[h_offset:h_offset+side_length,w_offset:w_offset+side_length]
-
 
 def show_sample(dataset, split='train'):
     '''Create figure with a random sample of 9 images from dataset.'''
@@ -41,7 +45,36 @@ def show_sample(dataset, split='train'):
         r, c = floor(i/3), i % 3
         ax[r,c].set_xticks([])
         ax[r,c].set_yticks([])
-        ax[r,c].set_title(dataset.classes[np.argmax(yi)])
+        if 'Facies' in dataset.__repr__():
+            title = dataset.classes[np.argmax(yi)+2]
+        else:
+            title = dataset.classes[np.argmax(yi)]
+        ax[r,c].set_title(title)
         ax[r,c].imshow(xi)
 
     return fig
+
+
+###++++++++++++++###
+### DATA LOADING ###
+###++++++++++++++###
+
+def common_file_prefix(path_list):
+    '''Common prefix substring of filenames in path_list.'''
+    char_zip = zip(*[p.split('/')[-1] for p in path_list])
+    chars = []
+    for tup in char_zip:
+        if len(set(tup)) == 1:
+            chars.append(tup[0])
+        else:
+            break
+    return ''.join(chars)
+
+def filter_child_dirs(root_path, conditional='training'):
+    '''Return a list of paths to all subdirs satisfying `conditional`.
+    If `conditional` is a string, then converted to lambda returning
+    True for subdirs with dirname == `conditional`.
+    '''
+    if isinstance(conditional, str):
+        conditional = lambda p: p.split('/')[-1] == conditional
+    return filter(conditional, [d[0] for d in os.walk(root_path)])
