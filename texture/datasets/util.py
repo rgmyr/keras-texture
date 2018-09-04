@@ -37,7 +37,7 @@ def show_sample(dataset, split='train'):
     else:
         X, y = dataset.X_test, dataset.y_test
 
-    idxs = random.sample(np.arange(0, y.shape[0]), 9)
+    idxs = random.sample(np.arange(0, y.shape[0]).tolist(), 9)
     X_samples, y_samples = X[idxs], y[idxs]
 
     fig, ax = plt.subplots(ncols=3, nrows=3, figsize=(20,20))
@@ -45,10 +45,10 @@ def show_sample(dataset, split='train'):
         r, c = floor(i/3), i % 3
         ax[r,c].set_xticks([])
         ax[r,c].set_yticks([])
-        if 'Facies' in dataset.__repr__():
-            title = dataset.classes[np.argmax(yi)+2]
-        else:
-            title = dataset.classes[np.argmax(yi)]
+        #if 'Facies' in dataset.__repr__():
+        #    title = dataset.classes[np.argmax(yi)+2]
+        #else:
+        title = dataset.classes[np.argmax(yi)]
         ax[r,c].set_title(title)
         ax[r,c].imshow(xi)
 
