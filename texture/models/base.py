@@ -62,7 +62,7 @@ class TextureModel:
         train_seq = DatasetSequence(dataset.X_train, dataset.y_train, batch_size, augment_fn=self.batch_augment_fn, format_fn=self.batch_format_fn)
         test_seq = DatasetSequence(dataset.X_test, dataset.y_test, batch_size, augment_fn=None, format_fn=self.batch_format_fn)
 
-        self.network.fit_generator(
+        hist = self.network.fit_generator(
             train_seq,
             epochs=epochs,
             callbacks=callbacks,
@@ -71,6 +71,9 @@ class TextureModel:
             workers=1,
             shuffle=False # implemented Sequence.on_epoch_end() to do instance shuffle instead of just batch shuffle
         )
+
+        self.val_loss = hist.history['val_loss']
+
 
     def evaluate(self, X, y):
         eval_seq = DatasetSequence(X, y, batch_size=16)
