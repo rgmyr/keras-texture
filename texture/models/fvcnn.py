@@ -7,7 +7,7 @@ from keras.layers import Lambda
 
 from sklearn.svm import SVC, LinearSVC
 
-__all__ = ['FVCNN']
+__all__ = ['FisherEncoder']
 
 
 # callables for pretrained model fetching
@@ -26,10 +26,10 @@ k_apps = {'vgg16'               : applications.vgg16.VGG16,
           'inception_resnet_v2' : applications.inception_resnet_v2.InceptionResNetV2}
 
 
-class FVCNN():
-    '''FV-CNN class fits a Gaussian Mixture Model to the output of a pretrained CNN 
-    on a new training set X, and uses the GMM to parameterize the Fisher vector encoding 
-    of arbitrary inputs. Encodings may be generated directly,or to train a SVM classifier 
+class FisherEncoder(FeatureModel):
+    '''FV-CNN class fits a Gaussian Mixture Model to the output of a pretrained CNN
+    on a new training set X, and uses the GMM to parameterize the Fisher vector encoding
+    of arbitrary inputs. Encodings may be generated directly,or to train a SVM classifier
     within the class instance.
 
     Parameters
@@ -49,7 +49,7 @@ class FVCNN():
             self.cnn = k_apps[CNN](include_top=False)
         else:
             raise ValueError('CNN parameter for FVCNN has invalid type')
-        
+
         self.k = k
         self.D = self.cnn.output_shape[-1]
 
@@ -57,22 +57,22 @@ class FVCNN():
     def fit(self, X, y, gmm_init='kmeans', svc_kernel='linear', svc_penalty='l2', C=1.0, seed=None):
         '''Fit a GMM with `k` clusters using the sample images `X`. Then train a SVC on
         on the Fisher vector encodings of `X`, given the class labels `y`
-        
+
         Parameters
         ----------
         X : array, shape (N,H,W,C), or list of N arrays w/ shapes (H_i,W_i,C)
             A set of training images from which to generate a sample of CNN
-            feature vectors to which a GMM will be fit. `C` should match the 
+            feature vectors to which a GMM will be fit. `C` should match the
             `input_shape` of the CNN (must be 3 for ImageNet pretrained models).
         y : array, shape (N,)
             Array of class labels of images in `X`.
         gmm_init : str, optional
-            Method to use for GMM initialization. One of {'kmeans', 'rand'}. Default = 'kmeans'. 
+            Method to use for GMM initialization. One of {'kmeans', 'rand'}. Default = 'kmeans'.
             Custom init is also possible through `cyvlfeat`, but is not implemented here.
         svc_kernel : str, optional
-            Specifies the kernel type to be used in the support vector classifier algorithm.  
-            It must be one of {'linear', 'poly', 'rbf', 'sigmoid', 'precomputed'} or a callable. 
-            If none or 'linear' is given, sklearn.svm.LinearSVC (liblinear) will be used, 
+            Specifies the kernel type to be used in the support vector classifier algorithm.
+            It must be one of {'linear', 'poly', 'rbf', 'sigmoid', 'precomputed'} or a callable.
+            If none or 'linear' is given, sklearn.svm.LinearSVC (liblinear) will be used,
             otherwise sklearn.svm.SVC (libsvm) will be used. (Actually, just LinearSVC for now.)
             The former has more flexible penalty/loss options, and scales better to large numbers of
             samples (> ~10,000). The latter obviously has more flexibility in kernel types.
@@ -88,7 +88,7 @@ class FVCNN():
         train_score : float
             Mean accuracy of trained SVC on the training set (`X`, `y`)
         '''
-        if isinstance(X, np.ndarray): 
+        if isinstance(X, np.ndarray):
             assert X.ndim==4, 'X must have shape (N,H,W,C) if an np.array'
             feats = self.cnn.predict(X)
             feats = feats.reshape(-1, feats[-1])
@@ -105,7 +105,7 @@ class FVCNN():
         # TODO: figure out covariance_bound Buffer bug
         #       should be = to max(all_feats.var(axis=k_feat))*0.0001
         print('Fitting GMM with %d clusters...' % self.k)
-        self.means, self.covars, self.priors, LL, posteriors = gmm.gmm(feats, n_clusters=self.k, 
+        self.means, self.covars, self.priors, LL, posteriors = gmm.gmm(feats, n_clusters=self.k,
                                                                        covariance_bound=None,
                                                                        init_mode=gmm_init)
         # Train the SVC
@@ -137,7 +137,7 @@ class FVCNN():
             Mean accuracy for predictions y_hat relative to y
         '''
         assert hasattr(self, 'svc'), 'Cannot predict before training the SVC.'
- 
+
         fv_X = self.encode_batch(X_test)
 
         return self.svc.score(fv_X, y_test)
@@ -157,7 +157,7 @@ class FVCNN():
             Predicted class labels for all images in `X`
         '''
         assert hasattr(self, 'svc'), 'Cannot predict before training the SVC.'
-        
+
         fv_X = self.encode_batch(X)
 
         return self.svc.predict(fv_X)
@@ -214,4 +214,3 @@ class FVCNN():
             x = x[np.newaxis,...]
         feat = self.cnn.predict(x)
         return feat.reshape(-1,feat.shape[-1])
-
