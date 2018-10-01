@@ -11,14 +11,14 @@ from tensorflow.keras.layers import Flatten
 __all__ = ['BilinearModel']
 
 
-def BilinearModel(Layer):
+class BilinearModel(Layer):
     '''Weighted bilinear model of two inputs. Useful for learning a model of linear interactions
     between seperate feature types (e.g., texture X spatial) or scales (e.g., dense X dilated), etc.
 
     #TODO: finish docstring
     '''
 
-    def __init__(self, l2_normalize=True **kwargs):
+    def __init__(self, l2_normalize=True, **kwargs):
         self.l2_normalize
         super(BilinearModel, self).__init__(**kwargs)
 

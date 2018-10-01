@@ -35,8 +35,8 @@ def make_train_function(experiment_config, save_dir_function):
         },
         "model" : "NetworkModel",
         "model_args" : {
-            "network" : "deepten"
-            "network_args" : "hyperopt"
+            "network" : "deepten",
+            "network_args" : "hyperopt",
         }
         "predictor_model": "XGB"
         "predictor_model_args": {

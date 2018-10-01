@@ -129,10 +129,6 @@ class NetworkModel(FeatureModel, PredictorModel):
     def metrics(self):
         return ['accuracy']
 
-    def _from_file(self, filepath):
-
-
-
     def load_model(self, model_dir, compile=True):
         load_KerasModel(self.model_filename(model_dir), compile=compile)
 

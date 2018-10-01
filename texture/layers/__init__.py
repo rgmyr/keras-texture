@@ -2,3 +2,4 @@
 from .encoding import *
 from .bilinearmodel import *
 from .kernelpooling import *
+from .dartsedge import *
