@@ -18,8 +18,8 @@ class DARTSEdge(tf.keras.layers.Layer):
     """
     Weighted elementwise addition of multiple input volumes or vectors.
 
-    Input_shape should be (batch, num_ops, <ops_output_shape>).
-    Output_shape is then (batch, <ops_output_shape>).
+    Input should be a list of operations, all with shape (batch, <ops_output_shape>).
+    Output_shape is a single tensor (batch, <ops_output_shape>).
     """
     def __init__(self, **kwargs):
         super(DARTSEdge, self).__init__(**kwargs)
