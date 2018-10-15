@@ -2,11 +2,11 @@ import numpy as np
 
 from tensorflow.keras import optimizers
 from tensorflow.keras.callbacks import LearningRateScheduler
-from tensorflow.keras.models import save_model as save_KerasModel
+from tensorflow.keras.models import load_model as load_KerasModel
 
 import texture.networks as networks_module
-from texture.datasets.sequence import DatasetSequence
 from texture.models import FeatureModel, PredictorModel
+from texture.datasets.sequence import DatasetSequence
 
 from imgaug import augmenters as iaa
 
@@ -69,9 +69,12 @@ class NetworkModel(FeatureModel, PredictorModel):
     def model_filename(self, model_dir):
         return os.path.join(model_dir, 'saved_model.h5')
 
-    def fit(self, dataset, **fit_args): # batch_size=32, epochs=1, callbacks=[]):
+    def fit(self, dataset, **fit_args):
+
+        self.fit_args.update(fit_args)
 
         callbacks = fit_args.get('callbacks', [])
+
         self.network.compile(loss=self.loss(), optimizer=self.optimizer(callbacks), metrics=self.metrics())
 
         train_seq = DatasetSequence(dataset.X_train, dataset.y_train, self.fit_args['batch_size'],
@@ -89,7 +92,8 @@ class NetworkModel(FeatureModel, PredictorModel):
             shuffle=False # implemented Sequence.on_epoch_end() to do instance shuffle instead of just batch shuffle
         )
 
-        self.val_loss = hist.history['val_loss']
+        self.val_loss = min(hist.history['val_loss'])
+        return self.val_loss
 
 
     def predict(self, X):
@@ -129,8 +133,11 @@ class NetworkModel(FeatureModel, PredictorModel):
     def metrics(self):
         return ['accuracy']
 
-    def load_model(self, model_dir, compile=True):
-        load_KerasModel(self.model_filename(model_dir), compile=compile)
+    def save(self, path):
+        self.network.save(path+'.h5')
+        del self.network
+        BaseModel.save(self, path)
 
-    def save_model(self, model_dir):
-        save_KerasModel(self.network, self.model_filename(model_dir))
+    def load(self, path):
+        BaseModel.load(self, path)
+        self.network = load_KerasModel(path+'.h5')

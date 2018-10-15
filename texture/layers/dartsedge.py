@@ -1,5 +1,5 @@
 """
-Softmax weighted reduce_sum of multiple input operations (which should be stacked along first non-batch axis).
+Softmax weighted reduce_sum of multiple input operations (ops should be stacked along first non-batch axis).
 
 Reference:
     "DARTS: Differentiable Architecture Search", (Lui, Simonyan, Yang 2018)
@@ -22,6 +22,7 @@ class DARTSEdge(tf.keras.layers.Layer):
     Output_shape is a single tensor (batch, <ops_output_shape>).
     """
     def __init__(self, **kwargs):
+        self.op_names = kwargs.pop('op_names', [])
         super(DARTSEdge, self).__init__(**kwargs)
 
 

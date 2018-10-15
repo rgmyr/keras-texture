@@ -9,7 +9,7 @@ Borrows from PyTorch implementation released by Hang Zhang: https://github.com/z
 
 import tensorflow as tf
 from tensorflow.keras.layers import Layer
-from keras import backend as K
+from tensorflow.keras import backend as K
 
 
 __all__ = ['Encoding']
@@ -57,7 +57,7 @@ class Encoding(Layer):
           - make sure dropout only applied during training
     '''
 
-    def __init__(self, K, dropout=None, l2_normalize=True, **kwargs):
+    def __init__(self, K=32, dropout=None, l2_normalize=True, **kwargs):
         super(Encoding, self).__init__(**kwargs)
         self.K = K
         self.l2_normalize = l2_normalize
@@ -71,7 +71,7 @@ class Encoding(Layer):
         std1 = 1./(self.K**0.5)
         init = tf.random_uniform_initializer(-std1, std1)
         self.codes = self.add_weight(name='codebook',
-                                    shape=(self.K, self.D,),
+                                    shape=(1, self.K, self.D,),
                                     initializer=init,
                                     trainable=True)
 
@@ -88,15 +88,18 @@ class Encoding(Layer):
         ndim = K.ndim(x)
         if ndim == 4:
             dims = K.int_shape(x)
-            x = K.reshape(x, (-1, dims[1]*dims[2], self.D))
+            x = K.reshape(x, (-1, dims[1]*dims[2], 1, self.D))
         elif ndim != 3:
             raise ValueError('Encoding input should have shape BxNxD or BxHxWxD')
 
         # Residual vectors
-        n = x.shape[1]
+        R = x - self.codes
+
+        ''' OLD WAY
         _x_i = K.repeat_elements(x, self.K, 1)
         _c_k = K.tile(self.codes, (n, 1))
         R = K.reshape(_x_i - _c_k, (-1, n, self.K, self.D))
+        '''
 
         # Assignment weights, optional dropout
         if self.dropout_rate is not None:

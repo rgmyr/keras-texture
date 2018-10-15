@@ -1,7 +1,10 @@
-
+import random
 from tensorflow.keras import applications
-from tensorflow.keras.layers import Dense, Dropout, Lambda
+from tensorflow.keras.layers import Dense, Dropout, Lambda, Conv2D
 from tensorflow.keras.models import Model as KerasModel
+
+from texture.layers import Encoding, KernelPooling
+from texture.ops import bilinear_pooling
 
 # Callables for ImageNet-pretrained model fetching
 keras_apps = {'vgg16'               : applications.vgg16.VGG16,
@@ -51,3 +54,35 @@ def make_dense_layers(dense_layers, dropout=None):
                     x = Dropout(rate=dropout)(x)
             return x
         return dense_layers_fn
+
+
+def make_pooling_layer(pooling_name, **kwargs):
+    """Make a pooling layer with optional `conv1x1` reduction."""
+    name_tail = str(kwargs.pop('name', random.randint(0, 2**16)))
+
+    conv1x1 = kwargs.pop('conv1x1', None)
+    if conv1x1 is not None:
+        reducer_name = 'reduce_' + pooling_name + name_tail
+        reducer = lambda x: Conv2D(conv1x1, (1,1), activation='relu', name=reducer_name)(x)
+    else:
+        reducer = lambda x: x
+
+    pooler_name = pooling_name + '_' + name_tail
+    if 'bilinear' in pooling_name.lower():
+        pooler = lambda x: Lambda(bilinear_pooling, name=pooler_name)([x, x])
+    elif 'encoding' in pooling_name.lower():
+        pooler = lambda x: Encoding(**kwargs, name=pooler_name)(x)
+    elif 'kernel' in pooling_name.lower():
+        pooler = lambda x: KernelPooling(**kwargs, name=pooler_name)(x)
+    else:
+        raise RuntimeWarning('Unrecognized `pooling_name`: {}`'.format(pooling_name))
+        pooler = lambda x: x
+
+    return lambda x: pooler(reducer(x))
+
+
+def auxiliary_pooling(x, pooling_name, output_size=256, dropout_rate=None, **kwargs):
+    """Aux. pooling branch with `output_size` dense features."""
+    x = make_pooling_layer(pooling_name, **kwargs)(x)
+    x = make_dense_layers([output_size], dropout=dropout_rate)(x)
+    return x

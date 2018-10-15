@@ -14,25 +14,47 @@ class BaseModel(ABC):
         Arguments for the Model subclass, saved as an attribute.
     """
     def __init__(self, dataset_cls, dataset_args, model_args):
-        '''Set `model_args` and `data` attributes.'''
-        self.model_args = model_args
-        if isinstance(dataset_cls, type):
-            self.data = dataset_cls(**dataset_args)
+        if 'from_file' in model_args.keys():
+            self.load(model_args['from_file'])
+            self.was_loaded_from_file = True
+
         else:
-            self.data = dataset_cls
+            self.was_loaded_from_file = False
+            self.model_args = model_args
+            if isinstance(dataset_cls, type):
+                self.data = dataset_cls(**dataset_args)
+            else:
+                self.data = dataset_cls
 
     @abstractmethod
     def fit(self, dataset, **fit_args):
         pass
-'''
-    @abstractmethod
-    def save(self, path):
-        pass
 
-    @abstractmethod
+    @classmethod
+    def save(self, path):
+        path = str(path)
+        if path.endswith('.pkl'):
+            pkl_file = open(path, 'wb')
+            pickle.dump(self.__dict__, pkl_file)
+        elif '.' in path.split('/')[-1]:
+            raise ValueError('model.save/load path must be a stem or a `.pkl` file')
+        else:
+            pkl_file = open(path + '.pkl', 'wb')
+            pickle.dump(self.__dict__, pkl_file)
+        pkl_file.close()
+
+    @classmethod
     def load(self, path):
-        pass
-'''
+        path = str(path)
+        if path.endswith('.pkl'):
+            pkl_file = open(path, 'rb')
+            self.__dict__.update(pickle.load(pkl_file))
+        elif '.' in path.split('/')[-1]:
+            raise ValueError('model.save/load path must be a stem or a `.pkl` file')
+        else:
+            pkl_file = open(path + '.pkl', 'rb')
+            self.__dict__.update(pickle.load(pkl_file))
+        pkl_file.close()
 
 
 class FeatureModel(BaseModel):
