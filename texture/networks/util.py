@@ -81,8 +81,8 @@ def make_pooling_layer(pooling_name, **kwargs):
     return lambda x: pooler(reducer(x))
 
 
-def auxiliary_pooling(x, pooling_name, output_size=256, dropout_rate=None, **kwargs):
+def auxiliary_pooling(x, pooling_name, output_size=256, dropout=None, **kwargs):
     """Aux. pooling branch with `output_size` dense features."""
     x = make_pooling_layer(pooling_name, **kwargs)(x)
-    x = make_dense_layers([output_size], dropout=dropout_rate)(x)
+    x = make_dense_layers([output_size], dropout=dropout)(x)
     return x

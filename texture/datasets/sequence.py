@@ -28,7 +28,7 @@ class DatasetSequence(Sequence):
 
         batch_X = (batch_X*(255./batch_X.max())).astype(np.float32)
 
-        batch_X = imagenet_utils.preprocess_input(batch_X, data_format='channels_last', mode=self.preprocess_mode)
+        #batch_X = imagenet_utils.preprocess_input(batch_X, data_format='channels_last', mode=self.preprocess_mode)
 
         if self.augment_fn:
             batch_X, batch_y = self.augment_fn(batch_X, batch_y)

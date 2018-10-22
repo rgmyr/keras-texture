@@ -85,17 +85,43 @@ def dilation_block(x,
     return block_output
 
 
-def dilated_darts_net(num_classes,
+def diception_net(num_classes,
                  input_shape,
                  entry_conv=None,
                  dilation_rates=[1,2,3,4],
                  blocks=[32,48,64],
+                 expansion_factor=1.0,
                  combine_mode='concat',
-                 strides=1,
+                 strides=2,
                  pooling_args={'bilinear': {'conv1x1': 32}},
                  pooling_features=256,
                  dense_layers=[],
                  dropout_rate=None):
+    """Dilated inception-like network for texture recognition, optionally
+    with DARTS for differentiable dilation rate & pooling method search.
+
+    Parameters
+    ----------
+    num_classes : int
+    input_shape : tuple(int)
+    entry_conv : int, optional
+        If given, network starts with two 3x3 convs with size: (3->entry_conv//2) + (entry_conv//2->entry_conv).
+    dilation_rates : list(int) or list(list(int)), optional
+        Dilation rates of branches in each block. If list with depth of one, same set of rates used for each block.
+    blocks : list(int), optional
+        Output size of all branches in a given block. Note: branches are concatenated unless `combine_mode=darts`.
+    reduction_factor : numeric, optional
+        Defines branch input reduction as block_size // reduction_factor, default=1. Default makes sense for non-DARTS,
+        need to think about what to do for DARTS combine.
+    strides : int, optional
+        Downsampling occurs in 1x1 branch entry convs via striding, default=2 (same for all blocks).
+    pooling_args : dict, optional
+        Dict specify auxiliary_pooling method(s) like {'method_name': {<dict of kwargs>}}. If more than one method is given,
+        results are combined using DARTSEdge and named appropriately in edge.op_names.
+    pooling_features : int, optional
+        Pooling output(s) are reduced by a dense layer with `pooling_features` output nodes, default=256.
+    ...
+    """
     #CNN built on dilation blocks and auxillary poolings.
     if input_shape is None:
         input_shape = (None, None, 3)
@@ -118,12 +144,13 @@ def dilated_darts_net(num_classes,
 
     block_poolings = []
     for i, (f, branches) in enumerate(zip(blocks, dilation_rates)):
-        x = dilation_block(x, branches, f, f, strides=strides, combine_mode=combine_mode, name='block_'+str(f))
+        f_in = int(f // expansion_factor)
+        x = dilation_block(x, branches, f_in, f, strides=strides, combine_mode=combine_mode, name='block_'+str(f))
+
         pooling_ops = []
-        print(i, f, branches)
         for pname, pargs in pooling_args.items():
             pargs['name'] = 'block_'+str(f)
-            p = auxiliary_pooling(x, pname, output_size=pooling_features, dropout_rate=dropout_rate, **pargs)
+            p = auxiliary_pooling(x, pname, output_size=pooling_features, dropout=dropout_rate, **pargs)
             pooling_ops.append(p)
 
         if len(pooling_ops) > 1:
