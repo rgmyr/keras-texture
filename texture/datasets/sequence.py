@@ -3,9 +3,12 @@ from tensorflow.keras.utils import Sequence
 from keras.applications import imagenet_utils
 
 
+__all__ = ['DatasetSequence']
+
+
 class DatasetSequence(Sequence):
     """
-    Minimal subclassing of Sequence for use with fit_generator.
+    Minimal subclassing of Sequence for use with `fit_generator`.
     """
     def __init__(self, X, y, batch_size=32, augment_fn=None, format_fn=None, preprocess_mode='caffe'):
         self.X = X
@@ -15,8 +18,10 @@ class DatasetSequence(Sequence):
         self.format_fn = format_fn
         self.preprocess_mode = preprocess_mode
 
+
     def __len__(self):
         return int(np.ceil(len(self.X) / float(self.batch_size)))
+
 
     def __getitem__(self, idx):
         # idx = 0 -- uncomment to overfit a single batch
@@ -26,6 +31,7 @@ class DatasetSequence(Sequence):
         batch_X = self.X[begin:end]
         batch_y = self.y[begin:end]
 
+        # is this right?
         batch_X = (batch_X*(255./batch_X.max())).astype(np.float32)
 
         #batch_X = imagenet_utils.preprocess_input(batch_X, data_format='channels_last', mode=self.preprocess_mode)
@@ -38,8 +44,11 @@ class DatasetSequence(Sequence):
 
         return batch_X, batch_y
 
+
     def on_epoch_end(self):
-        """Shuffle the examples, not just batches via fit_generator."""
+        """
+        Shuffle the examples, not just batches via `fit_generator`.
+        """
         p = np.random.permutation(len(self.X))
         self.X = self.X[p]
         self.y = self.y[p]

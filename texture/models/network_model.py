@@ -17,6 +17,7 @@ DEFAULT_FIT_ARGS = {
     'callbacks' : []
 }
 
+# Set up a default image augmenter + func
 aug_seq = iaa.Sequential([
     iaa.Fliplr(0.5),
     iaa.Flipud(0.5),
@@ -33,14 +34,13 @@ def train_batch_aug(batch_X, batch_y):
 
 
 class NetworkModel(FeatureModel, PredictorModel):
-    """Network class.
+    """
+    Network Model container class.
 
     Parameters
     ----------
     dataset_cls : type
-        type of Dataset class to model on
-    network_fn : Callable
-        Function returning a KerasModel instance
+        Dataset instance or class to model on
     dataset_args : dict, optional
         Keyword args for dataset_cls constructor
     network_args : dict, optional
@@ -49,6 +49,7 @@ class NetworkModel(FeatureModel, PredictorModel):
         Keyword args to specify optimizer + associated params
     """
     def __init__(self, dataset_cls, dataset_args={}, model_args={}):
+
         PredictorModel.__init__(self, dataset_cls, dataset_args, model_args)
 
         self.name = f'{self.__class__.__name__}_{dataset_cls.__name__}_{network_fn.__name__}'
@@ -65,9 +66,11 @@ class NetworkModel(FeatureModel, PredictorModel):
         self.batch_augment_fn = train_batch_aug
         self.batch_format_fn = None
 
+
     @property
     def model_filename(self, model_dir):
         return os.path.join(model_dir, 'saved_model.h5')
+
 
     def fit(self, dataset, **fit_args):
 
@@ -79,6 +82,7 @@ class NetworkModel(FeatureModel, PredictorModel):
 
         train_seq = DatasetSequence(dataset.X_train, dataset.y_train, self.fit_args['batch_size'],
                                     augment_fn=self.batch_augment_fn, format_fn=self.batch_format_fn)
+
         test_seq = DatasetSequence(dataset.X_test, dataset.y_test, self.batch_size['batch_size'],
                                    augment_fn=None, format_fn=self.batch_format_fn)
 
@@ -99,8 +103,10 @@ class NetworkModel(FeatureModel, PredictorModel):
     def predict(self, X):
         return np.argmax(self.network.predict(X), -1)
 
+
     def predict_proba(self, X):
         return self.network.predict(X)
+
 
     def evaluate(self, X, y):
         eval_seq = DatasetSequence(X, y, batch_size=16)
@@ -109,7 +115,10 @@ class NetworkModel(FeatureModel, PredictorModel):
 
 
     def extract_features(self, X):
-        '''Return features for inputs X (assumed that penultimate layer = features).'''
+        """
+        Return features for inputs `X`.
+        This just assumes the penultimate layer is the features layer.
+        """
         try:
             return self.feature_network.predict(X, batch_size=1, verbose=1)
         except AttributeError:
@@ -118,7 +127,7 @@ class NetworkModel(FeatureModel, PredictorModel):
 
 
     def loss(self):
-        return 'categorical_crossentropy'
+        return self.model_args.get('loss', 'categorical_crossentropy')
 
 
     def optimizer(self, callbacks):

@@ -1,4 +1,6 @@
-'''Implementation of polynomial Kernel Pooling layer with learnable composition:
+"""
+Implementation of polynomial Kernel Pooling layer with learnable composition:
+
 @conference{cui2017cvpr,
     title = {Kernel Pooling for Convolutional Neural Networks},
     author = {Yin Cui and Feng Zhou and Jiang Wang and Xiao Liu and Yuanqing Lin and Serge Belongie},
@@ -6,10 +8,11 @@
     year = {2017},
     booktitle = {Computer Vision and Pattern Recognition (CVPR)},
 }
-_generate_sketch_matrix() borrowed from: https://github.com/ronghanghu/tensorflow_compact_bilinear_pooling
-sequential_batch_[i]ff from the same repo would be useful for avoiding OOM errors w/ arbitrary batch size
+
+`_generate_sketch_matrix()` borrowed from: https://github.com/ronghanghu/tensorflow_compact_bilinear_pooling
+`sequential_batch_[i]ff` from the same repo would be useful for avoiding OOM errors w/ arbitrary batch size
     - does source need an update?
-'''
+"""
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras.layers import Layer
@@ -87,13 +90,15 @@ def _estimate_gamma(X_train):
 
 
 class AlphaInitializer():
-    '''Callable for setting initial composition_weights given `gamma`.
+    """
+    Callable for setting initial composition_weights given `gamma`.
+
     Following the Taylor series expansion of the RBF kernel:
         K_RBF(x, y) = Sum_i(beta * \frac{(2*gamma)^i}{i!})
+
     We assume that input vectors are L2-normalized, in which case we have:
         (alpha_i)^2 = exp(-2*gamma)*\frac{(2*gamma)^i}{i!}
-    '''
-
+    """
     def __init__(self, gamma):
         self.gamma = gamma
 
@@ -142,6 +147,7 @@ class KernelPooling(Layer):
         else:
             self.gamma = gamma
         super(KernelPooling, self).__init__(**kwargs)
+
 
     def build(self, input_shape):
         #self._shapecheck(input_shape)
@@ -197,15 +203,16 @@ class KernelPooling(Layer):
         x_ifft = tf.reduce_mean(tf.real(_ifft(x_fft_cp, False, 128)), axis=1)
 
         # Apply weights over orders p >= 2
-        x_p = x_ifft*K.reshape(self.alpha[2:], (1,self.p-1,1))
+        x_p = x_ifft*K.reshape(self.alpha[2:], (1, self.p-1, 1))
 
         # Concatenate to full order-p kernel approximation vector
-        phi_x = K.concatenate([zeroth, first, K.reshape(x_p, (input_dims[0],-1))])
+        phi_x = K.concatenate([zeroth, first, K.reshape(x_p, (input_dims[0], -1))])
 
         # Return the transformed + l2-normed kernel vector
-        phi_x = tf.multiply(tf.sign(phi_x),tf.sqrt(tf.abs(phi_x)+1e-12))
+        phi_x = tf.multiply(tf.sign(phi_x),tf.sqrt(tf.abs(phi_x) + 1e-12))
 
         return tf.nn.l2_normalize(phi_x, axis=-1)
+
 
     def compute_output_shape(self, input_shape):
         return (input_shape[0], 1+input_shape[-1]+(self.p-1)*self.d)

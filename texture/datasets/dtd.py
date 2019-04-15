@@ -9,8 +9,12 @@ from texture.datasets.base import Dataset
 from texture.datasets.util import center_crop
 
 
+__all__ = ['DTDDataset']
+
+
 class DTDDataset(Dataset):
-    """The Describable Textures Dataset contains 5640 images (47 classes with 120 examples each.)
+    """
+    The Describable Textures Dataset contains 5640 images (47 classes with 120 examples each.)
     Authors release 10 different train/val/test splits (equally sized) for benchmarking.
     I'm just using train+val for X/y_train and test for X/y_test for any given split.
 
@@ -49,7 +53,9 @@ class DTDDataset(Dataset):
         return self.data_dir
 
     def load_or_generate_data(self):
-        """Define X/y train/test."""
+        """
+        Define X/y train/test.
+        """
         self.X_train = np.array([center_crop(io.imread(self.img_dir+f), self.input_size) for f in self.train_list])
         self.y_train = to_categorical(np.array([self._to_class(f) for f in self.train_list]), self.num_classes)
 

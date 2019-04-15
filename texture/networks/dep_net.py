@@ -16,17 +16,18 @@ def dep_net(num_classes,
             pooled_feats=64,
             dense_feats=128,
             dropout_rate=None):
-    '''Combine a backbone CNN + Encoding layer + Dense layers into a DeepTEN.
+    """
+    Combine a backbone CNN + Pooling + Encoding layer + Dense layers into a Deep Encoding Pooling net.
 
     Parameters
     ----------
-    backbone_cnn : KerasModel or str
-        Feature extraction network. If KerasModel, should output features (N, H, W, C).
-        If str, loads the corresponding ImageNet model from `keras.applications`.
     n_classes : int
         Number of classes for softmax output layer
     input_shape : tuple of int
         Shape of input image. Can be None, since Encoding layer allows variable input sizes.
+    backbone_cnn : KerasModel or str
+        Feature extraction network. If KerasModel, should output features (N, H, W, C).
+        If str, loads the corresponding ImageNet model from `keras.applications`.
     encode_K : int, optional
         Number of codewords to learn, default=8.
     encode_feats : int, optional
@@ -42,7 +43,7 @@ def dep_net(num_classes,
     -------
     DEPnet : KerasModel
         Deep Encoding Pooling Network
-    '''
+    """
     backbone_model = make_backbone(backbone_cnn)
     input_image = Input(shape=input_shape)
     conv_output = backbone_model(input_image)

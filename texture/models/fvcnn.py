@@ -7,27 +7,14 @@ from keras.layers import Lambda
 
 from sklearn.svm import SVC, LinearSVC
 
+from texture.networks.util import keras_apps
+
 __all__ = ['FisherEncoder']
 
 
-# callables for pretrained model fetching
-k_apps = {'vgg16'               : applications.vgg16.VGG16,
-          'vgg19'               : applications.vgg19.VGG19,
-          'resnet50'            : applications.resnet50.ResNet50,
-          'xception'            : applications.xception.Xception,
-          'mobilenet'           : applications.mobilenet.MobileNet,
-          'mobilenetv2'         : applications.mobilenetv2.MobileNetV2,
-          'densenet121'         : applications.densenet.DenseNet121,
-          'densenet169'         : applications.densenet.DenseNet169,
-          'densenet201'         : applications.densenet.DenseNet201,
-          'nasnet_large'        : applications.nasnet.NASNetLarge,
-          'nasnet_mobile'       : applications.nasnet.NASNetMobile,
-          'inception_v3'        : applications.inception_v3.InceptionV3,
-          'inception_resnet_v2' : applications.inception_resnet_v2.InceptionResNetV2}
-
-
 class FisherEncoder(FeatureModel):
-    '''FV-CNN class fits a Gaussian Mixture Model to the output of a pretrained CNN
+    """
+    FV-CNN class fits a Gaussian Mixture Model to the output of a pretrained CNN
     on a new training set X, and uses the GMM to parameterize the Fisher vector encoding
     of arbitrary inputs. Encodings may be generated directly,or to train a SVM classifier
     within the class instance.
@@ -39,23 +26,24 @@ class FisherEncoder(FeatureModel):
         If str, loads the corresponding ImageNet model from `keras.applications`.
     k : int, optional
         Number of clusters to use for the GMM, default=64.
-    '''
+    """
     def __init__(self, CNN, k=64):
         if isinstance(CNN, Model):
             assert len(CNN.output_shape)==4, 'CNN must output a 4D Tensor'
             self.cnn = CNN
         elif isinstance(CNN, str):
-            assert CNN in k_apps.keys(), 'Invalid keras.applications string'
-            self.cnn = k_apps[CNN](include_top=False)
+            assert CNN in keras_apps.keys(), 'Invalid keras.applications string'
+            self.cnn = keras_apps[CNN](include_top=False)
         else:
-            raise ValueError('CNN parameter for FVCNN has invalid type')
+            raise ValueError(f'CNN parameter for FVCNN has invalid type: {type(CNN)}')
 
         self.k = k
         self.D = self.cnn.output_shape[-1]
 
 
     def fit(self, X, y, gmm_init='kmeans', svc_kernel='linear', svc_penalty='l2', C=1.0, seed=None):
-        '''Fit a GMM with `k` clusters using the sample images `X`. Then train a SVC on
+        """
+        Fit a GMM with `k` clusters using the sample images `X`. Then train a SVC on
         on the Fisher vector encodings of `X`, given the class labels `y`
 
         Parameters
@@ -87,7 +75,7 @@ class FisherEncoder(FeatureModel):
         -------
         train_score : float
             Mean accuracy of trained SVC on the training set (`X`, `y`)
-        '''
+        """
         if isinstance(X, np.ndarray):
             assert X.ndim==4, 'X must have shape (N,H,W,C) if an np.array'
             feats = self.cnn.predict(X)

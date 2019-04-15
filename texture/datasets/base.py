@@ -1,4 +1,6 @@
-"""Mostly to define mandatory Dataset subclass methods."""
+"""
+Just here to define mandatory Dataset subclass methods.
+"""
 
 class Dataset:
     def data_dirname(self):

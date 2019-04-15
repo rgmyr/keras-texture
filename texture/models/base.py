@@ -4,6 +4,10 @@ class BaseModel(ABC):
     """
     Abstract base class for all <>Model subclasses.
 
+    Defines concrete `save` and `load` methods for pickling/unpickling obj.__dict__ values.
+    Defines `@classmethod from_file(path)` for initializing class instances using `load` method.
+    More complex save/load steps (e.g., for NetworkModel) can be added in subclass methods.
+
     Parameters
     ----------
     dataset_cls : Dataset type or instance
@@ -14,6 +18,7 @@ class BaseModel(ABC):
         Arguments for the Model subclass, saved as an attribute.
     """
     def __init__(self, dataset_cls, dataset_args, model_args):
+
         if 'from_file' in model_args.keys():
             self.load(model_args['from_file'])
             self.was_loaded_from_file = True
@@ -30,31 +35,50 @@ class BaseModel(ABC):
     def fit(self, dataset, **fit_args):
         pass
 
+
     @classmethod
-    def save(self, path):
+    def from_file(cls, path):
+        """
+        Construct the Model instance from a save `path`.
+        """
+        return cls(None, None, {'from_file': path})
+
+
+    def save(self, path, save_data=False):
+        """
+        Save a Model instance to a file `path` (which must be a '.pkl' or have no extension).
+        If `save_data` is True, will include the `Model.data`. Otherwise will not.
+        """
         path = str(path)
         if path.endswith('.pkl'):
             pkl_file = open(path, 'wb')
-            pickle.dump(self.__dict__, pkl_file)
         elif '.' in path.split('/')[-1]:
             raise ValueError('model.save/load path must be a stem or a `.pkl` file')
         else:
             pkl_file = open(path + '.pkl', 'wb')
-            pickle.dump(self.__dict__, pkl_file)
+
+        pickle.dump(self.__dict__, pkl_file)
         pkl_file.close()
 
-    @classmethod
-    def load(self, path):
+
+    def load(self, path, set_data=None):
+        """
+        Load a Model instance from a file `path` (which must be a '.pkl' or have no extension).
+        Pass dataset as `set_data` to set the `Model.data` attribute.
+        """
         path = str(path)
         if path.endswith('.pkl'):
             pkl_file = open(path, 'rb')
-            self.__dict__.update(pickle.load(pkl_file))
         elif '.' in path.split('/')[-1]:
             raise ValueError('model.save/load path must be a stem or a `.pkl` file')
         else:
             pkl_file = open(path + '.pkl', 'rb')
-            self.__dict__.update(pickle.load(pkl_file))
+
+        self.__dict__.update(pickle.load(pkl_file))
         pkl_file.close()
+
+        if set_data is not None:
+            self.data = set_data
 
 
 class FeatureModel(BaseModel):

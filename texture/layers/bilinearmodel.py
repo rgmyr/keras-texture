@@ -1,7 +1,11 @@
-''' Keras layer for weighted bilinear modeling of two 1-D feature vectors
+"""
+Keras `Layer` for weighted bilinear modeling of two 1-D feature vectors.
+Used to combine encoding and global pooling branches of Deep Texture Manifold network.
+
+*CITATION HERE*
 
 TODO: - tests for BilinearModel layer
-'''
+"""
 import tensorflow as tf
 from keras import backend as K
 from keras.engine.topology import Layer
@@ -12,11 +16,12 @@ __all__ = ['BilinearModel']
 
 
 class BilinearModel(Layer):
-    '''Weighted bilinear model of two inputs. Useful for learning a model of linear interactions
-    between seperate feature types (e.g., texture X spatial) or scales (e.g., dense X dilated), etc.
+    """
+    Weighted bilinear model of two inputs. Useful for learning a model of linear interactions between
+    separate feature types (e.g., texture X spatial) or scales (e.g., dense X dilated), etc.
 
     #TODO: finish docstring
-    '''
+    """
 
     def __init__(self, l2_normalize=True, **kwargs):
         self.l2_normalize

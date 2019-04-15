@@ -6,6 +6,7 @@ Develop-mode installable with `pip install -e .` Root module of package is `text
 
 **TODO**
 
+- Clean up notebooks + experiments
 - Implement *compact* bilinear pooling
 - More experiments + tweaking to get closer to claimed performance levels
 - Figure out Buffer bugs when passing `covariance_bound` to `cyvlfeat.gmm.gmm` (created issue, no responses.)
@@ -17,11 +18,11 @@ Develop-mode installable with `pip install -e .` Root module of package is `text
 - `scikit-learn`
 - `tensorflow`
 
-The TensorFlow requirement is not enforced in `setup.py`, due to the ambiguity between `tensorflow` and `tensorflow-gpu`. This package allows CPU or GPU versions, since some functionality (*e.g.*, Fisher vector encoding with pretrained models) shouldn't necessarily require a GPU.
+The TensorFlow requirement is not enforced in `setup.py` due to the ambiguity between `tensorflow` and `tensorflow-gpu`. This package allows CPU or GPU versions, since some functionality (*e.g.*, Fisher vector encoding with pretrained models) don't necessarily require a GPU.
 
 #### Additional requirements: FV-CNN
 
-Use of the Fisher vector CNN class (`texture.fisher.FVCNN`) requires the [cyvlfeat](https://github.com/menpo/cyvlfeat) wrappers for VLFeat, which should be installed using conda: `conda install -c menpo cyvlfeat`, if at all possible. It also requires `scikit-learn`, particularly the `svm.LinearSVC` class.
+Use of the Fisher vector CNN class (`texture.models.FVCNN`) requires the [cyvlfeat](https://github.com/menpo/cyvlfeat) wrappers for VLFeat, which should be installed using conda: `conda install -c menpo cyvlfeat`, if at all possible. It also requires `scikit-learn`, particularly the `svm.LinearSVC` class.
 
 Neither of these packages are required in other `texture` modules, so they are not explicitly enforced in `setup.py`.
 
@@ -76,20 +77,17 @@ The *gamma* parameter, which determines *alpha* values in the approximation unde
 
 #### Usage Notes
 
-- Be careful with reuse of single model for `fA` and `fB` (*e.g.*, asymmetry via different output layers). Weights will be shared if you use the same instantiation of the original model to generate both models.
+- Be careful with reuse of single model for `fA` and `fB` (*e.g.*, asymmetry via different output layers). Weights will be shared if you use the same instantiation of the original model to generate both models. This may or may not be desirable.
 
-If the dimensionality of local feature vectors is 512, and there are `N` classes, the size of a fully-connected classification layer will be very large (`512*512*N=262,144*N`). With random weight initialization, it seems pretty difficult to train a layer of this size for moderate to large `N`, so I'm looking at writing an initializer that uses logistic regression, something which is *not* mentioned in the paper, but which is present in the authors' matlab release.
+If the dimensionality of local feature vectors is 512, and there are `N` classes, the size of a fully-connected classification layer will be very large (`512*512*N=262,144*N`). With random weight initialization, it seems pretty difficult to train a layer of this size for moderate to large `N`.
 
 ## FV-CNN
 
-The `texture.fisher` module provides the `FVCNN` class for generating Fisher vector encodings from pretrained CNNs using the `cyvlfeat` wrappers for the `VLFeat` C library. A `FVCNN` instance can be constructed with an arbitrary CNN, or with a string specifying one of the supported ImageNet-pretrained models from `keras.applications`. A training set of images is required to generate the Gaussian Mixture Model of local feature vector distribution and train a support vector classifier. The training set can be a batch-style 4D numpy array, or a list of variable-size 3D image arrays.
+The `texture.models.FVCNN` generates Fisher vector encodings from pretrained CNNs using the `cyvlfeat` wrappers for the `VLFeat` C library. A `FVCNN` instance can be constructed with an arbitrary CNN, or with a string specifying one of the supported ImageNet-pretrained models from `keras.applications`. A training set of images is required to generate the Gaussian Mixture Model of local feature vector distribution and train a support vector classifier. The training set can be a batch-style 4D numpy array, or a list of variable-size 3D image arrays.
 
 ## Benchmarks
 
-Working on benchmarking models constructed with various texture recognition datasets:
-
-
-Some fine-grained classification datasets are also of interest, but benchmarking those has a lower priority for me at the moment:
+Working on benchmarking models constructed with various texture recognition datasets. Some fine-grained classification datasets are also of interest, but benchmarking those has a lower priority for me at the moment.
 
 - [Birds-200](http://www.vision.caltech.edu/visipedia/CUB-200-2011.html) (2011 version)
 - [FGVC-Aircraft](http://www.robots.ox.ac.uk/~vgg/data/fgvc-aircraft/)
@@ -97,13 +95,14 @@ Some fine-grained classification datasets are also of interest, but benchmarking
 
 ## Further Improvements
 
+- Add two-step training option (should be esp. useful for B-CNN nets).
+
 #### Encoding
 
 - Smaller `ResNet`-based constructors for feature networks
 
 #### Bilinear
 
-- Add Logistic Regression initialization for `softmax` layer
 - Add support for `fA` and `fB` to have different input shapes (technically only output shapes need to correspond).
 - Add support for `fA` and `fB` to have different output shapes (crop/interpolate/pool to match them)
 
@@ -115,8 +114,4 @@ Would also like to add the matrix square root normalization layer as described i
     Title = {Improved Bilinear Pooling with CNNs},
     Year = {2017}}
 ```
-Authors claim this improves accuracy by several % on fine-grained recognition benchmarks.
-
-#### DEP
-
-- Utilities for combining a base CNN with `Encoding` & `BilinearModel` to create a `Deep Encoding Pooling Network`.
+Authors claim this improves accuracy by several % on fine-grained recognition benchmarks..

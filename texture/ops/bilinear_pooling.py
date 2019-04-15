@@ -8,7 +8,8 @@ from tensorflow.keras.layers import Flatten
 #_all__
 
 def bilinear_pooling(inputs, epsilon=1e-12):
-    '''Pool outer products of local features. Returns tf Function usable with keras.layers.Lambda.
+    """
+    Pool outer products of local features. Returns tf Function usable with keras.layers.Lambda.
 
     Parameters
     ----------
@@ -19,7 +20,7 @@ def bilinear_pooling(inputs, epsilon=1e-12):
     -------
     phi : tensorflow Function
         Result of outer product pooling and normalization operations.
-    '''
+    """
     iA, iB = inputs
 
     # sum pooled outer product

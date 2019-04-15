@@ -96,6 +96,7 @@ class Encoding(Layer):
         R = x - self.codes
 
         ''' OLD WAY
+        n = x.shape[1]
         _x_i = K.repeat_elements(x, self.K, 1)
         _c_k = K.tile(self.codes, (n, 1))
         R = K.reshape(_x_i - _c_k, (-1, n, self.K, self.D))

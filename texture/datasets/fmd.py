@@ -13,8 +13,12 @@ from texture.datasets.base import Dataset
 from texture.datasets.util import center_crop
 
 
+__all__ = ['FMDDataset']
+
+
 class FMDDataset(Dataset):
-    """The Describable Textures Dataset contains 5640 images (47 classes with 120 examples each.)
+    """
+    The Describable Textures Dataset contains 5640 images (47 classes with 120 examples each.)
     Authors release 10 different train/val/test splits (equally sized) for benchmarking.
     I'm just using train+val for X/y_train and test for X/y_test for any given split.
 
@@ -51,7 +55,9 @@ class FMDDataset(Dataset):
 
 
     def load_or_generate_data(self):
-        """Define X/y train/test."""
+        """
+        Define X/y train/test.
+        """
         X = np.array([center_crop(io.imread(fpath), self.input_size) for fpath in self.img_files])
 
         self.X_train, self.X_test, y_train, y_test = train_test_split(X, self.img_labels,

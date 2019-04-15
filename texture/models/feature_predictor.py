@@ -3,10 +3,8 @@ from xgboost import XGBClassifier
 from sklearn.svm import LinearSVC
 from sklearn.metrics import accuracy_score, classification_report
 
-# import dataset classes here
 import texture.models as models_module
 from texture.models import PredictorModel
-#from corebreakout.datasets.generator import DatasetGenerator
 
 DEFAULT_XBG_ARGS = {
     'max_depth' : 3,
@@ -27,35 +25,11 @@ DEFAULT_SVC_ARGS = {
     'probability' : True
 }
 
-"""
-Example of model_args[`feature_models`]:
-{
-    "image" : {
-        "model" : "NetworkModel",
-        "network" : "deepten",
-        "optimizer" :
-        "optimizer_args" :
-    }
-    "pseudoGR" : {
-        "model" : "NetworkModel",
-        "network" : "log_conv",
-        "network_args" :
-            {
-            "n_layers"
-            }
-    }
-    "logs" : {
-        "model" : "ContextModel",
-        "context_size" : 0.5
-    }
-}
-Each key should be present in dataset_args['features'].
-
-"""
-
 
 class FeaturePredictor(PredictorModel):
-    """Class for top level classifiers (operating on arbitrary 1D feature vectors).
+    """
+    Class for top level classifiers (operating on arbitrary 1D feature vectors).
+    For now only 'XGB' (XGBoost Classifier) or 'SVC' (Support Vector Classifier) models are supported.
 
     Parameters
     ----------
@@ -85,7 +59,11 @@ class FeaturePredictor(PredictorModel):
 
 
     def fit(self, dataset, **fit_args):
-        '''Must implement the fit method using only feature_models, dataset, & model_args.'''
+        """
+        Fit a dataset having `X_train/test` and `y_train/test` attributes.
+        Two-step training: fit the `feature_model` first, and then the predictor `model`.
+        And **fit_args are passed to predictor `model.fit` method.
+        """
         self.classes = dataset.classes
         self.feature_model.fit(dataset, **self.feature_model_fit_args)
 
@@ -98,26 +76,34 @@ class FeaturePredictor(PredictorModel):
 
 
     def predict(self, X):
-        '''Must implement a predict method for input data X.'''
+        """
+        Predict classes of data in `X`.
+        """
         X_features = self.feature_model.extract_features(X)
         return self.model.predict(X_features)
 
 
     def predict_proba(self, X):
-        '''Class-wise probability predictions.'''
+        """
+        Class-wise probability predictions.
+        """
         X_features = self.feature_model.extract_features(X)
         return self.model.predict_proba(X_features)
 
 
     def evaluate(self, X, y, print_report=False):
-        '''Return mean accuracy of predict(X).'''
+        """
+        Return mean accuracy of `predict(X)` on `y`.
+        """
         X_features = self.feature_model.extract_features(X)
         y_pred = self.model.predict(X_features)
         y_true = y.argmax(-1) if y.ndim > 1 else y
         acc = accuracy_score(y_true, y_pred)
+
         if print_report:
             print(classification_report(y_true, y_pred, target_names=self.classes))
             print("Total accuracy Score : ", acc)
+
         return acc
 
 

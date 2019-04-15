@@ -22,7 +22,9 @@ keras_apps = {'vgg16'               : applications.vgg16.VGG16,
 
 
 def make_backbone(backbone_cnn, input_shape):
-    '''Check an existing backbone Model or grab ImageNet pretrained from keras_apps.'''
+    """
+    Check an existing backbone Model or grab ImageNet pre-trained from keras_apps.
+    """
     if backbone_cnn is None:
         return None
     elif isinstance(backbone_cnn, KerasModel):
@@ -40,12 +42,11 @@ def make_backbone(backbone_cnn, input_shape):
 
 
 def make_dense_layers(dense_layers, dropout=None):
-    '''Instantiate a series of Dense layers, optionally with Dropout.'''
+    """
+    Instantiate a series of Dense layers, optionally with Dropout.
+    """
     if len(dense_layers) == 0:
-        if dropout is not None:
-            return lambda x: Dropout(rate=dropout)(x)
-        else:
-            return lambda x: x
+        return lambda x: Dropout(rate=dropout)(x) if dropout else lambda x: x
     else:
         def dense_layers_fn(x):
             for N in dense_layers:
@@ -57,32 +58,40 @@ def make_dense_layers(dense_layers, dropout=None):
 
 
 def make_pooling_layer(pooling_name, **kwargs):
-    """Make a pooling layer with optional `conv1x1` reduction."""
+    """
+    Make a pooling layer with optional `conv1x1` reduction.
+    """
     name_tail = str(kwargs.pop('name', random.randint(0, 2**16)))
 
     conv1x1 = kwargs.pop('conv1x1', None)
-    if conv1x1 is not None:
+    if conv1x1:
         reducer_name = 'reduce_' + pooling_name + name_tail
         reducer = lambda x: Conv2D(conv1x1, (1,1), activation='relu', name=reducer_name)(x)
     else:
         reducer = lambda x: x
 
     pooler_name = pooling_name + '_' + name_tail
+
     if 'bilinear' in pooling_name.lower():
         pooler = lambda x: Lambda(bilinear_pooling, name=pooler_name)([x, x])
+
     elif 'encoding' in pooling_name.lower():
         pooler = lambda x: Encoding(**kwargs, name=pooler_name)(x)
+
     elif 'kernel' in pooling_name.lower():
         pooler = lambda x: KernelPooling(**kwargs, name=pooler_name)(x)
+
     else:
-        raise RuntimeWarning('Unrecognized `pooling_name`: {}`'.format(pooling_name))
+        raise RuntimeWarning(f'Unrecognized `pooling_name`: {pooling_name}`')
         pooler = lambda x: x
 
     return lambda x: pooler(reducer(x))
 
 
 def auxiliary_pooling(x, pooling_name, output_size=256, dropout=None, **kwargs):
-    """Aux. pooling branch with `output_size` dense features."""
+    """
+    Aux. pooling branch with `output_size` dense features.
+    """
     x = make_pooling_layer(pooling_name, **kwargs)(x)
     x = make_dense_layers([output_size], dropout=dropout)(x)
     return x

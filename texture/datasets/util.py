@@ -12,7 +12,9 @@ from math import floor
 ###+++++++++++++###
 
 def center_crop(img, side_length):
-    '''Resize short side to side_length, then square center crop.'''
+    """
+    Resize short side to side_length, then square center crop.
+    """
     if img.ndim == 2:
        img = color.gray2rgb(img)
     h, w, _ = img.shape
@@ -29,7 +31,9 @@ def center_crop(img, side_length):
     return r_img[h_offset:h_offset+side_length,w_offset:w_offset+side_length]
 
 def show_sample(dataset, split='train'):
-    '''Create figure with a random sample of 9 images from dataset.'''
+    """
+    Create figure with a random sample of 9 images from dataset.
+    """
     if not hasattr(dataset, 'X_train'):
         dataset.load_or_generate_data()
     if split == 'train':
@@ -60,7 +64,9 @@ def show_sample(dataset, split='train'):
 ###++++++++++++++###
 
 def common_file_prefix(path_list):
-    '''Common prefix substring of filenames in path_list.'''
+    """
+    Get common prefix substring of filenames in path_list.
+    """
     char_zip = zip(*[p.split('/')[-1] for p in path_list])
     chars = []
     for tup in char_zip:
@@ -70,11 +76,13 @@ def common_file_prefix(path_list):
             break
     return ''.join(chars)
 
+
 def filter_child_dirs(root_path, conditional='training'):
-    '''Return a list of paths to all subdirs satisfying `conditional`.
-    If `conditional` is a string, then converted to lambda returning
-    True for subdirs with dirname == `conditional`.
-    '''
+    """
+    Return a list of paths to all subdirs satisfying `conditional`.
+    If `conditional` is a string, then matches on subdirs w/ dirname == `conditional`.
+    """
     if isinstance(conditional, str):
         conditional = lambda p: p.split('/')[-1] == conditional
+
     return filter(conditional, [d[0] for d in os.walk(root_path)])
