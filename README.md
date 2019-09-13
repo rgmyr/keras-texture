@@ -1,6 +1,8 @@
 # keras-texture
 
-Implementations of several `tf.keras` layers, model classes, and other utilities that are useful in constructing  and training models for texture recognition and fine-grained classification problems. It is a **work in progress**.
+Implementations of several `tf.keras` layers, model classes, and other utilities that are useful in constructing  and training models for texture recognition and fine-grained classification problems. 
+
+~~It is a **work in progress**.~~ Actually, that's generous. I stopped developing this project awhile ago. I do intend to eventually come back and clean things up, but it will probably be most useful to you if you're willing to fork it and do a bit of hacking as necessary. Still, I hope it's a useful starting point and I will try to help with any sticking points if asked.
 
 Develop-mode installable with `pip install -e .` Root module of package is `texture`.
 
